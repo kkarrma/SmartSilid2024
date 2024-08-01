@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './LoginForm.css';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
+  // Hardcoded credentials for testing
   const TEST_CREDENTIALS = {
-    email: 'admin@gmail.com',
-    password: 'admin123'
+    email: 'user@example.com',
+    password: 'password123'
   };
 
   const handleSubmit = async (e) => {
@@ -25,7 +28,7 @@ function LoginForm() {
     // Simulate authentication with hardcoded credentials
     if (email === TEST_CREDENTIALS.email && password === TEST_CREDENTIALS.password) {
       alert('Login successful!');
-      //navigate('/home'); // Redirect to home page
+      navigate('/dashboard'); // Redirect to dashboard
     } else {
       alert('Invalid email or password');
     }

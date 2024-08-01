@@ -1,0 +1,112 @@
+:root {
+  --bg1: #00284f;
+  --bg2: red;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.dashboard-header,
+.dashboard-footer {
+  background: var(--bg1);
+  padding: 20px;
+  text-align: center;
+  color: white;
+  margin: 0;
+}
+
+.dashboard-header {
+  display: flex;
+}
+
+.left-head {
+  font-family:'Arial Narrow';
+  font-weight: lighter;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.head-logo {
+  font-size: 150%;
+}
+
+.head-atec span{
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 150%;
+}
+
+.right-head {
+  display: flex;
+  align-items: center; /* Centers items vertically */
+  justify-content: flex-end;
+}
+
+.prof-icon {
+  margin-right: 10px; /* Space between icon and name */
+}
+
+.prof-name {
+  display: flex;
+  align-items: center;
+}
+
+.drop {
+  
+}
+
+.dashboard-panels-wrapper {
+  display: flex;
+  flex-grow: 1;
+}
+
+.side-panel-L {
+  background-color: var(--bg2);
+  width: 200px; /* Adjust the width as needed */
+  padding: 20px;
+  text-align: center;
+  color: white;
+}
+
+.side-panel-R {
+  background-color: var(--bg2);
+  width: 200px; /* Adjust the width as needed */
+  padding: 20px;
+  text-align: center;
+  color: white;
+}
+
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 20px;
+  padding: 20px;
+  flex-grow: 1;
+}
+
+.panel {
+  background-color: #e9ecef;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
