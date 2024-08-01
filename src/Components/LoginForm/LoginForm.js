@@ -22,27 +22,15 @@ function LoginForm() {
 
     setLoading(true);
 
-    try {
-      const response = await fetch('https://your-api-endpoint/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        alert('Login successful!');
-        // Redirect or handle post-login logic here
-      } else {
-        alert('Invalid email or password');
-      }
-    } catch (error) {
-      alert(error);
-
-    } finally {
-      setLoading(false);
+    // Simulate authentication with hardcoded credentials
+    if (email === TEST_CREDENTIALS.email && password === TEST_CREDENTIALS.password) {
+      alert('Login successful!');
+      //navigate('/home'); // Redirect to home page
+    } else {
+      alert('Invalid email or password');
     }
+
+    setLoading(false);
   };
 
   return (
