@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './Dashboard.modules.css'; // Assuming you have a CSS file for styling
+import './Dashboard.css';
+import RoomSchedule from './RoomSchedule';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
@@ -9,15 +10,15 @@ function Dashboard() {
       case 'Dashboard':
         return (
           <>
-            <div class="dash-panels">
-              <div class="panel"></div>
-              <div class="panel"></div>
-              <div class="panel"></div>
+            <div className="dash-panels">
+              <div className="panel"></div>
+              <div className="panel"></div>
+              <div className="panel"></div>
             </div>
           </>
         );
       case 'Room Schedule':
-        return <div>Room Schedule Content</div>;
+        return <RoomSchedule />;
       case 'Logbook':
         return <div>Logbook Content</div>;
       case 'RFID Registration':
@@ -46,23 +47,28 @@ function Dashboard() {
       </div>
       <div className="dashboard-panels-wrapper">
         <div className="side-panel-L">
-          <div className="menu-panel dash" onClick={() => setSelectedMenu('Dashboard')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Dashboard' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Dashboard')}>
             <i className="fa-solid fa-house"></i>
             Dashboard
           </div>
-          <div className="menu-panel room" onClick={() => setSelectedMenu('Room Schedule')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Room Schedule')}>
             <i className="fa-solid fa-calendar-days"></i>
             Room Schedule
           </div>
-          <div className="menu-panel log" onClick={() => setSelectedMenu('Logbook')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Logbook' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Logbook')}>
             <i className="fa-solid fa-book-open"></i>
             Logbook
           </div>
-          <div className="menu-panel rfid" onClick={() => setSelectedMenu('RFID Registration')}>
+          <div className={`menu-panel dash ${selectedMenu === 'RFID Registration' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('RFID Registration')}>
             <i className="fa-brands fa-cc-diners-club"></i>
             RFID Registration
           </div>
-          <div className="menu-panel notif" onClick={() => setSelectedMenu('Notification')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Notification' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Notification')}>
             <i className="fa-solid fa-bell"></i>
             Notification
           </div>
@@ -75,12 +81,11 @@ function Dashboard() {
           Side Panel 2
         </div>
       </div>
-      <div className="dashboard-footer">
+      {/* <div className="dashboard-footer">
         Footer
-      </div>
+      </div> */}
     </div>
   );
-
 };
 
 export default Dashboard;

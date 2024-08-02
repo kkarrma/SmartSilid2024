@@ -33,6 +33,7 @@ function ResetPassword() {
 
   return (
     <div className="page-container">
+      <div className='logo'></div>
       <h2>Reset Password</h2>
       <form onSubmit={handleSubmit}>
         <div>
