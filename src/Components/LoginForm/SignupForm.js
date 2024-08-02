@@ -1,43 +1,40 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './LoginForm.css';
 
-function LoginForm() {
+function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validation
-    if (!email || !password) {
-      alert('Please fill in both fields');
+    if (!email || !password || !confirmPassword) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
       return;
     }
 
     setLoading(true);
 
-    // Simulate authentication with hardcoded credentials
-    const TEST_CREDENTIALS = {
-      email: 'user@example.com',
-      password: 'password123'
-    };
-
-    if (email === TEST_CREDENTIALS.email && password === TEST_CREDENTIALS.password) {
-      alert('Login successful!');
-      navigate('/dashboard'); // Redirect to home page
-    } else {
-      alert('Invalid email or password');
-    }
+    // Simulate signup logic here
+    // Assume signup is successful
+    alert('Signup successful!');
+    navigate('/');
 
     setLoading(false);
   };
 
   return (
     <div className="page-container">
-      <h2>Login</h2>
+      <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email:</label>
@@ -59,16 +56,22 @@ function LoginForm() {
             required
           />
         </div>
+        <div>
+          <label htmlFor="confirmPassword">Confirm Password:</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
         <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Signing up...' : 'Sign Up'}
         </button>
       </form>
-      <div className="links">
-        <Link to="/signup" className='link'>Sign Up</Link>
-        <Link to="/forgot-password" className='link'>Forgot Password?</Link>
-      </div>
     </div>
   );
 }
 
-export default LoginForm;
+export default SignupForm;

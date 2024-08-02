@@ -80,6 +80,7 @@ function Dashboard() {
       </div>
     </div>
   );
-}
+
+};
 
 export default Dashboard;

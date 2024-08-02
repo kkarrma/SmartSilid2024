@@ -1,6 +1,7 @@
 :root {
   --bg1: #00284f;
-  --bg2: red;
+  --bg2: #181616;
+  --bg3: #333333;
 }
 
 * {
@@ -96,7 +97,7 @@ body {
   width: 1000px; 
   padding: 20px;
   text-align: center;
-  color: white;
+  color: black;
 }
 
 .content-panel {
