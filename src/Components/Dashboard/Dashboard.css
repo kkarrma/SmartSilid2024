@@ -12,10 +12,10 @@
 body {
   margin: 0;
   padding: 0;
-  
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+  background: url('../Assets/bg.png') no-repeat center center fixed;
+  background-size: cover; 
 }
-
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -44,7 +44,10 @@ body {
 }
 
 .head-logo {
-  font-size: 150%;
+  width: 60px; /* Set the width of the div */
+  height: 60px; /* Set the height of the div */
+  background: url('../Assets/ateclogo.png') no-repeat center center;
+  background-size: contain; /* Ensure the image scales correctly */
 }
 
 .head-atec span{
@@ -57,7 +60,7 @@ body {
 .right-head {
   display: flex;
   align-items: center; /* Centers items vertically */
-  justify-content: flex-end;
+  justify-items: end;
 }
 
 .prof-icon {
@@ -69,37 +72,47 @@ body {
   align-items: center;
 }
 
-.drop {
-  
-}
 
 .dashboard-panels-wrapper {
   display: flex;
   flex-grow: 1;
+  margin: 10px;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.1); 
 }
 
 .side-panel-L {
-  background-color: var(--bg2);
-  width: 200px; /* Adjust the width as needed */
-  padding: 20px;
+  background-color: transparent;
+  width: 400px; 
   text-align: center;
   color: white;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
 }
 
 .side-panel-R {
-  background-color: var(--bg2);
-  width: 200px; /* Adjust the width as needed */
+  /* background-color: var(--bg2); */
+  width: 1000px; 
   padding: 20px;
   text-align: center;
   color: white;
 }
 
-.dashboard-panels {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  gap: 20px;
+.content-panel {
+  width: 100%;
   padding: 20px;
+}
+
+.sect {
+  padding: 10px;
+} 
+
+.dash-panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px;
   flex-grow: 1;
 }
 
@@ -107,6 +120,40 @@ body {
   background-color: #e9ecef;
   padding: 20px;
   text-align: center;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
+  border-radius: 40px;
+  max-width: 400px; 
+  background-color: rgb( 33, 41, 66 );
+  border-radius: 9px;
+  border-bottom: 200px solid #8BD17C;
+  width: 400px;
+  height: 400px;
+}
+
+.menu-panel i{
+  margin: 10px;
+  font-size: 20px;
+}
+
+.menu-panel {
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  color: black;
+  text-align: left;
+  transition: background-color 0.3s, box-shadow 0.3s;
+  cursor: pointer; 
+}
+
+.menu-panel:hover {
+  background-color: #b9daff; 
+  color: #00284f; 
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.menu-panel:active {
+  background-color: #b9daff; 
+  color: #00284f;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
