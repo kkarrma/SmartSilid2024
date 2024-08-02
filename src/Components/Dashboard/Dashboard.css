@@ -61,12 +61,7 @@ body {
 .right-head {
   display: flex;
   align-items: center; /* Centers items vertically */
-<<<<<<< HEAD
-  justify-content: flex-end;
-
-=======
   justify-items: end;
->>>>>>> d701a6335625924f9e7c9a0cfb50d7df876b84dc
 }
 
 .prof-icon {
@@ -78,12 +73,6 @@ body {
   align-items: center;
 }
 
-<<<<<<< HEAD
-.drop {
-  margin-left: 10px;
-}
-=======
->>>>>>> d701a6335625924f9e7c9a0cfb50d7df876b84dc
 
 .dashboard-panels-wrapper {
   display: flex;
@@ -94,14 +83,8 @@ body {
 }
 
 .side-panel-L {
-<<<<<<< HEAD
-  background-color: var(--bg2);
-  width: 100px; /* Adjust the width as needed */
-  padding: 20px;
-=======
   background-color: transparent;
   width: 400px; 
->>>>>>> d701a6335625924f9e7c9a0cfb50d7df876b84dc
   text-align: center;
   color: white;
   display: flex;
@@ -110,12 +93,8 @@ body {
 }
 
 .side-panel-R {
-<<<<<<< HEAD
-  width: 200px; /* Adjust the width as needed */
-=======
   /* background-color: var(--bg2); */
   width: 1000px; 
->>>>>>> d701a6335625924f9e7c9a0cfb50d7df876b84dc
   padding: 20px;
   text-align: center;
   color: black;
