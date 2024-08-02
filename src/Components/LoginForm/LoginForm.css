@@ -3,8 +3,7 @@
 body {
   font-family: 'Poppins', sans-serif;
   color: white;
-  background: rgb(2,0,36);
-background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 29%, rgba(19,122,143,1) 100%);
+  background: url('../Assets/bg.png') no-repeat center center fixed;
 }
 
 .page-container {
