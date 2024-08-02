@@ -1,6 +1,7 @@
 :root {
   --bg1: #00284f;
-  --bg2: red;
+  --bg2: #181616;
+  --bg3: #333333;
 }
 
 * {
@@ -58,6 +59,7 @@ body {
   display: flex;
   align-items: center; /* Centers items vertically */
   justify-content: flex-end;
+
 }
 
 .prof-icon {
@@ -70,7 +72,7 @@ body {
 }
 
 .drop {
-  
+  margin-left: 10px;
 }
 
 .dashboard-panels-wrapper {
@@ -80,18 +82,17 @@ body {
 
 .side-panel-L {
   background-color: var(--bg2);
-  width: 200px; /* Adjust the width as needed */
+  width: 100px; /* Adjust the width as needed */
   padding: 20px;
   text-align: center;
   color: white;
 }
 
 .side-panel-R {
-  background-color: var(--bg2);
   width: 200px; /* Adjust the width as needed */
   padding: 20px;
   text-align: center;
-  color: white;
+  color: black;
 }
 
 .dashboard-panels {
