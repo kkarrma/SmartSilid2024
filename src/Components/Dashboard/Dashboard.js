@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Dashboard.css'; // Assuming you have a CSS file for styling
+import './Dashboard.modules.css'; // Assuming you have a CSS file for styling
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');

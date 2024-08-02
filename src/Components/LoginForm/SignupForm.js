@@ -34,7 +34,8 @@ function SignupForm() {
 
   return (
     <div className="page-container">
-      <h2>Sign Up</h2>
+      <div className='logo'></div>
+      <h2>SmartSilid</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="email">Email:</label>

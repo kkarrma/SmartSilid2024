@@ -27,6 +27,7 @@ function ForgotPassword() {
 
   return (
     <div className="page-container">
+      <div className='logo'></div>
       <h2>Forgot Password</h2>
       <form onSubmit={handleSubmit}>
         <div>
