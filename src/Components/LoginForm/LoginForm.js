@@ -3,16 +3,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.modules.css';
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
+  const [username, setUser] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic validation
-    if (!email || !password) {
+    if (!username || !password) {
       alert('Please fill in both fields');
       return;
     }
@@ -21,12 +21,12 @@ function LoginForm() {
 
     // Simulate authentication with hardcoded credentials
     const TEST_CREDENTIALS = {
-      email: 'user@example.com',
+      username: 'admin',
       password: 'password123'
     };
 
-    if (email === TEST_CREDENTIALS.email && password === TEST_CREDENTIALS.password) {
-      alert('Login successful!');
+    if (username === TEST_CREDENTIALS.username && password === TEST_CREDENTIALS.password) {
+      // alert('Login successful!');
       navigate('/dashboard'); // Redirect to home page
     } else {
       alert('Invalid email or password');
@@ -41,12 +41,12 @@ function LoginForm() {
       <h2>SmartSilid</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="email">Email:</label>
+          <label htmlFor="username">Username:</label>
           <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUser(e.target.value)}
             required
           />
         </div>
