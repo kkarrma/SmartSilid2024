@@ -6,7 +6,7 @@ function LoginForm() {
   const [username, setUser] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,20 +19,47 @@ function LoginForm() {
 
     setLoading(true);
 
-    // Simulate authentication with hardcoded credentials
-    const TEST_CREDENTIALS = {
-      username: 'admin',
-      password: 'password123'
-    };
+    try {
+      const response = await fetch('http://192.168.10.118:8000/auth_user', { // Update URL as needed
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()  // Include the CSRF token
+        },
+        body: JSON.stringify({
+          username,
+          password
+        }),
+      });
 
-    if (username === TEST_CREDENTIALS.username && password === TEST_CREDENTIALS.password) {
-      // alert('Login successful!');
-      navigate('/dashboard'); // Redirect to home page
-    } else {
-      alert('Invalid email or password');
+      if (!response.ok) {
+        // Handle non-JSON responses
+        const text = await response.text();
+        console.error('Response text:', text);
+        alert(`Login failed: ${response.status} ${response.statusText}`);
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        alert(data.status_message);
+        navigate('/dashboard'); // Redirect to the dashboard or home page
+      } else {
+        alert(data.error_message);
+      }
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`An error occurred: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    setLoading(false);
+  // Function to get the CSRF token from a meta tag
+  const getCSRFToken = () => {
+    const tokenElement = document.querySelector('meta[name="csrf-token"]');
+    return tokenElement ? tokenElement.getAttribute('content') : '';
   };
 
   return (
