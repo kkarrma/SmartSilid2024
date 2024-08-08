@@ -1,5 +1,5 @@
 import React from 'react';
-import './Logbook.css';
+import './Logbook.module.css';
 
 function Logbook() {
   return (

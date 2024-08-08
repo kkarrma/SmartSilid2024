@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
-import RoomSchedule from './RoomRecord';
-import RoomSchedule from './RFIDRecord';
-import RoomSchedule from './Logbook';
-import RoomSchedule from './Notification';
+import RoomRecord from './RoomRecord';
+import RFIDRecord from './RFIDRecord';
+import Logbook from './Logbook';
+import Notification from './Notification';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
@@ -23,13 +23,13 @@ function Dashboard() {
       case 'Room Record':
         return <RoomRecord />;
       case 'Logbook':
-        return <div>Logbook Content</div>;
-      case 'RFID Registration':
-        return <div>RFID Record Content</div>;
+        return <Logbook />;
+      case 'RFID Record':
+        return <RFIDRecord />;
       case 'Notification':
-        return <div>Notification Content</div>;
+        return <Notification />;
       default:
-        return <div>Panel 1 Content</div>;
+        return <Dashboard />;
     }
   };
 
@@ -55,8 +55,8 @@ function Dashboard() {
             <i className="fa-solid fa-house"></i>
             Dashboard
           </div>
-          <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
-          onClick={() => setSelectedMenu('Room Schedule')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Room Record' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Room Record')}>
             <i className="fa-solid fa-calendar-days"></i>
             Room Schedule
           </div>
@@ -65,8 +65,8 @@ function Dashboard() {
             <i className="fa-solid fa-book-open"></i>
             Logbook
           </div>
-          <div className={`menu-panel dash ${selectedMenu === 'RFID Registration' ? 'selected' : ''}`} 
-          onClick={() => setSelectedMenu('RFID Registration')}>
+          <div className={`menu-panel dash ${selectedMenu === 'RFID Record' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('RFID Record')}>
             <i className="fa-brands fa-cc-diners-club"></i>
             RFID Registration
           </div>

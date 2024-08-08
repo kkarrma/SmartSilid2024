@@ -1,5 +1,5 @@
 import React from 'react';
-import './RoomRecord.css';
+import './RoomRecord.module.css';
 
 function RoomRecord() {
   return (
