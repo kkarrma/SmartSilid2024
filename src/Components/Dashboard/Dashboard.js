@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
-import RoomSchedule from './RoomSchedule';
+import RoomSchedule from './RoomRecord';
+import RoomSchedule from './RFIDRecord';
+import RoomSchedule from './Logbook';
+import RoomSchedule from './Notification';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
@@ -17,12 +20,12 @@ function Dashboard() {
             </div>
           </>
         );
-      case 'Room Schedule':
-        return <RoomSchedule />;
+      case 'Room Record':
+        return <RoomRecord />;
       case 'Logbook':
         return <div>Logbook Content</div>;
       case 'RFID Registration':
-        return <div>RFID Registration Content</div>;
+        return <div>RFID Record Content</div>;
       case 'Notification':
         return <div>Notification Content</div>;
       default:

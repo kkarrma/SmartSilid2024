@@ -1,7 +1,7 @@
 import React from 'react';
-import './RFIDRegisdstration.css';
+import './RFIDRecord.css';
 
-function RFIDRegisdstration() {
+function RFIDRecord() {
   return (
     <>
         <div>RFID Regisdstration Content</div>
@@ -9,4 +9,4 @@ function RFIDRegisdstration() {
   )
 }
 
-export default RFIDRegisdstration;
+export default RFIDRecord;
