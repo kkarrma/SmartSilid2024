@@ -1,6 +1,32 @@
+.log-table {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
 .add-comp-col {
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.flex-cont {
+    padding-top: 14px;
+}
+
+.log-in .flex-cont,
+.log-out .flex-cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 5px;
+}
+
+.log-table::-webkit-scrollbar {
+    height: 5px;
+}
+.log-table::-webkit-scrollbar-thumb {
+    background: var(--bg1);
+    border-radius: 10px;
 }

@@ -4,7 +4,7 @@ import './Logbook.css';
 function Logbook() {
   return (
     <>
-        <div>
+      <div class="log-table">
         <form>
           <table>
             <thead>
@@ -13,57 +13,39 @@ function Logbook() {
                 <th>Name</th>
                 <th>Login <br/> (hr : min)</th>
                 <th>Log out <br/> (hr : min)</th>
-                <th>Day</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="section">
+                <td class="pc#">
                   1
                 </td>
-                <td class="date">
+                <td class="name">
                   <input type="text" name="hr" placeholder="John Doe" />
                 </td>
-                <td class="hr-min">
+                <td class="log-in">
                   <div class="flex-cont">
                     <input type="text" name="hr" placeholder="10" />
                     <span> : </span>
                     <input type="text" name="min" placeholder="30" />
                     
                     <select name="Day">
-                      <option value="am">AM</option>
-                      <option value="pm">PM</option>
+                      <option class="login-day am" value="am">AM</option>
+                      <option class="login-day pm" value="pm">PM</option>
                     </select>
                   </div>
                 </td>
-                <td class="hr-min">
+                <td class="log-out">
                   <div class="flex-cont">
                     <input type="text" name="hr" placeholder="10" />
                     <span> : </span>
                     <input type="text" name="min" placeholder="30" />
                     
                     <select name="Day">
-                      <option value="am">AM</option>
-                      <option value="pm">PM</option>
+                      <option class="logout-day am" value="am">AM</option>
+                      <option class="logout-day pm" value="pm">PM</option>
                     </select>
                   </div>
-                </td>
-                <td class="action">
-                  <button type="button" class="del-btn" onclick="deleteRecord()">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr class="add-row">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="td-add">
-                  <button type="button" class="add-comp-col" onclick="addComp()">
-                  Add Schedule &nbsp; <i class="fa-regular fa-calendar-plus"></i>
-                  </button>
                 </td>
               </tr>
             </tbody>

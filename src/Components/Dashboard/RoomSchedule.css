@@ -1,3 +1,8 @@
+.sched-table {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
 .hr-min .flex-cont {
     display: flex;
     align-items: center;
@@ -40,4 +45,12 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+}
+
+.sched-table::-webkit-scrollbar {
+    height: 5px;
+}
+.sched-table::-webkit-scrollbar-thumb {
+    background: var(--bg1);
+    border-radius: 10px;
 }

@@ -63,7 +63,7 @@ function RoomSchedule() {
                 <td></td>
                 <td></td>
                 <td></td>
-                <td class="td-add" colspan="3">
+                <td class="td-add">
                   <button type="button" class="add-sched-btn" onclick="addSched()">
                   Add Schedule &nbsp; <i class="fa-regular fa-calendar-plus"></i>
                   </button>

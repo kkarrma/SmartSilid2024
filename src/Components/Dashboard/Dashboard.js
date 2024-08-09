@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
+import DashboardContent from './DashboardContent';
 import RoomSchedule from './RoomSchedule';
 import RFIDRecord from './RFIDRecord';
 import Logbook from './Logbook';
+import WebFilter from './WebFilter';
 import Notification from './Notification';
 // import CalendarComponent from './CalendarComponent';
 
@@ -12,21 +14,15 @@ function Dashboard() {
   const renderContent = () => {
     switch (selectedMenu) {
       case 'Dashboard':
-        return (
-          <>
-            <div className="dash-panels">
-              <div className="panel"></div>
-              <div className="panel"></div>
-              <div className="panel"></div>
-            </div>
-          </>
-        );
+        return <DashboardContent />;
       case 'Room Schedule':
         return <RoomSchedule />;
       case 'Logbook':
         return <Logbook />;
       case 'RFID Record':
         return <RFIDRecord />;
+      case 'Web Filter':
+        return <WebFilter />;
       case 'Notification':
         return <Notification />;
       default:
@@ -80,6 +76,11 @@ function Dashboard() {
             <i className="fa-brands fa-cc-diners-club"></i>
             RFID Record
           </div>
+          <div className={`menu-panel dash ${selectedMenu === 'Web Filter' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Web Filter')}>
+            <i class="fa-solid fa-list-check"></i>
+            Web Filter
+          </div>
           <div className={`menu-panel dash ${selectedMenu === 'Notification' ? 'selected' : ''}`} 
           onClick={() => setSelectedMenu('Notification')}>
             <i className="fa-solid fa-bell"></i>
@@ -95,7 +96,7 @@ function Dashboard() {
 {/* RIGHT SIDE PANEL */}
 
         <div className="side-panel-R">
-        {/* <CalendarComponent /> */}
+          {/* <CalendarComponent /> */}
         </div>
       </div>
       {/* <div className="dashboard-footer">
