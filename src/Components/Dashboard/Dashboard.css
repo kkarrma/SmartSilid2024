@@ -99,11 +99,12 @@ body {
 }
 
 .side-panel-R {
-  /* background-color: var(--bg2); */
+  background-color: #b9daff;
   width: 1000px; 
   padding: 20px;
   text-align: center;
   color: black;
+  border-radius: 0 25px 25px 0;
 }
 
 .bread {
@@ -174,7 +175,7 @@ body {
 
 /* SCROLLBAR */
 .content-panel::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
 
 .content-panel::-webkit-scrollbar-thumb {

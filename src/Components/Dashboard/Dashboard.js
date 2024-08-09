@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
-import RoomRecord from './RoomRecord';
+import RoomSchedule from './RoomSchedule';
 import RFIDRecord from './RFIDRecord';
 import Logbook from './Logbook';
 import Notification from './Notification';
+// import CalendarComponent from './CalendarComponent';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
@@ -20,8 +21,8 @@ function Dashboard() {
             </div>
           </>
         );
-      case 'Room Record':
-        return <RoomRecord />;
+      case 'Room Schedule':
+        return <RoomSchedule />;
       case 'Logbook':
         return <Logbook />;
       case 'RFID Record':
@@ -35,6 +36,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
+
+{/* HEADER */}
+
       <div className="dashboard-header">
         <div className="left-head">
           <div className="head-logo"></div>
@@ -48,15 +52,21 @@ function Dashboard() {
           <div className="drop"><i className="fa-solid fa-angle-right"></i></div>
         </div>
       </div>
+
+{/* DASH BODY */}
+
       <div className="dashboard-panels-wrapper">
+
+{/* LEFT SIDE PANEL */}
+
         <div className="side-panel-L">
           <div className={`menu-panel dash ${selectedMenu === 'Dashboard' ? 'selected' : ''}`} 
           onClick={() => setSelectedMenu('Dashboard')}>
             <i className="fa-solid fa-house"></i>
             Dashboard
           </div>
-          <div className={`menu-panel dash ${selectedMenu === 'Room Record' ? 'selected' : ''}`} 
-          onClick={() => setSelectedMenu('Room Record')}>
+          <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
+          onClick={() => setSelectedMenu('Room Schedule')}>
             <i className="fa-solid fa-calendar-days"></i>
             Room Schedule
           </div>
@@ -68,7 +78,7 @@ function Dashboard() {
           <div className={`menu-panel dash ${selectedMenu === 'RFID Record' ? 'selected' : ''}`} 
           onClick={() => setSelectedMenu('RFID Record')}>
             <i className="fa-brands fa-cc-diners-club"></i>
-            RFID Registration
+            RFID Record
           </div>
           <div className={`menu-panel dash ${selectedMenu === 'Notification' ? 'selected' : ''}`} 
           onClick={() => setSelectedMenu('Notification')}>
@@ -80,8 +90,12 @@ function Dashboard() {
           <div className="sect bread">{selectedMenu}</div>
           {renderContent()}
         </div>
+
+
+{/* RIGHT SIDE PANEL */}
+
         <div className="side-panel-R">
-          Side Panel 2
+        {/* <CalendarComponent /> */}
         </div>
       </div>
       {/* <div className="dashboard-footer">

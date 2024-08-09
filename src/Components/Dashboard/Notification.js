@@ -1,5 +1,5 @@
 import React from 'react';
-import './Notification.module.css';
+import './Notification.css';
 
 function Notification() {
   return (

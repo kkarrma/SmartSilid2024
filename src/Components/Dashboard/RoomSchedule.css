@@ -1,0 +1,43 @@
+.hr-min .flex-cont {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 5px;
+}
+
+.hr-min input {
+    width: 50px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.day {
+    padding: 10px 50px;
+}
+
+.add-row {
+    text-align: center;
+}
+
+.add-sched-btn {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    transition: 0.2s ease-in-out;
+    padding: 10px 13px;
+}
+
+.add-sched-btn:hover{
+    background-color: transparent;
+    border-color: var(--bg1);
+    color: var(--bg1);
+}
+
+.td-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}

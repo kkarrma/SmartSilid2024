@@ -1,0 +1,79 @@
+:root {
+    --bg1: #00284f;
+    --bg2: #181616;
+    --bg3: #333333;
+    --col1: #c21313;
+    --col2: #650909;
+  }
+
+.rfid-table {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: center;
+    padding: 10px;
+}
+
+th {
+    background-color: #b9daff;
+    color: var(--bg2);
+}
+
+select {
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    font-size: 1em;
+}
+option {
+    color: var(--bg2);
+}
+
+.action {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.action button {
+    padding: 5px 10px;
+    /* border: none; */
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.2s ease-in-out;
+}
+
+.del-btn {
+    background-color: transparent;
+    border: 2px solid var(--col1);
+    border-collapse: collapse;
+    color: var(--col1);
+    transition: 0.2s ease-in-out;
+}
+
+.del-btn:hover {
+    background-color: transparent;
+    border-color: var(--col2);
+    color: var(--col2);
+}
+
+.action button:hover {
+    opacity: 0.8;
+}
+
+.rfid-table::-webkit-scrollbar {
+    height: 5px;
+}
+.rfid-table::-webkit-scrollbar-thumb {
+    background: var(--bg1);
+    border-radius: 10px;
+}
