@@ -21,6 +21,10 @@
     justify-content: center;
     text-align: center;
     gap: 5px;
+
+    input {
+        width: 50px;
+    }
 }
 
 .log-table::-webkit-scrollbar {

@@ -1,4 +1,8 @@
 .web-table {
     overflow-x: auto;
     overflow-y: hidden;
+
+    input {
+        width: 100%;
+    }
 }

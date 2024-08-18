@@ -92,7 +92,10 @@ function Dashboard() {
             <option
               key={pc}
               value={pc}
-              style={{ color: pcStates[pc].isOn ? 'green' : 'black' }}
+              style={{ 
+                color: pcStates[pc].isOn ? 'green' : 'black', 
+                fontWeight:  pcStates[pc].isOn ? 'bold' : 'lighter'
+              }}
             >
               PC {pc}
             </option>

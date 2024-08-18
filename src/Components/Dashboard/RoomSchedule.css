@@ -32,6 +32,7 @@
     border: 2px solid white;
     transition: 0.2s ease-in-out;
     padding: 10px 13px;
+    width: 100%;
 }
 
 .add-sched-btn:hover{

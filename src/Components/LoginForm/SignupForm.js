@@ -81,55 +81,70 @@ function SignupForm() {
       <div className='logo'></div>
       <h2>SmartSilid</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="firstname">First Name:</label>
-          <input
-            type="text"
-            id="firstname"
-            value={first_name}
-            onChange={(e) => setFirstname(e.target.value)}
-            required
-          />
+        <div class="name-div">
+          <div>
+            <label htmlFor="firstname">First Name:</label>
+            <input
+              type="text"
+              id="firstname"
+              value={first_name}
+              onChange={(e) => setFirstname(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="middlename">Middle Initial:</label>
+            <input
+              type="text"
+              id="middlename"
+              value={middle_initial}
+              onChange={(e) => setMiddlename(e.target.value)}
+            />
+          </div>  
+          <div>
+            <label htmlFor="lastname">Last Name:</label>
+            <input
+              type="text"
+              id="lastname"
+              value={last_name}
+              onChange={(e) => setLastname(e.target.value)}
+              required
+            />
+          </div>  
         </div>
-        <div>
-          <label htmlFor="middlename">Middle Initial:</label>
-          <input
-            type="text"
-            id="middlename"
-            value={middle_initial}
-            onChange={(e) => setMiddlename(e.target.value)}
-          />
+        <div class="creds-div">
+          <div>
+            <label htmlFor="username">Username:</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          {/* <div>
+            <label htmlFor="ou">User Type:</label>
+            <select
+              id="ou"
+              value={OU}
+              onChange={(e) => setOU(e.target.value)}
+            >
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+            </select>
+          </div> */}
+          <div>
+            <label htmlFor="ou">Section:</label>
+            <input
+              type="text"
+              id="ou"
+              value={OU}
+              onChange={(e) => setOU(e.target.value)}
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="lastname">Last Name:</label>
-          <input
-            type="text"
-            id="lastname"
-            value={last_name}
-            onChange={(e) => setLastname(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="ou">Section:</label>
-          <input
-            type="text"
-            id="ou"
-            value={OU}
-            onChange={(e) => setOU(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
+        <div class="password-div">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
@@ -139,7 +154,7 @@ function SignupForm() {
             required
           />
         </div>
-        <div>
+        <div class='password-div'>
           <label htmlFor="confirmPassword">Confirm Password:</label>
           <input
             type="password"

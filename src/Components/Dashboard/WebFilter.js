@@ -12,7 +12,7 @@ function WebFilter() {
           <table>
             <thead>
               <tr>
-                <th>White List URL</th>
+                <th>URL White List</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -46,7 +46,7 @@ function WebFilter() {
           <table>
             <thead>
               <tr>
-                <th>Black List URL</th>
+                <th>URL Black List</th>
                 <th>Action</th>
               </tr>
             </thead>

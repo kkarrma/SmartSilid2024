@@ -45,7 +45,7 @@ function LoginForm() {
         alert(data.status_message);
         navigate('/dashboard'); // Redirect to the dashboard or home page
       } else {
-        alert(data.error_message);
+        alert(data.status_message);
       }
 
     } catch (error) {
@@ -67,7 +67,7 @@ function LoginForm() {
       <div className='logo'></div>
       <h2>SmartSilid</h2>
       <form onSubmit={handleSubmit}>
-        <div>
+        <div class="username-div">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -77,7 +77,7 @@ function LoginForm() {
             required
           />
         </div>
-        <div>
+        <div class="password-div">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
@@ -87,12 +87,15 @@ function LoginForm() {
             required
           />
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+        <div class="btn-div">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+          
+          <Link to="/signup" className='link'>Sign Up</Link>
+        </div>
       </form>
       <div className="links">
-        <Link to="/signup" className='link'>Sign Up</Link>
         <Link to="/forgot-password" className='link'>Forgot Password?</Link>
       </div>
     </div>
