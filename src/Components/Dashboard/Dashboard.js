@@ -44,8 +44,6 @@ function Dashboard() {
     switch (selectedMenu) {
       case 'Room Schedule':
         return <div>Room Schedule Sidebar Content</div>;
-      case 'Logbook':
-        return <div>Logbook Sidebar Content</div>;
       case 'RFID Record':
         return <div>RFID Record Sidebar Content</div>;
       case 'Notification':
@@ -132,7 +130,6 @@ function Dashboard() {
 
         {/* CONTENT PANEL */}
         <div className="content-panel">
-          <div className="sect bread">{selectedMenu}</div>
           {renderContent()}
         </div>
 

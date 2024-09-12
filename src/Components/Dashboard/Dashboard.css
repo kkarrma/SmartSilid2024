@@ -9,6 +9,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-size: 98%;
 }
 
 body {
@@ -81,9 +82,9 @@ body {
 .dashboard-panels-wrapper {
   display: flex;
   flex-grow: 1;
-  margin: 10px;
   border-radius: 25px;
   background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .side-panel-L {
@@ -143,10 +144,11 @@ body {
 
 .content-panel {
   width: 100%;
-  height: 80vh; /* Adjust the height as needed */
+  height: 100%; 
   padding: 20px;
   overflow-y: auto;
   overflow-x: hidden;
+  /* background-color: #b9daff; */
 }
 
 .sect {

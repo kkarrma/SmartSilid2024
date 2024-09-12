@@ -1,21 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './DashboardContent.css';
 
 function Dashboard() {
-  const pcs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Example list of PCs
-  const [pcStates, setPcStates] = useState(
-    pcs.reduce((acc, pc) => ({ ...acc, [pc]: { isOn: false, isChecked: false } }), {})
-  );
+  const [pcs, setPcs] = useState([]);
+  const [pcStates, setPcStates] = useState({});
   const [selectAll, setSelectAll] = useState(false);
   const [selectedPCs, setSelectedPCs] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
-  const handleTogglePC = (pc) => {
-    setPcStates((prevState) => ({
-      ...prevState,
-      [pc]: { ...prevState[pc], isOn: !prevState[pc].isOn },
-    }));
+  useEffect(() => {
+    fetchComputers();
+  }, []);
+
+  const fetchComputers = async () => {
+    try {
+      const response = await fetch('http://192.168.10.112:8000/get_all_computers');
+      if (response.ok) {
+        const data = await response.json();
+        const fetchedPCs = data.computers.map(pc => pc.computer_name);
+        setPcs(fetchedPCs);
+        setPcStates(fetchedPCs.reduce((acc, pc) => ({ ...acc, [pc]: { isOn: false, isChecked: false } }), {}));
+      } else {
+        console.error('Failed to fetch computers');
+      }
+    } catch (error) {
+      console.error('Error fetching computers:', error);
+    }
   };
+
+  const shutdownPC = async (pcList) => {
+    try {
+      await fetch('http://192.168.10.112:8000/shutdown_computers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ computers: pcList }),
+      });
+    } catch (error) {
+      console.error('Failed to shutdown computers:', error);
+    }
+  };
+
+  const wakenPC = async (pcList) => {
+    try {
+      await fetch('http://192.168.10.112:8000/wake_computers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ computers: pcList }),
+      });
+    } catch (error) {
+      console.error('Failed to wake computers:', error);
+    }
+  };
+
+  // const handleTogglePC = (pc) => {
+  //   setPcStates((prevState) => ({
+  //     ...prevState,
+  //     [pc]: { ...prevState[pc], isOn: !prevState[pc].isOn },
+  //   }));
+  // };
 
   const handleCheckBoxChange = (pc) => {
     const isChecked = !pcStates[pc].isChecked;
@@ -52,7 +98,7 @@ function Dashboard() {
   };
 
   const handleSelectPC = (event) => {
-    const selectedPC = parseInt(event.target.value, 10);
+    const selectedPC = event.target.value;
     if (!selectedPCs.includes(selectedPC)) {
       setSelectedPCs([...selectedPCs, selectedPC]);
       setInputValue([...selectedPCs, selectedPC].join(', '));
@@ -66,8 +112,8 @@ function Dashboard() {
     setInputValue(event.target.value);
     const pcsArray = event.target.value
       .split(',')
-      .map(pc => parseInt(pc.trim(), 10))
-      .filter(pc => !isNaN(pc));
+      .map(pc => pc.trim())
+      .filter(pc => pcs.includes(pc));
     setSelectedPCs(pcsArray);
   };
 
@@ -81,23 +127,43 @@ function Dashboard() {
         { ...prevState }
       )
     );
+
+    // Trigger the appropriate server request
+    if (turnOn) {
+      wakenPC(selectedPCs);
+    } else {
+      shutdownPC(selectedPCs);
+    }
+  };
+
+  const handleRowTogglePC = (pc, turnOn) => {
+    setPcStates((prevState) => ({
+      ...prevState,
+      [pc]: { ...prevState[pc], isOn: turnOn },
+    }));
+
+    if (turnOn) {
+      wakenPC([pc]);
+    } else {
+      shutdownPC([pc]);
+    }
   };
 
   return (
     <>
       <div className="controls-row">
-        <select onChange={handleSelectPC}>
+        <select onChange={handleSelectPC} value="">
           <option value="">Select a PC</option>
           {pcs.map((pc) => (
             <option
               key={pc}
               value={pc}
               style={{ 
-                color: pcStates[pc].isOn ? 'green' : 'black', 
-                fontWeight:  pcStates[pc].isOn ? 'bold' : 'lighter'
+                color: pcStates[pc]?.isOn ? 'green' : 'black', 
+                fontWeight: pcStates[pc]?.isOn ? 'bold' : 'lighter'
               }}
             >
-              PC {pc}
+              {pc}
             </option>
           ))}
         </select>
@@ -133,7 +199,7 @@ function Dashboard() {
                     onChange={handleSelectAll}
                   />
                 </th>
-                <th>PC#</th>
+                <th>PC Name</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -143,7 +209,7 @@ function Dashboard() {
                   <td className="checkbox-cell">
                     <input
                       type="checkbox"
-                      checked={pcStates[pc].isChecked}
+                      checked={pcStates[pc]?.isChecked}
                       onChange={() => handleCheckBoxChange(pc)}
                     />
                   </td>
@@ -151,19 +217,19 @@ function Dashboard() {
                   <td className="action">
                     <button
                       type="button"
-                      className={`on-btn ${pcStates[pc].isOn ? 'disabled' : ''}`}
-                      onClick={() => handleTogglePC(pc)}
-                      disabled={pcStates[pc].isOn}
+                      className={`on-btn ${pcStates[pc]?.isOn ? 'disabled' : ''}`}
+                      onClick={() => handleRowTogglePC(pc, true)}
+                      disabled={pcStates[pc]?.isOn}
                     >
-                      <i class="fa-solid fa-person-military-pointing"></i>
+                      <i className="fa-solid fa-person-military-pointing"></i>
                     </button>
                     <button
                       type="button"
-                      className={`off-btn ${!pcStates[pc].isOn ? 'disabled' : ''}`}
-                      onClick={() => handleTogglePC(pc)}
-                      disabled={!pcStates[pc].isOn}
+                      className={`off-btn ${!pcStates[pc]?.isOn ? 'disabled' : ''}`}
+                      onClick={() => handleRowTogglePC(pc, false)}
+                      disabled={!pcStates[pc]?.isOn}
                     >
-                      <i class="fa-solid fa-person-military-rifle"></i>
+                      <i className="fa-solid fa-person-military-rifle"></i>
                     </button>
                   </td>
                 </tr>

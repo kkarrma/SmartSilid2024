@@ -112,7 +112,8 @@
 }
 
 .section-btn {
-    width: 150px;
+    min-width: 150px;
+    width: 100%;
     border: none;
     font-weight: bold;
     background-color: transparent;
