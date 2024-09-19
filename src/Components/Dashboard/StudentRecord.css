@@ -52,10 +52,10 @@
     
         select {
             background-color: white;
-            padding: 8px 30px;
+            padding: 6px 30px;
             border-radius: 6px;
             color: black;
-            font-size: .85em; 
+            font-size: 1.15em; 
         }
     }
 
