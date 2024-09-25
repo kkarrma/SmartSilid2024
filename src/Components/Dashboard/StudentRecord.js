@@ -335,6 +335,12 @@
         
         
         const handleChangePassword = async (student, newPassword) => {
+            console.log('Attempting to change password for student:', student);
+            console.log('New password:', newPassword);
+            
+            const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`; // Format the username
+            console.log('Username being sent to server:', username); // Log the formatted username
+
             if (newPassword !== confirmPassword) {
                 alert('Passwords do not match');
                 return;
@@ -348,7 +354,7 @@
                         'X-CSRFToken': getCSRFToken(),
                     },
                     body: JSON.stringify({
-                        username: student.username,
+                        username: username,
                         new_password: newPassword,
                     }),
                 });

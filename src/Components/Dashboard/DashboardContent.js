@@ -221,7 +221,8 @@ function Dashboard() {
                       onClick={() => handleRowTogglePC(pc, true)}
                       disabled={pcStates[pc]?.isOn}
                     >
-                      <i className="fa-solid fa-person-military-pointing"></i>
+                      {/* <i className="fa-solid fa-person-military-pointing"></i> */}
+                      ON
                     </button>
                     <button
                       type="button"
@@ -229,7 +230,8 @@ function Dashboard() {
                       onClick={() => handleRowTogglePC(pc, false)}
                       disabled={!pcStates[pc]?.isOn}
                     >
-                      <i className="fa-solid fa-person-military-rifle"></i>
+                      {/* <i className="fa-solid fa-person-military-rifle"></i> */}
+                      OFF
                     </button>
                   </td>
                 </tr>
