@@ -12,7 +12,8 @@ function Logbook() {
   const [availableComputers, setAvailableComputers] = useState([]);
 
   useEffect(() => {
-    fetchLogs();
+    fetchStudentLogs();
+    // fetchFacultyLogs();
     fetchComputers();
   }, [pagination]);
 
@@ -31,12 +32,12 @@ function Logbook() {
     }
   };
 
-  const fetchLogs = async () => {
+  const fetchStudentLogs = async () => {
     try {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : '';
       const formattedEndDate = end_date ? new Date(end_date).toISOString().split('T')[0] : '';
 
-      const response = await fetch('http://192.168.10.112:8000/get_logs', {
+      const response = await fetch('http://192.168.10.112:8000/get_logs_student', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,9 +65,43 @@ function Logbook() {
     }
   };
 
+  // const fetchFacultyLogs = async () => {
+  //   try {
+  //     const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : '';
+  //     const formattedEndDate = end_date ? new Date(end_date).toISOString().split('T')[0] : '';
+
+  //     const response = await fetch('http://192.168.10.112:8000/get_logs_faculty', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         start_date: formattedStartDate,
+  //         end_date: formattedEndDate,
+  //         username,
+  //         computer_name,
+  //         pagination,
+  //       }),
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log('Fetched logs:', data);
+  //       console.log('Pagination length:', data.pagination_length); // Log the pagination_length
+  //       setLogs(Array.isArray(data.logs) ? data.logs : []);
+  //       setTotalPages(data.pagination_length); // Set totalPages based on the API response
+  //     } else {
+  //       console.error('Failed to fetch logs');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching logs:', error);
+  //   }
+  // };
+
   const handleFilter = () => {
     setPagination(1);
-    fetchLogs();
+    fetchStudentLogs();
+    // fetchFacultyLogs();
   };
 
   const handleClearFilters = () => {

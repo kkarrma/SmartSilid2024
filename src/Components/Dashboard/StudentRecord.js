@@ -155,7 +155,7 @@
             setLoading(true);
 
             try {
-                const response = await fetch('http://192.168.10.112:8000/create_user', {
+                const response = await fetch('http://192.168.10.112:8000/create_student', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -240,6 +240,11 @@
 
                 setNewSectionName('');
                 setIsAddingSection(false);
+                setFirstname('')
+                setMiddlename('')
+                setLastname('')
+                setPassword('')
+                setConfirmPassword('')
             }
         };
 
@@ -295,8 +300,8 @@
             console.log('Attempting to move section for student:', student);
             console.log('New section:', newSection);
             
-            const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`; // Format the username
-            console.log('Username being sent to server:', username); // Log the formatted username
+            const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`; 
+            console.log('Username being sent to server:', username);
         
             try {
                 const response = await fetch('http://192.168.10.112:8000/move_section', {
@@ -306,7 +311,7 @@
                         'X-CSRFToken': getCSRFToken(),
                     },
                     body: JSON.stringify({
-                        username: username, // Use the formatted username
+                        username: username,
                         new_section: newSection,
                     }),
                 });

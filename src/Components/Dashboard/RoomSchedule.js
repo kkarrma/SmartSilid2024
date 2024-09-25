@@ -1,80 +1,104 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './RoomSchedule.css';
 
 function RoomSchedule() {
+  const [subject, setSubject] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+
+  // hourly
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+
+  const [days, setDays] = useState('');
+  const [newDays, setNewDays] = useState('');
+
+  const [section, setSection] = useState('')
+  const [newSection, setNewSection] = useState('')
+
+  const [schedFormVisible, setSchedFormVisible] = useState(false);
+  const [editFormVisible, setEditFormVisible] = useState(false)
+  
+  const handleAddSubject = async () => {
+  }
+  
+  const handleEditSubject = async () => {
+  }
+
+  const handleDeleteSubject = async () => {
+  }
+
+
+
+
   return (
     <>
-      <div class="sched-table">
-        <form>
+      <div className="subj-form">
+        {editFormVisible ? (
+          <div className="new-subj-form">
+            <input
+              className="subj-input"
+              type="text"
+              value={setNewSubject}
+              onChange={(e) => setNewSubject(e.target.value)}
+              placeholder="Enter a subject"
+            />
+            <button className="confirm-btn" onClick={handleAddSubject}>
+              Confirm
+            </button>
+            <button className="cancel-btn" onClick={() => setEditFormVisible(false)}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button className="add-url-btn" onClick={() => setEditFormVisible(true)}>
+            <i className="fa-solid fa-plus"></i> Add Subject
+          </button>
+        )}
+      </div>
+
+      <div className="subj-table">
+        <form className="subj-list">
           <table>
             <thead>
               <tr>
-                <th>Section</th>
-                <th>Date</th>
-                <th>Hours | Minutes</th>
+                <th>Subject</th>
                 <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="section">
-                  <select name="Date">
-                    <option value="Section1">Section 1</option>
-                    <option value="Section2">Section 2</option>
-                    <option value="Section3">Section 3</option>
-                    <option value="Section4">Section 4</option>
-                    <option value="Section5">Section 5</option>
-                    <option value="Section6">Section 6</option>
-                  </select>
-                </td>
-                <td class="date">
-                  <select name="Date">
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                  </select>
-                </td>
-                <td class="hr-min">
-                  <div class="flex-cont">
-                    <input type="text" name="hr" placeholder="10" />
-                    <span> : </span>
-                    <input type="text" name="min" placeholder="30" />
-                  </div>
-                </td>
-                <td class="day">
-                  <select name="Day">
-                    <option value="am">AM</option>
-                    <option value="pm">PM</option>
-                  </select>
-                </td>
-                <td class="action">
-                  <button type="submit" class="add-rec-btn" onclick="addRecord()">Add</button>
-                  <button type="button" class="del-btn" onclick="deleteRecord()">
-                    <i class="fa-solid fa-trash"></i>
-                  </button>
-                </td>
-              </tr>
-              <tr class="add-row">
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td class="td-add">
-                  <button type="button" class="add-sched-btn" onclick="addSched()">
-                  Add Schedule &nbsp; <i class="fa-regular fa-calendar-plus"></i>
-                  </button>
-                </td>
-              </tr>
+              {subject.length === 0 ? (
+                <tr>
+                  <td colSpan="2">No subjects found</td>
+                </tr>
+              ) : (
+                subject.map((subs, index) => (
+                  <tr key={index}>
+                    <td className="sub">{subs}</td>
+                    <td className="day">{subs.days}</td>
+                    <td className="start-time">{subs.startTime}</td>
+                    <td className="end-time">{subs.endTime}</td>
+                    <td className="action">
+                      {!editFormVisible && (
+                        <button type="button" onClick={() => handleEditSubject(subs)}>
+                          Edit
+                        </button>
+                      )}
+                      <button type="button" className="del-btn" onClick={() => handleDeleteSubject(subs)}>
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </form>
       </div>
     </>
-  )
+  );
 }
 
 export default RoomSchedule;

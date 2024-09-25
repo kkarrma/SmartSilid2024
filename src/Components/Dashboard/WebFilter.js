@@ -10,13 +10,23 @@ function WebFilter() {
     try {
       const response = await fetch('http://192.168.10.112:8000/get_url_block');
       if (!response.ok) throw new Error('Failed to fetch URLs');
+      
       const data = await response.json();
-      setBlockedURLs(data); // Assuming the response is an array of URLs
+      
+      // Ensure that 'data.url' is an array and set it to the state
+      if (Array.isArray(data.url)) {
+        setBlockedURLs(data.url); // Access the 'url' array inside the object
+        console.log('Updated URL list:', data.url); // Log the updated URLs
+      } else {
+        console.error('Invalid data format: expected an array in "url" field, received:', data);
+        setBlockedURLs([]); // Set an empty array if the data format is invalid
+      }
     } catch (error) {
       console.error('Error fetching URLs:', error);
       alert('Failed to load blocked URLs. Please try again.');
+      setBlockedURLs([]); // Ensure blockedURLs is still an array even on error
     }
-  };
+  };   
 
   const handleAddURL = async () => {
     const confirmAdd = window.confirm(`Are you sure you want to add ${newBlockURL}?`);
@@ -29,10 +39,10 @@ function WebFilter() {
         body: JSON.stringify({ url: newBlockURL }),
       });
       if (!response.ok) throw new Error('Failed to add URL');
-
-      setBlockedURLs((prev) => [...prev, newBlockURL]); // Update state with the new URL
-      setNewBlockURL(''); // Clear the input
+      
+      setNewBlockURL('');
       setUrlFormVisible(false);
+      fetchURLs(); // Fetch the updated list after adding the URL
     } catch (error) {
       console.error('Error adding URL:', error);
       alert('Failed to add URL. Please try again.');
@@ -51,12 +61,12 @@ function WebFilter() {
       });
       if (!response.ok) throw new Error('Failed to delete URL');
 
-      setBlockedURLs((prev) => prev.filter((blockedURL) => blockedURL !== url)); // Update state
+      fetchURLs(); // Fetch the updated list after deleting the URL
     } catch (error) {
       console.error('Error deleting URL:', error);
       alert('Failed to delete URL. Please try again.');
     }
-  };
+  };  
 
   useEffect(() => {
     fetchURLs();
@@ -105,7 +115,7 @@ function WebFilter() {
               ) : (
                 blockedURLs.map((url, index) => (
                   <tr key={index}>
-                    <td className="last-name">{url}</td>
+                    <td className="url">{url}</td>
                     <td className="action">
                       <button type="button" className="del-btn" onClick={() => handleDeleteURL(url)}>
                         <i className="fa-solid fa-trash"></i>

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './Dashboard.css';
 import DashboardContent from './DashboardContent';
+import Casting from './Casting';
 import RoomSchedule from './RoomSchedule';
 import Logbook from './Logbook';
-import RFIDRecord from './RFIDRecord';
 import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
+import RFIDRecord from './RFIDRecord';
 import WebFilter from './WebFilter';
 import Notification from './Notification';
 
@@ -21,6 +22,8 @@ function Dashboard() {
     switch (selectedMenu) {
       case 'Dashboard':
         return <DashboardContent />;
+      case 'Casting':
+        return <Casting />;
       case 'Room Schedule':
         return <RoomSchedule />;
       case 'Logbook':
@@ -77,8 +80,14 @@ function Dashboard() {
         <div className="side-panel-L">
           <div className={`menu-panel dash ${selectedMenu === 'Dashboard' ? 'selected' : ''}`} 
             onClick={() => setSelectedMenu('Dashboard')}>
-            <i className="fa-solid fa-house"></i>
+            {/* <i className="fa-solid fa-house"></i> */}
+            <i class="fa-solid fa-network-wired"></i>
             Dashboard
+          </div>
+          <div className={`menu-panel dash ${selectedMenu === 'Casting' ? 'selected' : ''}`} 
+            onClick={() => setSelectedMenu('Casting')}>
+            <i class="fa-solid fa-computer"></i>
+            Casting
           </div>
           <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
             onClick={() => setSelectedMenu('Room Schedule')}>
