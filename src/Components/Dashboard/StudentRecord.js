@@ -193,6 +193,13 @@
                     setStudents((prevStudents) => sortStudents([...prevStudents, newStudent]));
                 }
                 setFormVisible(false);
+                setEditFormVisible(false)
+                setPassword('');
+                setConfirmPassword('');
+                setFirstname('');
+                setMiddlename('');
+                setLastname('');
+                setSection('');
             } catch (error) {
                 console.error('Error:', error);
                 alert(`An error occurred: ${error.message}`);
@@ -237,7 +244,6 @@
                 } catch (error) {
                     console.error('Error adding section:', error);
                 }
-
                 setNewSectionName('');
                 setIsAddingSection(false);
                 setFirstname('')
@@ -330,12 +336,11 @@
                     console.error('Failed to move student:', text);
                     alert(`Failed to move student: ${response.status} ${response.statusText}`);
                 }
+                setEditFormVisible(false);
             } catch (error) {
                 console.error('Error moving student:', error);
                 alert(`An error occurred: ${error.message}`);
             }
-        
-            setEditFormVisible(false);
         };
         
         

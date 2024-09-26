@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import './Logbook.css';
+import './ComputerLogs.css';
 
-function Logbook() {
+function ComputerLogs() {
   const [logs, setLogs] = useState([]);
   const [pagination, setPagination] = useState(1);
   const [totalPages, setTotalPages] = useState(1); 
@@ -40,15 +40,15 @@ function Logbook() {
       const response = await fetch('http://192.168.10.112:8000/get_logs_student', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           start_date: formattedStartDate,
           end_date: formattedEndDate,
           username,
           computer_name,
-          pagination,
-        }),
+          pagination
+        })
       });
 
       if (response.ok) {
@@ -223,4 +223,4 @@ function Logbook() {
   );
 }
 
-export default Logbook;
+export default ComputerLogs;

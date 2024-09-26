@@ -3,7 +3,8 @@ import './Dashboard.css';
 import DashboardContent from './DashboardContent';
 import Casting from './Casting';
 import RoomSchedule from './RoomSchedule';
-import Logbook from './Logbook';
+import ComputerLogs from './ComputerLogs';
+import RFIDLogs from './RFIDLogs';
 import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
 import RFIDRecord from './RFIDRecord';
@@ -13,9 +14,14 @@ import Notification from './Notification';
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState('Dashboard');
   const [isUserRecordOpen, setIsUserRecordOpen] = useState(false);
+  const [isLogbookOpen, setIsLogbookOpen] = useState(false);
 
   const toggleUserRecord = () => {
     setIsUserRecordOpen(!isUserRecordOpen);
+  };
+
+  const toggleLogbook = () => {
+    setIsLogbookOpen(!isLogbookOpen);
   };
 
   const renderContent = () => {
@@ -26,8 +32,10 @@ function Dashboard() {
         return <Casting />;
       case 'Room Schedule':
         return <RoomSchedule />;
-      case 'Logbook':
-        return <Logbook />;
+      case 'Computer Logs':
+        return <ComputerLogs />;
+      case 'RFID Logs':
+        return <RFIDLogs />;
       case 'RFID Record':
         return <RFIDRecord />;
       case 'Student Record':
@@ -94,11 +102,28 @@ function Dashboard() {
             <i className="fa-solid fa-calendar-days"></i>
             Room Schedule
           </div>
-          <div className={`menu-panel dash ${selectedMenu === 'Logbook' ? 'selected' : ''}`} 
-            onClick={() => setSelectedMenu('Logbook')}>
-            <i className="fa-solid fa-book-open"></i>
+          <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
+          <i className="fa-solid fa-book-open"></i>
             Logbook
+            <i className={`fa-solid ${isLogbookOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
           </div>
+          {isLogbookOpen && (
+            <div className="submenu">
+              <div className={`menu-panel dash ${selectedMenu === 'Computer Logs' ? 'selected' : ''}`} 
+                onClick={() => setSelectedMenu('Computer Logs')}>
+                &nbsp;&nbsp;
+                <i class="fa-solid fa-desktop"></i>
+                Computer Logs
+              </div>
+              <div className={`menu-panel dash ${selectedMenu === 'RFID Logs' ? 'selected' : ''}`} 
+                onClick={() => setSelectedMenu('RFID Logs')}>
+                &nbsp;&nbsp;
+                <i class="fa-regular fa-credit-card"></i> 
+                RFID Logs
+              </div>
+            </div>
+          )}
+
           <div className={`menu-panel dash ${isUserRecordOpen ? 'open' : ''}`} onClick={toggleUserRecord}>
             <i className="fa-solid fa-user"></i>
             User Record
