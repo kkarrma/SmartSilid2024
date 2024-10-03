@@ -18,10 +18,16 @@ function Dashboard() {
 
   const toggleUserRecord = () => {
     setIsUserRecordOpen(!isUserRecordOpen);
+    if (!isUserRecordOpen) {
+      setIsLogbookOpen(false); // Close logbook only if user record is being opened
+    }
   };
 
   const toggleLogbook = () => {
     setIsLogbookOpen(!isLogbookOpen);
+    if (!isLogbookOpen) {
+      setIsUserRecordOpen(false); // Close user record only if logbook is being opened
+    }
   };
 
   const renderContent = () => {
