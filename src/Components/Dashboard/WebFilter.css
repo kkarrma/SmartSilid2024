@@ -1,8 +1,52 @@
-.web-table {
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    input {
-        width: 100%;
-    }
+.web-filter {
+  .urlBlock-form {
+    margin: 20px;
+  }
+  
+  .new-section-form {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .sect-input {
+    padding: 10px;
+    width: 300px;
+    margin-right: 10px;
+  }
+  
+  .confirm-btn, .cancel-btn {
+    padding: 8px 16px;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .add-url-btn {
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+  
+  .web-table {
+    margin-top: 20px;
+  }
+  
+  .black-list table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .black-list th, .black-list td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .del-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+  }
 }
+  

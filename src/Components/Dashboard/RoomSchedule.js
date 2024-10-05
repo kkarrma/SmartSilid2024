@@ -166,21 +166,101 @@ function RoomSchedule() {
 
   return (
     <>
-      <div className="subj-form">
-        {schedFormVisible ? (
-          <div className="new-subj-form">
+      <div className='room-schedule'>
+        <div className="subj-form cont">
+          {schedFormVisible ? (
+            <div className="new-subj-form">
+              <input
+                className="subj-input"
+                type="text"
+                value={newSubject}
+                onChange={(e) => setNewSubject(e.target.value)}
+                placeholder="Enter a subject"
+                required
+              />
+              <select
+                className="day-select"
+                value={newDay}
+                onChange={(e) => setNewDay(e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a day</option>
+                <option value="M">Monday</option>
+                <option value="T">Tuesday</option>
+                <option value="W">Wednesday</option>
+                <option value="R">Thursday</option>
+                <option value="F">Friday</option>
+                <option value="S">Saturday</option>
+                <option value="U">Sunday</option>
+              </select>
+              <input
+                className="start-time-input"
+                type="time"
+                value={start_time}
+                onChange={(e) => setStartTime(e.target.value)}
+                required
+              />
+              <input
+                className="end-time-input"
+                type="time"
+                value={end_time}
+                onChange={(e) => setEndTime(e.target.value)}
+                required
+              />
+              <select
+                className="faculty-select"
+                value={faculty}
+                onChange={(e) => setFaculty(e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a faculty</option>
+                {facultyList.map(faculty => (
+                  <option key={faculty.username} value={faculty.username}>
+                    {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="section-select"
+                value={selectedSection}
+                onChange={(e) => setSelectedSection(e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a section</option>
+                {sections.map(section => (
+                  <option key={section} value={section}>
+                    {section}
+                  </option>
+                ))}
+              </select>
+              <button className="confirm-btn" onClick={handleAddSchedule}>
+                Confirm
+              </button>
+              <button className="cancel-btn" onClick={resetForm}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className="add-url-btn" onClick={() => setSchedFormVisible(true)}>
+              <i className="fa-solid fa-plus"></i> Add Schedule
+            </button>
+          )}
+        </div>
+
+        {editFormVisible && editSchedule && (
+          <div className="edit-subj-form cont">
             <input
               className="subj-input"
               type="text"
-              value={newSubject}
-              onChange={(e) => setNewSubject(e.target.value)}
+              value={editSchedule.subject}
+              onChange={(e) => setEditSchedule({ ...editSchedule, subject: e.target.value })}
               placeholder="Enter a subject"
               required
             />
             <select
               className="day-select"
-              value={newDay}
-              onChange={(e) => setNewDay(e.target.value)}
+              value={editSchedule.weekdays}
+              onChange={(e) => setEditSchedule({ ...editSchedule, weekdays: e.target.value })}
               required
             >
               <option value="" disabled>Select a day</option>
@@ -195,21 +275,21 @@ function RoomSchedule() {
             <input
               className="start-time-input"
               type="time"
-              value={start_time}
-              onChange={(e) => setStartTime(e.target.value)}
+              value={editSchedule.start_time}
+              onChange={(e) => setEditSchedule({ ...editSchedule, start_time: e.target.value })}
               required
             />
             <input
               className="end-time-input"
               type="time"
-              value={end_time}
-              onChange={(e) => setEndTime(e.target.value)}
+              value={editSchedule.end_time}
+              onChange={(e) => setEditSchedule({ ...editSchedule, end_time: e.target.value })}
               required
             />
             <select
               className="faculty-select"
-              value={faculty}
-              onChange={(e) => setFaculty(e.target.value)}
+              value={editSchedule.faculty_name}
+              onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
               required
             >
               <option value="" disabled>Select a faculty</option>
@@ -221,8 +301,8 @@ function RoomSchedule() {
             </select>
             <select
               className="section-select"
-              value={selectedSection}
-              onChange={(e) => setSelectedSection(e.target.value)}
+              value={editSchedule.section}
+              onChange={(e) => setEditSchedule({ ...editSchedule, section: e.target.value })}
               required
             >
               <option value="" disabled>Select a section</option>
@@ -232,134 +312,56 @@ function RoomSchedule() {
                 </option>
               ))}
             </select>
-            <button className="confirm-btn" onClick={handleAddSchedule}>
-              Confirm
+            <button className="update-btn" onClick={handleEditSched}>
+              Update
             </button>
-            <button className="cancel-btn" onClick={resetForm}>
+            <button className="cancel-btn" onClick={() => setEditFormVisible(false)}>
               Cancel
             </button>
           </div>
-        ) : (
-          <button className="add-url-btn" onClick={() => setSchedFormVisible(true)}>
-            <i className="fa-solid fa-plus"></i> Add Schedule
-          </button>
         )}
-      </div>
 
-      {editFormVisible && editSchedule && (
-        <div className="edit-subj-form">
-          <input
-            className="subj-input"
-            type="text"
-            value={editSchedule.subject}
-            onChange={(e) => setEditSchedule({ ...editSchedule, subject: e.target.value })}
-            placeholder="Enter a subject"
-            required
-          />
-          <select
-            className="day-select"
-            value={editSchedule.weekdays}
-            onChange={(e) => setEditSchedule({ ...editSchedule, weekdays: e.target.value })}
-            required
-          >
-            <option value="" disabled>Select a day</option>
-            <option value="M">Monday</option>
-            <option value="T">Tuesday</option>
-            <option value="W">Wednesday</option>
-            <option value="R">Thursday</option>
-            <option value="F">Friday</option>
-            <option value="S">Saturday</option>
-            <option value="U">Sunday</option>
-          </select>
-          <input
-            className="start-time-input"
-            type="time"
-            value={editSchedule.start_time}
-            onChange={(e) => setEditSchedule({ ...editSchedule, start_time: e.target.value })}
-            required
-          />
-          <input
-            className="end-time-input"
-            type="time"
-            value={editSchedule.end_time}
-            onChange={(e) => setEditSchedule({ ...editSchedule, end_time: e.target.value })}
-            required
-          />
-          <select
-            className="faculty-select"
-            value={editSchedule.faculty_name}
-            onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
-            required
-          >
-            <option value="" disabled>Select a faculty</option>
-            {facultyList.map(faculty => (
-              <option key={faculty.username} value={faculty.username}>
-                {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
-              </option>
-            ))}
-          </select>
-          <select
-            className="section-select"
-            value={editSchedule.section}
-            onChange={(e) => setEditSchedule({ ...editSchedule, section: e.target.value })}
-            required
-          >
-            <option value="" disabled>Select a section</option>
-            {sections.map(section => (
-              <option key={section} value={section}>
-                {section}
-              </option>
-            ))}
-          </select>
-          <button className="update-btn" onClick={handleEditSched}>
-            Update
-          </button>
-          <button className="cancel-btn" onClick={() => setEditFormVisible(false)}>
-            Cancel
-          </button>
-        </div>
-      )}
-
-      <div className="subj-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Faculty</th>
-              <th>Section</th>
-              <th>Subject</th>
-              <th>Day</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {schedules.length === 0 ? (
+        <div className="subj-table cont">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="6">No schedules found</td>
+                <th>Faculty</th>
+                <th>Section</th>
+                <th>Subject</th>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Action</th>
               </tr>
-            ) : (
-              schedules.map((schedule) => (
-                <tr key={schedule.id}>
-                  <td className="faculty">{schedule.faculty}</td>
-                  <td className="faculty">{schedule.section}</td>
-                  <td className="sub">{schedule.subject}</td>
-                  <td className="day">{weekdayMap[schedule.weekdays]}</td>
-                  <td className="start-time">{formatTime(schedule.start_time)}</td>
-                  <td className="end-time">{formatTime(schedule.end_time)}</td>
-                  <td className="action">
-                    <button type="button" className="edit-btn" onClick={() => handleEditForm(schedule)}>
-                      Edit
-                    </button>
-                    <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
-                      <i className="fa-solid fa-trash"></i>
-                    </button>
-                  </td>
+            </thead>
+            <tbody>
+              {schedules.length === 0 ? (
+                <tr>
+                  <td colSpan="6">No schedules found</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                schedules.map((schedule) => (
+                  <tr key={schedule.id}>
+                    <td className="faculty">{schedule.faculty}</td>
+                    <td className="faculty">{schedule.section}</td>
+                    <td className="sub">{schedule.subject}</td>
+                    <td className="day">{weekdayMap[schedule.weekdays]}</td>
+                    <td className="start-time">{formatTime(schedule.start_time)}</td>
+                    <td className="end-time">{formatTime(schedule.end_time)}</td>
+                    <td className="action">
+                      <button type="button" className="edit-btn" onClick={() => handleEditForm(schedule)}>
+                        Edit
+                      </button>
+                      <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

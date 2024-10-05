@@ -182,138 +182,140 @@ function FacultyRecord() {
 
   return (
     <>
-      {!addFormVisible && (
-        <button onClick={() => setAddFormVisible(true)}>Add Faculty</button>
-      )}
+      <div className='faculty-record'>
+        {!addFormVisible && (
+          <button onClick={() => setAddFormVisible(true)}>Add Faculty</button>
+        )}
 
-      {addFormVisible && (
-        <form className="faculty-form">
-          <input
-            type="text"
-            placeholder="First Name"
-            value={first_name}
-            onChange={(e) => setFirstname(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Middle Initial"
-            value={middle_initial}
-            onChange={(e) => setMiddleinitial(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Last Name"
-            value={last_name}
-            onChange={(e) => setLastname(e.target.value)}
-            required
-          />
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            required
-          >
-            <option value="">Choose user type</option>
-            <option value="admin">Admin</option>
-            <option value="faculty">Faculty</option>
-          </select>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirm_password}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-          <button type="button" onClick={handleAddFaculty} disabled={loading}>
-            {loading ? 'Adding...' : 'Add Faculty'}
-          </button>
-          <button type="button" onClick={handleCancelBtn}>Cancel</button>
-          {errorMessage && <p className="error-message">{errorMessage}</p>}
-        </form>
-      )}
+        {addFormVisible && (
+          <form className="faculty-form">
+            <input
+              type="text"
+              placeholder="First Name"
+              value={first_name}
+              onChange={(e) => setFirstname(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Middle Initial"
+              value={middle_initial}
+              onChange={(e) => setMiddleinitial(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Last Name"
+              value={last_name}
+              onChange={(e) => setLastname(e.target.value)}
+              required
+            />
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              required
+            >
+              <option value="">Choose user type</option>
+              <option value="admin">Admin</option>
+              <option value="faculty">Faculty</option>
+            </select>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirm_password}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            <button type="button" onClick={handleAddFaculty} disabled={loading}>
+              {loading ? 'Adding...' : 'Add Faculty'}
+            </button>
+            <button type="button" onClick={handleCancelBtn}>Cancel</button>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+          </form>
+        )}
 
-      <div className="faculty-list">
-        {Array.isArray(facultyData) && facultyData.length > 0 ? (
-          facultyData.map((faculty, index) => (
-            <div key={index} className="faculty-item">
-              <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                <span>{expandedIndex === index ? '-' : '+'}</span>
-                <strong>{`${faculty.username}`}</strong>
-                <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                  <button onClick={() => handleDeleteFaculty(faculty.username)}>
-                    <i className="fa-solid fa-trash-can"></i>
-                  </button>
+        <div className="faculty-list">
+          {Array.isArray(facultyData) && facultyData.length > 0 ? (
+            facultyData.map((faculty, index) => (
+              <div key={index} className="faculty-item">
+                <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
+                  <span>{expandedIndex === index ? '-' : '+'}</span>
+                  <strong>{`${faculty.username}`}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                    <button onClick={() => handleDeleteFaculty(faculty.username)}>
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
                 </div>
+                {expandedIndex === index && (
+                  <div className="faculty-details">
+                    <ul>
+                      {faculty.rfid && faculty.rfid.length > 0 ? (
+                        faculty.rfid.map((rfid, rfidIndex) => (
+                          <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                            {rfid}
+                            <button 
+                              style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                              onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)}
+                            >
+                              -
+                            </button>
+                          </li>
+                        ))
+                      ) : (
+                        <li>No RFID allocated</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
-              {expandedIndex === index && (
-                <div className="faculty-details">
-                  <ul>
-                    {faculty.rfid && faculty.rfid.length > 0 ? (
-                      faculty.rfid.map((rfid, rfidIndex) => (
-                        <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
-                          {rfid}
-                          <button 
-                            style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                            onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)}
-                          >
-                            -
-                          </button>
-                        </li>
-                      ))
-                    ) : (
-                      <li>No RFID allocated</li>
-                    )}
-                  </ul>
-                </div>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No faculty records found.</p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p>No faculty records found.</p>
+          )}
+        </div>
 
-      <div className="rfid-list" style={{ display: 'flex', flexDirection: 'column' }}>
-        <h3>Available RFIDs</h3>
-        {availableRfids.length > 0 ? (
-          availableRfids.map((rfid, index) => (
-            <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ marginLeft: '8px' }}>{rfid}</span>
-              <select 
-                value={rfidBindings[rfid] || 'none'} 
-                onChange={(e) => setRfidBindings({ ...rfidBindings, [rfid]: e.target.value })}
-              >
-                <option value="none">None</option>
-                {facultyData.map((faculty, facultyIndex) => (
-                  <option key={facultyIndex} value={faculty.username}>
-                    {`${faculty.first_name} ${faculty.last_name}`}
-                  </option>
-                ))}
-              </select>
-              <button 
-                style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                onClick={() => handleBindRFID(rfidBindings[rfid], rfid)} // Pass the selected username and RFID
-              >
-                Add
-              </button>
-              <button 
-                style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                onClick={() => handleDeleteRFID(rfid)}
-              >
-                <i className="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No available RFIDs.</p>
-        )}
+        <div className="rfid-list" style={{ display: 'flex', flexDirection: 'column' }}>
+          <h3>Available RFIDs</h3>
+          {availableRfids.length > 0 ? (
+            availableRfids.map((rfid, index) => (
+              <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ marginLeft: '8px' }}>{rfid}</span>
+                <select 
+                  value={rfidBindings[rfid] || 'none'} 
+                  onChange={(e) => setRfidBindings({ ...rfidBindings, [rfid]: e.target.value })}
+                >
+                  <option value="none">None</option>
+                  {facultyData.map((faculty, facultyIndex) => (
+                    <option key={facultyIndex} value={faculty.username}>
+                      {`${faculty.first_name} ${faculty.last_name}`}
+                    </option>
+                  ))}
+                </select>
+                <button 
+                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                  onClick={() => handleBindRFID(rfidBindings[rfid], rfid)} // Pass the selected username and RFID
+                >
+                  Add
+                </button>
+                <button 
+                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                  onClick={() => handleDeleteRFID(rfid)}
+                >
+                  <i className="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No available RFIDs.</p>
+          )}
+        </div>
       </div>
     </>
   );

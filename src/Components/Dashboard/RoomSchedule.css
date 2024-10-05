@@ -1,57 +1,59 @@
-.sched-table {
-    overflow-x: auto;
-    overflow-y: hidden;
-}
+.room-schedule {
+    .sched-table {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+    
+    .hr-min .flex-cont {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 5px;
+    }
+    
+    .hr-min input {
+        width: 50px;
+        text-align: center;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .day {
+        padding: 10px 50px;
+    }
 
-.hr-min .flex-cont {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 5px;
-}
+    .add-row {
+        text-align: center;
+    }
 
-.hr-min input {
-    width: 50px;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-}
+    .add-sched-btn {
+        background-color: transparent;
+        color: white;
+        border: 2px solid white;
+        transition: 0.2s ease-in-out;
+        padding: 10px 13px;
+        width: 100%;
+    }
 
-.day {
-    padding: 10px 50px;
-}
+    .add-sched-btn:hover{
+        background-color: transparent;
+        border-color: var(--bg1);
+        color: var(--bg1);
+    }
 
-.add-row {
-    text-align: center;
-}
+    .td-add {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
 
-.add-sched-btn {
-    background-color: transparent;
-    color: white;
-    border: 2px solid white;
-    transition: 0.2s ease-in-out;
-    padding: 10px 13px;
-    width: 100%;
-}
-
-.add-sched-btn:hover{
-    background-color: transparent;
-    border-color: var(--bg1);
-    color: var(--bg1);
-}
-
-.td-add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.sched-table::-webkit-scrollbar {
-    height: 5px;
-}
-.sched-table::-webkit-scrollbar-thumb {
-    background: var(--bg1);
-    border-radius: 10px;
+    .sched-table::-webkit-scrollbar {
+        height: 5px;
+    }
+    .sched-table::-webkit-scrollbar-thumb {
+        background: var(--bg1);
+        border-radius: 10px;
+    }
 }

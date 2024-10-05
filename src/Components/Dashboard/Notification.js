@@ -4,7 +4,7 @@ import './Notification.css';
 function Notification() {
   return (
     <>
-        <div>Notification Content</div>
+        <div className='notification'>Notification Content</div>
     </>
   )
   

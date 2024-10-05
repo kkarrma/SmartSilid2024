@@ -74,59 +74,61 @@ function WebFilter() {
 
   return (
     <>
-      <div className="urlBlock-form">
-        {urlFormVisible ? (
-          <div className="new-section-form">
-            <input
-              className="sect-input"
-              type="text"
-              value={newBlockURL}
-              onChange={(e) => setNewBlockURL(e.target.value)}
-              placeholder="https://www.sample.com/"
-            />
-            <button className="confirm-btn" onClick={handleAddURL}>
-              Confirm
+      <div className='web-filter'>
+        <div className="urlBlock-form">
+          {urlFormVisible ? (
+            <div className="new-section-form">
+              <input
+                className="sect-input"
+                type="text"
+                value={newBlockURL}
+                onChange={(e) => setNewBlockURL(e.target.value)}
+                placeholder="https://www.sample.com/"
+              />
+              <button className="confirm-btn" onClick={handleAddURL}>
+                Confirm
+              </button>
+              <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button className="add-url-btn" onClick={() => setUrlFormVisible(true)}>
+              <i className="fa-solid fa-plus"></i> Add URL
             </button>
-            <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <button className="add-url-btn" onClick={() => setUrlFormVisible(true)}>
-            <i className="fa-solid fa-plus"></i> Add URL
-          </button>
-        )}
-      </div>
+          )}
+        </div>
 
-      <div className="web-table">
-        <form className="black-list">
-          <table>
-            <thead>
-              <tr>
-                <th>URL Black List</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {blockedURLs.length === 0 ? (
+        <div className="web-table">
+          <form className="black-list">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="2">No blocked URLs found</td>
+                  <th>URL Black List</th>
+                  <th>Action</th>
                 </tr>
-              ) : (
-                blockedURLs.map((url, index) => (
-                  <tr key={index}>
-                    <td className="url">{url}</td>
-                    <td className="action">
-                      <button type="button" className="del-btn" onClick={() => handleDeleteURL(url)}>
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </td>
+              </thead>
+              <tbody>
+                {blockedURLs.length === 0 ? (
+                  <tr>
+                    <td colSpan="2">No blocked URLs found</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </form>
+                ) : (
+                  blockedURLs.map((url, index) => (
+                    <tr key={index}>
+                      <td className="url">{url}</td>
+                      <td className="action">
+                        <button type="button" className="del-btn" onClick={() => handleDeleteURL(url)}>
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </form>
+        </div>
       </div>
     </>
   );

@@ -87,101 +87,103 @@ function RFIDLogs() {
 
   return (
     <>
-      <div className="filter-controls">
-        <input
-          type="date"
-          value={start_date}
-          onChange={e => setStartDate(e.target.value)}
-        />
-        <input
-          type="date"
-          value={end_date}
-          onChange={e => setEndDate(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Faculty Name"
-          value={facultyName}
-          onChange={e => setFacultyName(e.target.value)}
-        />
-        <input
-          type="text"
-          placeholder="Subject"
-          value={subject}
-          onChange={e => setSubject(e.target.value)}
-        />
-        <select
-          value={section}
-          onChange={e => setSection(e.target.value)}
-        >
-          <option value="">Select Section</option>
-          {availableSections.map(section => (
-            <option key={section} value={section}>{section}</option>
-          ))}
-        </select>
-        <button type="button" onClick={handleFilter}>Filter</button>
-        <button type="button" onClick={handleClearFilters}>Clear</button>
-      </div>
+      <div className='rfid-logs'>
+        <div className="filter-controls">
+          <input
+            type="date"
+            value={start_date}
+            onChange={e => setStartDate(e.target.value)}
+          />
+          <input
+            type="date"
+            value={end_date}
+            onChange={e => setEndDate(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Faculty Name"
+            value={facultyName}
+            onChange={e => setFacultyName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Subject"
+            value={subject}
+            onChange={e => setSubject(e.target.value)}
+          />
+          <select
+            value={section}
+            onChange={e => setSection(e.target.value)}
+          >
+            <option value="">Select Section</option>
+            {availableSections.map(section => (
+              <option key={section} value={section}>{section}</option>
+            ))}
+          </select>
+          <button type="button" onClick={handleFilter}>Filter</button>
+          <button type="button" onClick={handleClearFilters}>Clear</button>
+        </div>
 
-      <div className="log-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Faculty Name</th>
-              <th>Attempt</th>
-              <th>Subject</th>
-              <th>Section</th>
-              <th>Log Date</th>
-              <th>Login</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
-              sortedLogs.map((log, index) => (
-                <tr key={index}>
-                  <td className="faculty-name">{log.faculty_name}</td>
-                  <td className="attempt">{log.attempt}</td>
-                  <td className="subject">{log.subject}</td>
-                  <td className="section">{log.section}</td>
-                  <td className="log-date">{log.date}</td>
-                  <td className="log-in">{log.start_time}</td>
-                </tr>
-              ))
-            ) : (
+        <div className="log-table">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="6">No logs available</td>
+                <th>Faculty Name</th>
+                <th>Attempt</th>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Log Date</th>
+                <th>Login</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
+                sortedLogs.map((log, index) => (
+                  <tr key={index}>
+                    <td className="faculty-name">{log.faculty_name}</td>
+                    <td className="attempt">{log.attempt}</td>
+                    <td className="subject">{log.subject}</td>
+                    <td className="section">{log.section}</td>
+                    <td className="log-date">{log.date}</td>
+                    <td className="log-in">{log.start_time}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6">No logs available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <div className="pagination-controls">
-        <button 
-          onClick={() => setPagination(1)} 
-          disabled={pagination === 1}
-        >
-          First
-        </button>
-        <button 
-          onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
-          disabled={pagination === 1}
-        >
-          <i className="fa-solid fa-angle-left"></i>
-        </button>
-        <span>{pagination} of {totalPages}</span>
-        <button 
-          onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
-          disabled={pagination === totalPages}
-        >
-          <i className="fa-solid fa-angle-right"></i>
-        </button>
-        <button 
-          onClick={() => setPagination(totalPages)} 
-          disabled={pagination === totalPages}
-        >
-          Last
-        </button>
+        <div className="pagination-controls">
+          <button 
+            onClick={() => setPagination(1)} 
+            disabled={pagination === 1}
+          >
+            First
+          </button>
+          <button 
+            onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
+            disabled={pagination === 1}
+          >
+            <i className="fa-solid fa-angle-left"></i>
+          </button>
+          <span>{pagination} of {totalPages}</span>
+          <button 
+            onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
+            disabled={pagination === totalPages}
+          >
+            <i className="fa-solid fa-angle-right"></i>
+          </button>
+          <button 
+            onClick={() => setPagination(totalPages)} 
+            disabled={pagination === totalPages}
+          >
+            Last
+          </button>
+        </div>
       </div>
     </>
   );

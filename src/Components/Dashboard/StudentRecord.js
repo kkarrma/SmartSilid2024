@@ -386,275 +386,277 @@
 
         return (
             <>
-                <div className="section-form">
-                    {isAddingSection ? (
-                        <div className="new-section-form">
-                            <input
-                                className="sect-input"
-                                type="text"
-                                value={newSectionName}
-                                onChange={handleNewSectionChange}
-                                placeholder="Enter section name"
-                            />
-                            <button className="confirm-btn" onClick={handleAddSection}>
-                                Confirm
-                            </button>
-                            <button className="cancel-btn" onClick={handleCancelAddSection}>
-                                Cancel
-                            </button>
-                        </div>
-                    ) : (
-                        <button className="add-section-btn" onClick={() => setIsAddingSection(true)}>
-                            <i className="fa-solid fa-plus"></i> Section
-                        </button>
-                    )}
-                    <div className="sections-container">
-                        {sections.length === 0 ? (
-                            <p>No sections available</p>
-                        ) : (
-                            sections.map((sec, index) => (
-                                <div key={index} className="section-item">
-                                    <button
-                                        className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
-                                        onClick={() => handleSectionClick(sec)}
-                                    >
-                                        {sec}
-                                        {selectedSection === sec && (
-                                            <button
-                                                className="remove-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemoveSection(sec);
-                                                }}
-                                            >
-                                                <i className="fa-solid fa-minus"></i>
-                                            </button>
-                                        )}
-                                    </button>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-
-                {selectedSection ? (
-                    <>
-                        <div className="student-form">
-                            {formVisible && (
-                                <form onSubmit={handleSubmit}>
-                                    <div className="name-div">
-                                        <div>
-                                            <label htmlFor="firstname">First Name: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="firstname"
-                                                value={first_name}
-                                                onChange={(e) => setFirstname(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="middlename">Middle Initial: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="middlename"
-                                                value={middle_initial}
-                                                onChange={(e) => setMiddlename(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="lastname">Last Name: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="lastname"
-                                                value={last_name}
-                                                onChange={(e) => setLastname(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="creds-div">
-                                        <input type="hidden" id="type" />
-                                        <div>
-                                            <label htmlFor="section">Section: <span>*</span></label>
-                                            <select
-                                            id="section"
-                                            value={section || selectedSection}
-                                            onChange={(e) => setSection(e.target.value)} // Update section state
-                                            required
-                                        >
-                                            <option value=""></option>
-                                            {sections.map((sec) => (
-                                                <option key={sec} value={sec}>{sec}</option>
-                                            ))}
-                                        </select>
-                                        </div>
-                                    </div>
-                                    <div className="password-div">
-                                        <label htmlFor="password">Password: <span>*</span></label>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="password-div">
-                                        <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
-                                        <input
-                                            type="password"
-                                            id="confirmPassword"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="reg-div">
-                                        <button type="submit" disabled={loading}>
-                                            {loading ? 'Registering...' : 'Add Student'}
-                                        </button>
-                                        <button className="cancel-btn" type="button" onClick={handleCancelClick}>
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-
-                        <div className="reg-div">
-                            {!formVisible && (
-                                <button className="adds-btn" type="button" onClick={handleAddClick}>
-                                    <i className="fa-solid fa-plus"></i> Student
+                <div className='stuent-record'>
+                    <div className="section-form">
+                        {isAddingSection ? (
+                            <div className="new-section-form">
+                                <input
+                                    className="sect-input"
+                                    type="text"
+                                    value={newSectionName}
+                                    onChange={handleNewSectionChange}
+                                    placeholder="Enter section name"
+                                />
+                                <button className="confirm-btn" onClick={handleAddSection}>
+                                    Confirm
                                 </button>
-                            )}
-                        </div>
-
-                        <div className="edit-form">
-                            {editFormVisible && (
-                                <form onSubmit={handleSubmit}>
-                                    <div className="name-div">
-                                        <div>
-                                            <label htmlFor="firstname">First Name: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="firstname"
-                                                value={first_name}
-                                                onChange={(e) => setFirstname(e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="middlename">Middle Initial: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="middlename"
-                                                value={middle_initial}
-                                                onChange={(e) => setMiddlename(e.target.value)}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="lastname">Last Name: <span>*</span></label>
-                                            <input
-                                                type="text"
-                                                id="lastname"
-                                                value={last_name}
-                                                onChange={(e) => setLastname(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="creds-div">
-                                        <input type="hidden" id="type" />
-                                        <div>
-                                            <label htmlFor="section">Section: <span>*</span></label>
-                                            <select
-                                            id="section"
-                                            value={section || selectedSection}
-                                            onChange={(e) => setSection(e.target.value)} // Update section state
+                                <button className="cancel-btn" onClick={handleCancelAddSection}>
+                                    Cancel
+                                </button>
+                            </div>
+                        ) : (
+                            <button className="add-section-btn" onClick={() => setIsAddingSection(true)}>
+                                <i className="fa-solid fa-plus"></i> Section
+                            </button>
+                        )}
+                        <div className="sections-container">
+                            {sections.length === 0 ? (
+                                <p>No sections available</p>
+                            ) : (
+                                sections.map((sec, index) => (
+                                    <div key={index} className="section-item">
+                                        <button
+                                            className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
+                                            onClick={() => handleSectionClick(sec)}
                                         >
-                                            <option value=""></option>
-                                            {sections.map((sec) => (
-                                                <option key={sec} value={sec}>{sec}</option>
-                                            ))}
-                                        </select>
-                                        </div>
-                                    </div>
-                                    <div className="password-div">
-                                        <label htmlFor="password">Password: <span>*</span></label>
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="password-div">
-                                        <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
-                                        <input
-                                            type="password"
-                                            id="confirmPassword"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="reg-div">
-                                        <button type="button" onClick={() => handleMoveSection(selectedStudent, section)}>
-                                            Move Section
-                                        </button>
-                                        <button type="button" onClick={() => handleChangePassword(selectedStudent, password)}>
-                                            Change Password
-                                        </button>
-                                        <button className="cancel-btn" type="button" onClick={handleCancelClick}>
-                                            Cancel
+                                            {sec}
+                                            {selectedSection === sec && (
+                                                <button
+                                                    className="remove-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveSection(sec);
+                                                    }}
+                                                >
+                                                    <i className="fa-solid fa-minus"></i>
+                                                </button>
+                                            )}
                                         </button>
                                     </div>
-                                </form>
+                                ))
                             )}
                         </div>
+                    </div>
 
-                        <div className="student-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Surname</th>
-                                        <th>First Name</th>
-                                        <th>Initial</th>
-                                        <th>Section</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {students.length === 0 ? (
+                    {selectedSection ? (
+                        <>
+                            <div className="student-form">
+                                {formVisible && (
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="name-div">
+                                            <div>
+                                                <label htmlFor="firstname">First Name: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="firstname"
+                                                    value={first_name}
+                                                    onChange={(e) => setFirstname(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="middlename">Middle Initial: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="middlename"
+                                                    value={middle_initial}
+                                                    onChange={(e) => setMiddlename(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="lastname">Last Name: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="lastname"
+                                                    value={last_name}
+                                                    onChange={(e) => setLastname(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="creds-div">
+                                            <input type="hidden" id="type" />
+                                            <div>
+                                                <label htmlFor="section">Section: <span>*</span></label>
+                                                <select
+                                                id="section"
+                                                value={section || selectedSection}
+                                                onChange={(e) => setSection(e.target.value)} // Update section state
+                                                required
+                                            >
+                                                <option value=""></option>
+                                                {sections.map((sec) => (
+                                                    <option key={sec} value={sec}>{sec}</option>
+                                                ))}
+                                            </select>
+                                            </div>
+                                        </div>
+                                        <div className="password-div">
+                                            <label htmlFor="password">Password: <span>*</span></label>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="password-div">
+                                            <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
+                                            <input
+                                                type="password"
+                                                id="confirmPassword"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="reg-div">
+                                            <button type="submit" disabled={loading}>
+                                                {loading ? 'Registering...' : 'Add Student'}
+                                            </button>
+                                            <button className="cancel-btn" type="button" onClick={handleCancelClick}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
+
+                            <div className="reg-div">
+                                {!formVisible && (
+                                    <button className="adds-btn" type="button" onClick={handleAddClick}>
+                                        <i className="fa-solid fa-plus"></i> Student
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="edit-form">
+                                {editFormVisible && (
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="name-div">
+                                            <div>
+                                                <label htmlFor="firstname">First Name: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="firstname"
+                                                    value={first_name}
+                                                    onChange={(e) => setFirstname(e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="middlename">Middle Initial: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="middlename"
+                                                    value={middle_initial}
+                                                    onChange={(e) => setMiddlename(e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label htmlFor="lastname">Last Name: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="lastname"
+                                                    value={last_name}
+                                                    onChange={(e) => setLastname(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="creds-div">
+                                            <input type="hidden" id="type" />
+                                            <div>
+                                                <label htmlFor="section">Section: <span>*</span></label>
+                                                <select
+                                                id="section"
+                                                value={section || selectedSection}
+                                                onChange={(e) => setSection(e.target.value)} // Update section state
+                                            >
+                                                <option value=""></option>
+                                                {sections.map((sec) => (
+                                                    <option key={sec} value={sec}>{sec}</option>
+                                                ))}
+                                            </select>
+                                            </div>
+                                        </div>
+                                        <div className="password-div">
+                                            <label htmlFor="password">Password: <span>*</span></label>
+                                            <input
+                                                type="password"
+                                                id="password"
+                                                value={password}
+                                                onChange={(e) => setPassword(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="password-div">
+                                            <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
+                                            <input
+                                                type="password"
+                                                id="confirmPassword"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="reg-div">
+                                            <button type="button" onClick={() => handleMoveSection(selectedStudent, section)}>
+                                                Move Section
+                                            </button>
+                                            <button type="button" onClick={() => handleChangePassword(selectedStudent, password)}>
+                                                Change Password
+                                            </button>
+                                            <button className="cancel-btn" type="button" onClick={handleCancelClick}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
+
+                            <div className="student-table">
+                                <table>
+                                    <thead>
                                         <tr>
-                                            <td colSpan="5">No students found</td>
+                                            <th>Surname</th>
+                                            <th>First Name</th>
+                                            <th>Initial</th>
+                                            <th>Section</th>
+                                            <th>Action</th>
                                         </tr>
-                                    ) : (
-                                        students.map((student, index) => (
-                                            <tr key={index}>
-                                                <td className="last-name">{student.last_name}</td>
-                                                <td className="first-name">{student.first_name}</td>
-                                                <td className="mid-init">{student.middle_initial}</td>
-                                                <td className="section">{student.section}</td>
-                                                <td className="action">
-                                                    {!formVisible && (
-                                                        <button type="button" onClick={() => handleEditStudent(student)}>
-                                                            Edit
-                                                        </button>
-                                                    )}
-                                                    <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>
-                                                        <i className="fa-solid fa-trash"></i>
-                                                    </button>
-                                                </td>
+                                    </thead>
+                                    <tbody>
+                                        {students.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5">No students found</td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </>
-                ) : (
-                    <p>Please select a section</p>
-                )}
+                                        ) : (
+                                            students.map((student, index) => (
+                                                <tr key={index}>
+                                                    <td className="last-name">{student.last_name}</td>
+                                                    <td className="first-name">{student.first_name}</td>
+                                                    <td className="mid-init">{student.middle_initial}</td>
+                                                    <td className="section">{student.section}</td>
+                                                    <td className="action">
+                                                        {!formVisible && (
+                                                            <button type="button" onClick={() => handleEditStudent(student)}>
+                                                                Edit
+                                                            </button>
+                                                        )}
+                                                        <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>
+                                                            <i className="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
+                    ) : (
+                        <p>Please select a section</p>
+                    )}
+                </div>
             </>
         );
     }

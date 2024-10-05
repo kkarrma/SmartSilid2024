@@ -63,40 +63,42 @@ function LoginForm() {
   };
 
   return (
-    <div className="page-container">
-      <div className='logo'></div>
-      <h2>SmartSilid</h2>
-      <form onSubmit={handleSubmit}>
-        <div class="username-div">
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUser(e.target.value)}
-            required
-          />
+    <div className='login'>
+      <div className="page-container">
+        <div className='logo'></div>
+        <h2>SmartSilid</h2>
+        <form onSubmit={handleSubmit}>
+          <div class="username-div">
+            <label htmlFor="username">Username:</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUser(e.target.value)}
+              required
+            />
+          </div>
+          <div class="password-div">
+            <label htmlFor="password">Password:</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div class="btn-div">
+            <button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+            
+            <Link to="/signup" className='link'>Sign Up</Link>
+          </div>
+        </form>
+        <div className="links">
+          <Link to="/forgot-password" className='link'>Forgot Password?</Link>
         </div>
-        <div class="password-div">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div class="btn-div">
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-          
-          <Link to="/signup" className='link'>Sign Up</Link>
-        </div>
-      </form>
-      <div className="links">
-        <Link to="/forgot-password" className='link'>Forgot Password?</Link>
       </div>
     </div>
   );

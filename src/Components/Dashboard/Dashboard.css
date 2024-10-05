@@ -1,204 +1,278 @@
 :root {
-  --bg1: #00284f;
-  --bg2: #181616;
-  --bg3: #333333;
-  --bg4: #b9daff;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-size: 98%;
+  /* bg colors */
+  --bg1: #ffffff;
+  --bg2: #b5fbb6; /* header-footer gradient with white */
+  --bg3: #75bdc3;
+  --bg4: #f3c41c;
+  --bg5: #edf3f0;
+  --bg6: #4caf50;
+  /* --bg3: #f3e5ab; */
+  --btn: #007bff; /* add, edit, and update btn */
+  --btn-hov: #0056b3; /* hover */
+  --del-btn: #d22121; /* also for remove */
+  --del-hov: #821717; /* hover */
+  --main-txt: #0c0c0c;
+  --h1-txt: #121212;
+  --h2-txt: #121212;
+  --sub-txt: #292929;
+  --txt2: #4fa5ad;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Poppins';
+  font-size: 98%;
+  width: 100%;
+  color: black;
+  overflow: hidden;
+}
+
+/* Universal btn */
+button {
+  flex: 1 1 auto;
+  min-width: 150px;
+  max-width: 200px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: var(--btn);
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-hov);
+  }
+}
+
+/* Universal input */
+select,
+input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Universal cont */
+.cont {
+  margin-bottom: 20px;
+  gap: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
 }
 
 .dashboard {
+  height: 100vh;
+  background-color: var(--bg1);
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: url('../Assets/bg.png') no-repeat center center fixed;
-  background-size: cover; 
-  z-index: 1;
-}
-
-.dashboard-header,
-.dashboard-footer {
-  background: var(--bg1);
-  padding: 20px;
-  text-align: center;
-  color: white;
-  margin: 0;
-  display: flex;
-  justify-content: space-between;
+  overflow: hidden;
 }
 
 .dashboard-header {
   display: flex;
-}
-
-.left-head {
-  font-family:'Arial Narrow';
-  font-weight: lighter;
-  display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  padding: 1rem;
+  background: var(--bg2);
+  background: linear-gradient(90deg, var(--bg1) 0%, var(--bg2) 80%);
 }
 
-.head-logo {
-  width: 60px;
-  height: 60px; 
-  background: url('../Assets/ateclogo.png') no-repeat center center;
-  background-size: contain; 
-}
+.left-head {}
 
-.head-atec span{
-  font-family: 'Times New Roman', Times, serif;
-  font-weight: bold;
-  font-style: italic;
-  font-size: 150%;
+.mid-head .head-logo {
+  width: 50px;
+  height: 50px;
+  background-color: var(--bg6);
+  border-radius: 50%;
 }
 
 .right-head {
   display: flex;
-  align-items: center; /* Centers items vertically */
-  justify-items: end;
-}
-
-.prof-icon {
-  margin-right: 10px; /* Space between icon and name */
-}
-
-.prof-name {
-  display: flex;
   align-items: center;
 }
 
+.right-head .prof-icon {
+  margin-right: 0.5rem;
+}
+
+.right-head .prof-name {
+  margin-right: 1rem;
+}
+
+/* Dashboard panels layout */
 .dashboard-panels-wrapper {
   display: flex;
-  flex-grow: 1;
-  border-radius: 25px;
-  background: rgba(255, 255, 255, 0.1);
+  flex: 1;
+  height: calc(100vh - 60px);
   overflow: hidden;
 }
 
 .side-panel-L {
-  background-color: transparent;
-  min-width: 15%; 
-  text-align: center;
-  color: white;
+  width: 100%;
+  max-width: 200px;
+  background-color: var(--bg5);
+  padding: 10px;
+  overflow-y: auto;
+  transition: width 0.3s ease;
   display: flex;
   flex-direction: column;
-  padding: 0 10px 0 0;
-  font-weight: bold;
-  font-size: 14px;
-  border-right: 3px solid var(--bg4);
-}
-
-.menu-panel i{
-  margin: 5px 15px 5px 5px;
-  font-size: 1.3em;
-}
-
-.menu-panel {
-  padding: 20px;
-  text-align: center;
-  border-radius: 10px;
-  color: black;
-  text-align: left;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  cursor: pointer; 
-}
-
-.menu-panel:hover {
-  background-color: #b9daff; 
-  color: #00284f; 
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
-}
-
-.menu-panel.selected {
-  background-color: #b9daff; 
-  color: #00284f;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  border-bottom: 5px solid var(--bg1);
-}
-
-.side-panel-R {
-  background-color: #b9daff;
-  width: 1000px; 
-  padding: 20px;
-  text-align: center;
-  color: black;
-  border-radius: 0 25px 25px 0;
-}
-
-.bread {
-  font-size: larger;
-  margin: 10px;
+  flex-shrink: 0;
 }
 
 .content-panel {
-  width: 100%;
-  height: 100%; 
+  flex: 1;
   padding: 20px;
+  background-color: var(--bg1);
   overflow-y: auto;
-  overflow-x: hidden;
-  /* background-color: #b9daff; */
 }
 
-.sect {
+/* Right side panel (default layout for desktop/laptop) */
+.side-panel-R {
+  width: 250px;
+  background-color: var(--bg5);
   padding: 10px;
-} 
+  overflow-y: auto;
+  flex-shrink: 0;
+}
 
-.dash-panels {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+/* Toggle button for mobile menu */
+.mobile-menu-icon {
+  display: none;
+}
+
+.toggle-icon {
+  position: absolute;
+  top: 10px;
+  right: -30px;
+  cursor: pointer;
+  background-color: var(--head-foot);
+  color: white;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Panel item styles */
+.menu-panel {
+  display: flex;
+  align-items: center;
   padding: 10px;
-  flex-grow: 1;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.panel {
-  background-color: #e9ecef;
-  padding: 20px;
-  text-align: center;
-  border-radius: 40px;
-  max-width: 200px; 
-  background-color: rgb( 33, 41, 66 );
-  border-radius: 9px;
-  border-bottom: 120px solid #8BD17C;
-  width: 200px;
-  height: 200px;
+.menu-panel i {
+  margin-right: 10px;
 }
 
-/* SCROLLBAR */
-.content-panel::-webkit-scrollbar {
-  width: 10px;
+.menu-panel:hover {
+  background-color: #d7d7d7;
 }
 
-.content-panel::-webkit-scrollbar-thumb {
-  background: var(--bg1);
-  border-radius: 10px;
+.menu-panel.selected:hover {
+  background-color: #c2e6c5;
 }
 
-/* INPUT */
-input {
-  padding: 5px 12px;
-  font-size: 14px;
-  line-height: 20px;
-  height: 2.6em;
-  color: #24292e;
-  vertical-align: middle;
-  background-color: #ffffff;
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  border: 1px solid #e1e4e8;
-  border-radius: 6px;
-  outline: none;
-  box-shadow: rgba(225, 228, 232, 0.2) 0px 1px 0px 0px inset;
+.menu-panel.selected {
+  background-color: #c2e6c5;
 }
+
+/* Submenu indentation */
+.submenu {
+  padding-left: 15px;
+}
+
+/* Responsive layout for tablet screens and below */
+@media (max-width: 1024px) {
+  .dashboard-panels-wrapper {
+    flex-direction: column;
+  }
+
+  .side-panel-R {
+    width: 100%;
+    height: auto;
+    order: 1; /* Move the right panel to the top */
+    padding-bottom: 10px;
+  }
+
+  .content-panel {
+    order: 2;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .side-panel-L {
+    width: 100%;
+    position: relative;
+  }
+
+  .mobile-menu-icon {
+    display: block;
+  }
+
+  .side-panel-L.open {
+    display: none;
+  }
+
+  .toggle-icon {
+    display: block;
+  }
+}
+
+/* Desktop and larger screens (keep panels side by side) */
+@media (min-width: 769px) {
+  .dashboard-panels-wrapper {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .side-panel-R {
+    width: 250px;
+    flex-shrink: 0;
+    order: 2; /* Ensure right panel stays on the side */
+  }
+
+  .content-panel {
+    order: 1;
+    margin-right: 10px; /* Prevent overlap by adding space */
+  }
+}
+
+@media (max-width: 769px) {
+  .side-panel-L {
+    position: fixed;
+    left: 0;
+    top: 82px; /* Adjust this to the height of your header */
+    width: 200px;
+    height: calc(100vh - 60px); /* Ensure the panel takes the full height of the screen minus the header */
+    background-color: var(--bg5);
+    opacity: 95%;
+    z-index: 1000; /* Ensure it overlaps the content */
+    transform: translateX(-0%);
+    transition: transform 0.3s ease;
+  }
+
+  .side-panel-L.open {
+    transform: translateX(0); /* Slide in when open */
+  }
+
+  .content-panel {
+    position: relative;
+    z-index: 1; /* Keep content below the side panel */
+  }
+
+  .mobile-menu-icon {
+    display: flex;
+  }
+}
+
