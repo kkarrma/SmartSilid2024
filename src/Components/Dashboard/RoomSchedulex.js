@@ -2,19 +2,16 @@ import React, { useState, useEffect } from 'react';
 import './RoomSchedule.css';
 
 function RoomSchedule() {
-  const [id, setId] = useState('');
   const [schedules, setSchedules] = useState([]);
   const [newSubject, setNewSubject] = useState('');
   const [newDay, setNewDay] = useState('');
   const [start_time, setStartTime] = useState('');
   const [end_time, setEndTime] = useState('');
   const [faculty, setFaculty] = useState('');
-  const [selectedSection, setSelectedSection] = useState('');
-  const [sections, setSections] = useState([]);
   const [schedFormVisible, setSchedFormVisible] = useState(false);
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [editSchedule, setEditSchedule] = useState(null);
-  const [facultyList, setFacultyList] = useState([]);
+  const [facultyList, setFacultyList] = useState([]); // Initialize as empty array
 
   const fetchSchedules = async () => {
     try {
@@ -23,34 +20,20 @@ function RoomSchedule() {
         headers: { 'Content-Type': 'application/json' }
       });
       const data = await response.json();
-      setSchedules(data.schedule || []);
+      setSchedules(data.schedule || []); // Default to empty array if undefined
     } catch (error) {
       console.error('Error fetching schedules:', error);
     }
   };
 
-  const fetchSections = async () => {
-    try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_sections');
-      if (response.ok) {
-        const data = await response.json();
-        setSections(data.sections.map(sec => sec.name));
-      } else {
-        console.error('Failed to fetch sections');
-      }
-    } catch (error) {
-      console.error('Error fetching sections:', error);
-    }
-  };
-
   const fetchFaculty = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_faculty', {
+      const response = await fetch('http://192.168.10.112:8000/get_all_faculty_and_rfid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
       const data = await response.json();
-      setFacultyList(data.faculties || []);
+      setFacultyList(data.faculty || []); // Default to empty array if undefined
     } catch (error) {
       console.error('Error fetching faculty:', error);
     }
@@ -58,9 +41,15 @@ function RoomSchedule() {
 
   useEffect(() => {
     fetchSchedules();
-    fetchFaculty();
-    fetchSections();
+    fetchFaculty(); // Fetch faculty when the component mounts
   }, []);
+
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(':');
+    const suffix = +hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = +hours % 12 || 12; // Convert 0 to 12
+    return `${formattedHours}:${minutes} ${suffix}`;
+  };
 
   const weekdayMap = {
     M: 'Monday',
@@ -72,33 +61,22 @@ function RoomSchedule() {
     U: 'Sunday'
   };
 
-  const formatTime = (time) => {
-    const [hours, minutes] = time.split(':');
-    const suffix = +hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = +hours % 12 || 12;
-    return `${formattedHours}:${minutes} ${suffix}`;
-  };
-
   const handleAddSchedule = async () => {
+    const newEntry = {
+      subject: newSubject,
+      section: 'YourSectionName',
+      weekdays: newDay,
+      start_time: start_time,
+      end_time: end_time,
+      faculty_name: faculty
+    };
+
     try {
-      const response = await fetch('http://192.168.10.112:8000/add_schedule', {
+      await fetch('http://192.168.10.112:8000/add_schedule', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id,
-          subject: newSubject,
-          section: selectedSection,
-          weekdays: newDay, 
-          start_time,
-          end_time,
-          faculty_name: faculty
-        }),
+        body: JSON.stringify(newEntry),
       });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
       fetchSchedules();
       resetForm();
     } catch (error) {
@@ -108,19 +86,16 @@ function RoomSchedule() {
   };
 
   const resetForm = () => {
-    setId('');
     setNewSubject('');
     setNewDay('');
     setStartTime('');
     setEndTime('');
-    setFaculty('');
-    setSelectedSection('');
+    setFaculty(''); // Reset faculty
     setSchedFormVisible(false);
   };
 
-  const handleEditForm = (schedule) => {
+  const handleEditSchedule = (schedule) => {
     setEditSchedule(schedule);
-    setId(schedule.id); // Set the ID from the selected schedule
     setEditFormVisible(true);
   };
 
@@ -132,16 +107,15 @@ function RoomSchedule() {
         body: JSON.stringify({
           id: editSchedule.id,
           subject: editSchedule.subject,
-          section: editSchedule.section,
-          weekdays: editSchedule.weekdays, // Send the weekdays correctly
+          section: 'YourSectionName',
+          weekdays: editSchedule.weekdays,
           start_time: editSchedule.start_time,
           end_time: editSchedule.end_time,
-          faculty_name: editSchedule.faculty_name
+          faculty_name: editSchedule.faculty_name // Ensure this matches the updated structure
         }),
       });
       fetchSchedules();
       setEditFormVisible(false);
-      resetForm();
     } catch (error) {
       console.error('Error editing schedule:', error);
       alert('Failed to edit schedule. Please try again.');
@@ -213,23 +187,8 @@ function RoomSchedule() {
               required
             >
               <option value="" disabled>Select a faculty</option>
-              {facultyList.map(faculty => (
-                <option key={faculty.username} value={faculty.username}>
-                  {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
-                </option>
-              ))}
-            </select>
-            <select
-              className="section-select"
-              value={selectedSection}
-              onChange={(e) => setSelectedSection(e.target.value)}
-              required
-            >
-              <option value="" disabled>Select a section</option>
-              {sections.map(section => (
-                <option key={section} value={section}>
-                  {section}
-                </option>
+              {facultyList.map((facultyMember) => (
+                <option key={facultyMember.id} value={facultyMember.name}>{facultyMember.name}</option>
               ))}
             </select>
             <button className="confirm-btn" onClick={handleAddSchedule}>
@@ -287,28 +246,13 @@ function RoomSchedule() {
           />
           <select
             className="faculty-select"
-            value={editSchedule.faculty_name}
+            value={editSchedule.faculty_name} // Ensure this matches your schedule structure
             onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
             required
           >
             <option value="" disabled>Select a faculty</option>
-            {facultyList.map(faculty => (
-              <option key={faculty.username} value={faculty.username}>
-                {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
-              </option>
-            ))}
-          </select>
-          <select
-            className="section-select"
-            value={editSchedule.section}
-            onChange={(e) => setEditSchedule({ ...editSchedule, section: e.target.value })}
-            required
-          >
-            <option value="" disabled>Select a section</option>
-            {sections.map(section => (
-              <option key={section} value={section}>
-                {section}
-              </option>
+            {facultyList.map((facultyMember) => (
+              <option key={facultyMember.id} value={facultyMember.name}>{facultyMember.name}</option>
             ))}
           </select>
           <button className="update-btn" onClick={handleEditSched}>
@@ -324,8 +268,7 @@ function RoomSchedule() {
         <table>
           <thead>
             <tr>
-              <th>Faculty</th>
-              <th>Section</th>
+              <th>Faculty</th> 
               <th>Subject</th>
               <th>Day</th>
               <th>Start Time</th>
@@ -341,14 +284,13 @@ function RoomSchedule() {
             ) : (
               schedules.map((schedule) => (
                 <tr key={schedule.id}>
-                  <td className="faculty">{schedule.faculty}</td>
-                  <td className="faculty">{schedule.section}</td>
+                  <td className="faculty">{schedule.faculty_name}</td>
                   <td className="sub">{schedule.subject}</td>
                   <td className="day">{weekdayMap[schedule.weekdays]}</td>
                   <td className="start-time">{formatTime(schedule.start_time)}</td>
                   <td className="end-time">{formatTime(schedule.end_time)}</td>
                   <td className="action">
-                    <button type="button" className="edit-btn" onClick={() => handleEditForm(schedule)}>
+                    <button type="button" className="edit-btn" onClick={() => handleEditSchedule(schedule)}>
                       Edit
                     </button>
                     <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>

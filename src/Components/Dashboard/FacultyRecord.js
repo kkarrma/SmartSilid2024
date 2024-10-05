@@ -6,16 +6,25 @@ function FacultyRecord() {
   const [last_name, setLastname] = useState('');
   const [middle_initial, setMiddleinitial] = useState('');
   const [username, setUsername] = useState('');
+  const [type, setType] = useState('');
   const [password, setPassword] = useState('');
   const [confirm_password, setConfirmPassword] = useState('');
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [addFormVisible, setAddFormVisible] = useState(false);
   const [facultyData, setFacultyData] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
-  const [availableRfids, setAvailableRfids] = useState([]); // State for available RFIDs
-  const [selectedRfid, setSelectedRfid] = useState('none'); // State for selected RFID
+  const [availableRfids, setAvailableRfids] = useState([]);
+  const [rfidBindings, setRfidBindings] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    setUsername(`${first_name}.${last_name}.${middle_initial}`);
+  }, [first_name, last_name, middle_initial]);
+
 
   const fetchFaculty = async () => {
+    setLoading(true);
     try {
       const response = await fetch('http://192.168.10.112:8000/get_all_faculty_and_rfid', {
         method: 'POST',
@@ -24,17 +33,16 @@ function FacultyRecord() {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched faculty data:', data);
         setFacultyData(data.faculties);
-
-        // Extract available RFIDs from the response
-        const rfids = data.rfid.map(r => r.rfid); // Adjust to match your JSON structure
+        const rfids = data.rfid.map(r => r.rfid);
         setAvailableRfids(rfids);
       } else {
-        console.error('Failed to fetch the faculty.');
+        setErrorMessage('Failed to fetch faculty data. Please try again later.');
       }
     } catch (error) {
-      console.error('Error fetching faculty:', error);
+      setErrorMessage('Error fetching faculty data. Please check your connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,21 +50,21 @@ function FacultyRecord() {
     fetchFaculty();
   }, []);
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-  const formatFacultyName = (faculty) => ({
-    ...faculty,
-    first_name: capitalize(faculty.first_name),
-    last_name: capitalize(faculty.last_name),
-    middle_initial: capitalize(faculty.middle_initial.replace('.', '').trim()),
-  });
-
-  const formatUserName = (faculty) => {
-    setUsername(`${faculty.first_name}.${faculty.last_name}.${faculty.middle_initial}`);
-  };
-
   const handleAddFaculty = async (e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
+    if (!first_name || !last_name || !type || !password || !confirm_password) {
+      setErrorMessage('Please fill in all fields correctly.');
+      return;
+    }
+
+    if (password !== confirm_password) {
+      setErrorMessage('Password does not matched. Try again.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage('');
+
     try {
       const response = await fetch('http://192.168.10.112:8000/create_faculty', {
         method: 'POST',
@@ -65,19 +73,23 @@ function FacultyRecord() {
           first_name,
           last_name,
           middle_initial,
-          username,
+          username: `${first_name}.${last_name}.${middle_initial}`,
+          type,
           password,
         }),
       });
+
       if (response.ok) {
-        fetchFaculty(); // Refresh faculty list
+        fetchFaculty();
         handleCancelBtn();
       } else {
-        console.error('Failed to create faculty.');
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Failed to create faculty. Please try again.');
       }
     } catch (error) {
-      console.error('Error creating faculty', error);
-      alert(`An error occurred: ${error.message}`);
+      setErrorMessage('An error occurred while creating faculty. Please check your connection.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,44 +101,83 @@ function FacultyRecord() {
         body: JSON.stringify({ username: facultyUsername }),
       });
       if (response.ok) {
-        fetchFaculty(); // Refresh faculty list
+        fetchFaculty();
       } else {
-        console.error('Failed to delete faculty.');
+        setErrorMessage('Failed to delete faculty. Please try again later.');
       }
     } catch (error) {
-      console.error('Error deleting faculty', error);
-      alert(`An error occurred: ${error.message}`);
+      setErrorMessage('An error occurred while deleting faculty. Please check your connection.');
     }
   };
 
-  const handleEditFaculty = async () => {
-    setFirstname('');
-    setLastname('');
-    setMiddleinitial('');
-    setPassword('');
-    setConfirmPassword('');
-    setEditFormVisible(true);
-    setAddFormVisible(false);
+  const handleDeleteRFID = async (rfid) => {
+    try {
+      const response = await fetch('http://192.168.10.112:8000/delete_rfid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rfid }),
+      });
+      if (response.ok) {
+        fetchFaculty();
+      } else {
+        setErrorMessage('Failed to delete RFID. Please try again later.');
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
+    }
   };
 
-  const handleCancelBtn = async () => {
+  const handleBindRFID = async (username, rfid) => {
+    const facultyUsername = rfidBindings[rfid];
+    if (facultyUsername !== 'none') {
+      try {
+        const response = await fetch('http://192.168.10.112:8000/bind_rfid', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: facultyUsername, rfid }),
+        });
+        if (response.ok) {
+          fetchFaculty();
+        } else {
+          setErrorMessage('Failed to bind RFID. Please try again later.');
+        }
+      } catch (error) {
+        setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+      }
+    }
+  };
+
+  const handleUnbindRFID = async (facultyUsername, rfid) => {
+    try {
+      const response = await fetch('http://192.168.10.112:8000/bind_rfid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: '', rfid: '' }),
+      });
+      if (response.ok) {
+        fetchFaculty();
+      } else {
+        setErrorMessage('Failed to unbind RFID. Please try again later.');
+      }
+    } catch (error) {
+      setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
+    }
+  };
+
+  const handleCancelBtn = () => {
     setFirstname('');
     setLastname('');
     setMiddleinitial('');
+    setType('');
     setPassword('');
     setConfirmPassword('');
     setEditFormVisible(false);
     setAddFormVisible(false);
+    setErrorMessage('');
   };
 
   const handleToggleExpand = (index) => {
     setExpandedIndex(expandedIndex === index ? null : index);
-  };
-
-  const handleDeleteRFID = (rfid) => {
-    // Logic to delete the RFID from the database goes here
-    console.log(`Delete RFID: ${rfid}`);
-    // After deletion, you may want to refresh the available RFIDs list
   };
 
   return (
@@ -136,7 +187,7 @@ function FacultyRecord() {
       )}
 
       {addFormVisible && (
-        <form onSubmit={handleAddFaculty} className="faculty-form">
+        <form className="faculty-form">
           <input
             type="text"
             placeholder="First Name"
@@ -157,6 +208,15 @@ function FacultyRecord() {
             onChange={(e) => setLastname(e.target.value)}
             required
           />
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
+            <option value="">Choose user type</option>
+            <option value="admin">Admin</option>
+            <option value="faculty">Faculty</option>
+          </select>
           <input
             type="password"
             placeholder="Password"
@@ -171,8 +231,11 @@ function FacultyRecord() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          <button type="submit">Add Faculty</button>
+          <button type="button" onClick={handleAddFaculty} disabled={loading}>
+            {loading ? 'Adding...' : 'Add Faculty'}
+          </button>
           <button type="button" onClick={handleCancelBtn}>Cancel</button>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
         </form>
       )}
 
@@ -181,26 +244,16 @@ function FacultyRecord() {
           facultyData.map((faculty, index) => (
             <div key={index} className="faculty-item">
               <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                <span>{expandedIndex === index ? '-' : '+'}</span> {/* Move + / - here */}
+                <span>{expandedIndex === index ? '-' : '+'}</span>
                 <strong>{`${faculty.username}`}</strong>
                 <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                  <button onClick={() => {
-                    setFirstname(faculty.first_name);
-                    setLastname(faculty.last_name);
-                    setMiddleinitial(faculty.middle_initial);
-                    setEditFormVisible(true);
-                    setAddFormVisible(false);
-                  }}>
-                    <i className="fa-solid fa-pen"></i> {/* Edit icon */}
-                  </button>
                   <button onClick={() => handleDeleteFaculty(faculty.username)}>
-                    <i className="fa-solid fa-trash-can"></i> {/* Delete icon */}
+                    <i className="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
               </div>
               {expandedIndex === index && (
                 <div className="faculty-details">
-                  <p>RFID Access:</p>
                   <ul>
                     {faculty.rfid && faculty.rfid.length > 0 ? (
                       faculty.rfid.map((rfid, rfidIndex) => (
@@ -208,9 +261,9 @@ function FacultyRecord() {
                           {rfid}
                           <button 
                             style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                            onClick={() => handleDeleteRFID(rfid)}
+                            onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)}
                           >
-                            <i className="fa-solid fa-trash-can"></i> {/* Trash icon for RFID */}
+                            -
                           </button>
                         </li>
                       ))
@@ -234,11 +287,10 @@ function FacultyRecord() {
             <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
               <span style={{ marginLeft: '8px' }}>{rfid}</span>
               <select 
-                value={selectedRfid} 
-                onChange={(e) => setSelectedRfid(e.target.value)}
+                value={rfidBindings[rfid] || 'none'} 
+                onChange={(e) => setRfidBindings({ ...rfidBindings, [rfid]: e.target.value })}
               >
                 <option value="none">None</option>
-                {/* Assuming you have faculty names available in the data */}
                 {facultyData.map((faculty, facultyIndex) => (
                   <option key={facultyIndex} value={faculty.username}>
                     {`${faculty.first_name} ${faculty.last_name}`}
@@ -247,9 +299,15 @@ function FacultyRecord() {
               </select>
               <button 
                 style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                onClick={() => handleBindRFID(rfidBindings[rfid], rfid)} // Pass the selected username and RFID
+              >
+                Add
+              </button>
+              <button 
+                style={{ marginLeft: '8px', cursor: 'pointer' }} 
                 onClick={() => handleDeleteRFID(rfid)}
               >
-                <i class="fa-solid fa-trash-can"></i>
+                <i className="fa-solid fa-trash-can"></i>
               </button>
             </div>
           ))
