@@ -27,13 +27,15 @@
 
   .pcs-table {
     display: none; /* Initially hide the table */
-    width: 100%; /* Full width */
     border-collapse: collapse; /* Remove spacing between table cells */
     overflow: hidden;
     overflow-x: auto;
     overflow-y: auto;
     
-
+    table {
+      width: 100%;
+    }
+    
     th, td {
       padding: 2px;
       text-align: center; /* Center align text in table cells */

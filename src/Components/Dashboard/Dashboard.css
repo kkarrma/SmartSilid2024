@@ -9,7 +9,7 @@
   /* --bg3: #f3e5ab; */
   --btn: #007bff; /* add, edit, and update btn */
   --btn-hov: #0056b3; /* hover */
-  --del-btn: #d22121; /* also for remove */
+  --del-btn: #e52929; /* also for remove */
   --del-hov: #821717; /* hover */
   --main-txt: #0c0c0c;
   --h1-txt: #121212;
@@ -30,7 +30,7 @@ body {
 /* Universal btn */
 button {
   flex: 1 1 auto;
-  min-width: 150px;
+  min-width: 100px;
   max-width: 200px;
   padding: 10px;
   border-radius: 4px;
@@ -45,9 +45,22 @@ button {
     cursor: not-allowed;
   }
 
-  /* &:hover:not(:disabled) {
+  &:hover {
     background-color: var(--btn-hov);
-  } */
+  }
+}
+
+.del-btn {
+  background-color: transparent;
+  border: 2px solid var(--del-btn);
+  color: var(--del-btn);
+  transition: 0.3s ease-in-out;
+  
+  &:hover{
+    color: var(--del-hov);
+    border: 2px solid var(--del-hov);
+    background-color: transparent;
+  }
 }
 
 /* Universal input */
@@ -240,6 +253,9 @@ input {
 
 /* Desktop and larger screens (keep panels side by side) */
 @media (min-width: 769px) {
+  body {
+    font-size: 80%;
+  }
   .dashboard-panels-wrapper {
     display: flex;
     flex-direction: row;
@@ -259,7 +275,7 @@ input {
 
 @media (max-width: 769px) {
   body {
-    font-size: 80%;
+    font-size: 70%;
   }
   .side-panel-L {
     display: none;
@@ -287,5 +303,11 @@ input {
 
   .mobile-menu-icon {
     display: flex;
+  }  
+}
+
+@media (max-width: 426px) {
+  body {
+    font-size: 70%;
   }
 }

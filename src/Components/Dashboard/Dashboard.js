@@ -77,8 +77,8 @@ function Dashboard() {
 
   const renderRightPanelContent = () => {
     switch (selectedMenu) {
-      case 'Room Schedule':
-        return <div>Room Schedule Sidebar Content</div>;
+      // case 'Room Schedule':
+      //   return <div>Room Schedule Sidebar Content</div>;
       case 'RFID Record':
         return <div>RFID Record Sidebar Content</div>;
       default:
