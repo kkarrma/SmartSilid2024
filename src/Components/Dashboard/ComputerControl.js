@@ -200,6 +200,7 @@ function ComputerControl() {
                 Turn Off
               </button>
             </div>
+            
             <div className='computer-list cont'>
               <div className="checkbox-container">
                 <input
@@ -261,7 +262,7 @@ function ComputerControl() {
                     <tr className="pcs-table-header">
                       <th>Select</th>
                       <th>PC Name</th>
-                      <th>Action</th>
+                      <th>Off | On</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -276,9 +277,16 @@ function ComputerControl() {
                         </td>
                         <td>{pc}</td>
                         <td>
-                          <button onClick={() => handleRowTogglePC(pc)}>
-                            {pcStates[pc]?.isOn ? 'Turn Off' : 'Turn On'}
-                          </button>
+                          <div className="action">
+                            <label className="toggle-switch">
+                              <input
+                                type="checkbox"
+                                checked={pcStates[pc]?.isOn}
+                                onChange={() => handleRowTogglePC(pc)} // Toggle the PC state
+                              />
+                              <span className="slider" />
+                            </label>
+                          </div>
                         </td>
                       </tr>
                     ))}
