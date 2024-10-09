@@ -1,111 +1,158 @@
 .computer-controls {
-    .dash-container {
-      margin: 0 auto;
-      max-width: 1200px; /* Optional: Set a maximum width */
-      width: 100%; /* Full width */
-      box-sizing: border-box; /* Include padding in width calculation */
+  .dash-container {
+    margin: 0 auto;
+    max-width: 1200px; /* Optional: Set a maximum width */
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+  }
+
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap; /* Responsive design */
+    justify-content: center;
+    align-items: center;
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .pcs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px; 
+  }
+
+  .pcs-table {
+    display: none; /* Initially hide the table */
+    width: 100%; /* Full width */
+    border-collapse: collapse; /* Remove spacing between table cells */
+    overflow: hidden;
+    overflow-x: auto;
+    
+
+    th, td {
+      padding: 2px;
+      text-align: center; /* Center align text in table cells */
+      border: 1px solid #ddd; /* Add border to table cells */
     }
-  
-    .controls-row {
-      display: flex;
-      flex-wrap: wrap; /* Responsive design */
-      justify-content: center;
-      align-items: center;
+
+    th {
+      background-color: #f2f2f2; /* Background color for header */
     }
-  
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-  
-    .pcs-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 10px; 
-    }
-  
-    .pc-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px;
-      background-color: #e9ecef;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-  
-      &.checked {
-        background-color: var(--bg2); /* Style for checked items */
-      }
-    }
-  
-    .pc-icon {
-      font-size: 24px; /* Icon size */
-      margin-right: 10px; /* Space between icon and text */
-    }
-  
-    .pc-name {
-      flex-grow: 1; /* Allow name to grow */
-    }
-  
-    .checkbox-cell {
-      display: flex;
-      align-items: center; /* Center checkbox */
-    }
-  
-    .hidden-checkbox {
-      display: none; /* Hide original checkbox */
-    }
-  
+
     .action {
-      margin-left: 10px; /* Space for action items */
-    }
-  
-    /* Toggle Switch Styles */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 60px; /* Width of the toggle switch */
-      height: 34px; /* Height of the toggle switch */
-  
-      input {
-        opacity: 0; /* Hide input */
-        width: 0;
-        height: 0;
-      }
-  
-      .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc; /* Background color when OFF */
-        transition: 0.4s; /* Transition effect */
-        border-radius: 34px; /* Round corners */
-  
-        &::before {
-          position: absolute;
-          content: "";
-          height: 26px; /* Height of the slider circle */
-          width: 26px; /* Width of the slider circle */
-          left: 4px; /* Circle positioning */
-          bottom: 4px; /* Circle positioning */
-          background-color: white; /* Circle color */
-          transition: 0.4s; /* Transition for circle */
-          border-radius: 50%; /* Make it round */
-        }
-      }
-  
-      input:checked + .slider {
-        background-color: #2196F3; /* Background color when ON */
-      }
-  
-      input:checked + .slider::before {
-        transform: translateX(26px); /* Move the circle to the right */
-      }
+      display: flex;
+      justify-content: center; /* Center the action buttons */
     }
   }
-  
+
+  .pc-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &.checked {
+      background-color: var(--bg2); /* Style for checked items */
+    }
+  }
+
+  .pc-icon {
+    font-size: 24px; /* Icon size */
+    margin-right: 10px; /* Space between icon and text */
+  }
+
+  .pc-name {
+    flex-grow: 1; /* Allow name to grow */
+  }
+
+  .checkbox-cell {
+    display: flex;
+    align-items: center; /* Center checkbox */
+  }
+
+  .hidden-checkbox {
+    display: none; /* Hide original checkbox */
+  }
+
+  .action {
+    margin-left: 10px; /* Space for action items */
+  }
+
+  /* Toggle Switch Styles */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px; /* Width of the toggle switch */
+    height: 34px; /* Height of the toggle switch */
+
+    input {
+      opacity: 0; /* Hide input */
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc; /* Background color when OFF */
+      transition: 0.4s; /* Transition effect */
+      border-radius: 34px; /* Round corners */
+
+      &::before {
+        position: absolute;
+        content: "";
+        height: 26px; /* Height of the slider circle */
+        width: 26px; /* Width of the slider circle */
+        left: 4px; /* Circle positioning */
+        bottom: 4px; /* Circle positioning */
+        background-color: white; /* Circle color */
+        transition: 0.4s; /* Transition for circle */
+        border-radius: 50%; /* Make it round */
+      }
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3; /* Background color when ON */
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(26px); /* Move the circle to the right */
+    }
+  }
+
+  /* Responsive styles */
+  @media (max-width: 426px) {
+    .pcs-grid {
+      display: none; /* Hide grid on mobile */
+    }
+
+    .pcs-table {
+      display: block; /* Show table on mobile */
+    }
+    
+    .pcs-table th, .pcs-table td {
+      width: 33.33%; /* Each column takes one-third of the width */
+    }
+
+    /* Additional mobile styles for tables */
+    .pcs-table th {
+      font-weight: bold;
+    }
+
+    .pcs-table td {
+      padding: 5px; /* Reduce padding on mobile for space */
+    }
+  }
+}

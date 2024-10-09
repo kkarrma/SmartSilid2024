@@ -45,9 +45,9 @@ button {
     cursor: not-allowed;
   }
 
-  &:hover:not(:disabled) {
+  /* &:hover:not(:disabled) {
     background-color: var(--btn-hov);
-  }
+  } */
 }
 
 /* Universal input */
@@ -146,6 +146,15 @@ input {
 /* Toggle button for mobile menu */
 .mobile-menu-icon {
   display: none;
+  cursor: pointer;
+  padding: 10px 10px 10px 15px; 
+  transition: background-color 0.5s ease, transform 0.5s ease;
+}
+
+.mobile-menu-icon.active {
+  background-color: rgba(0, 0, 0, 0.2); 
+  transform: scale(1.1); 
+  clip-path: polygon(0 50%, 35% 0, 100% 0, 100% 100%, 35% 100%);
 }
 
 .toggle-icon {
@@ -210,7 +219,7 @@ input {
 }
 
 /* Mobile adjustments */
-@media (max-width: 768px) {
+@media (max-width: 769px) {
   .side-panel-L {
     width: 100%;
     position: relative;
@@ -250,6 +259,7 @@ input {
 
 @media (max-width: 769px) {
   .side-panel-L {
+    display: none;
     position: fixed;
     left: 0;
     top: 82px; /* Adjust this to the height of your header */
@@ -263,6 +273,7 @@ input {
   }
 
   .side-panel-L.open {
+    display: block;
     transform: translateX(0); /* Slide in when open */
   }
 
@@ -275,4 +286,3 @@ input {
     display: flex;
   }
 }
-

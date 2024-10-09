@@ -40,6 +40,9 @@ function Dashboard() {
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+    
+    const menuIcon = document.querySelector('.mobile-menu-icon');
+    menuIcon.classList.toggle('active');
   };
 
   const closeAllDrops = () => {

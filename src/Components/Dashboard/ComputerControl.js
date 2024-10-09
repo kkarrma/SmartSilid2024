@@ -217,38 +217,75 @@ function ComputerControl() {
                   Clear
                 </button>
               </div>
-              <div className="pcs-grid">
-                {pcs.map((pc) => (
-                  <div 
-                    key={pc} 
-                    className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''}`} 
-                    onClick={() => handleCheckBoxChange(pc)} // Toggle checkbox on click
-                  >
-                    <div className="pc-icon">
-                      <i className="fa-solid fa-desktop"></i> {/* Font Awesome PC icon */}
-                    </div>
-                    <div className="checkbox-cell">
-                      <input
-                        type="checkbox"
-                        checked={pcStates[pc]?.isChecked}
-                        onChange={() => handleCheckBoxChange(pc)} // Ensure checkbox updates state
-                        className="hidden-checkbox" // Add class for styling
-                      />
-                      <div className="pc-name">{pc}</div>
-                    </div>
-                    <div className="action">
-                      <label className="toggle-switch">
+
+              {pcs.length === 0 ? ( // Conditional rendering for no PCs found
+                <p>No PCs found</p>
+              ) : (
+                <div className="pcs-grid">
+                  {pcs.map((pc) => (
+                    <div 
+                      key={pc} 
+                      className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''}`} 
+                      onClick={() => handleCheckBoxChange(pc)} // Toggle checkbox on click
+                    >
+                      <div className="pc-icon">
+                        <i className="fa-solid fa-desktop"></i> {/* Font Awesome PC icon */}
+                      </div>
+                      <div className="checkbox-cell">
                         <input
                           type="checkbox"
-                          checked={pcStates[pc]?.isOn}
-                          onChange={() => handleRowTogglePC(pc)} // Toggle the PC state
+                          checked={pcStates[pc]?.isChecked}
+                          onChange={() => handleCheckBoxChange(pc)} // Ensure checkbox updates state
+                          className="hidden-checkbox" // Add class for styling
                         />
-                        <span className="slider" />
-                      </label>
+                        <div className="pc-name">{pc}</div>
+                      </div>
+                      <div className="action">
+                        <label className="toggle-switch">
+                          <input
+                            type="checkbox"
+                            checked={pcStates[pc]?.isOn}
+                            onChange={() => handleRowTogglePC(pc)} // Toggle the PC state
+                          />
+                          <span className="slider" />
+                        </label>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
+
+              <div className='pcs-table'>
+                <table>
+                  <thead>
+                    <tr className="pcs-table-header">
+                      <th>Select</th>
+                      <th>PC Name</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pcs.map((pc) => (
+                      <tr key={pc} className={`pcs-table-row ${pcStates[pc]?.isChecked ? 'checked' : ''}`}>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={pcStates[pc]?.isChecked}
+                            onChange={() => handleCheckBoxChange(pc)} // Ensure checkbox updates state
+                          />
+                        </td>
+                        <td>{pc}</td>
+                        <td>
+                          <button onClick={() => handleRowTogglePC(pc)}>
+                            {pcStates[pc]?.isOn ? 'Turn Off' : 'Turn On'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+
             </div>
           </form>
         </div>
