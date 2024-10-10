@@ -1,196 +1,66 @@
-.student-form {
-    div {
-        margin-bottom: 5px;      
-        align-items: center;  
-        justify-content: center;
-    }
-
-    input {
-        padding: 5px 12px;
-        font-size: 14px;
-        line-height: 20px;
-        height: 2.6em;
-        color: #24292e;
-        vertical-align: middle;
-        background-color: #ffffff;
-        border-radius: 6px;
-        outline: none;
-        box-shadow: rgba(225, 228, 232, 0.2) 0px 1px 0px 0px inset;
-    }
-
-    .name-div > div,
-    .creds-div > div {
-        flex-grow: 1;
-    }
-
-    input, select {
-        margin: 0; 
-        padding: 5px 12px;
-        width: 100%;
-    }
-
-    .name-div,
-    .creds-div {
-        display: flex;
-        gap: 10px;
-        text-align: center;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-    
-        label {
-            text-align: left;
-        }
-    
-        select {
-            background-color: white;
-            padding: 6px 30px;
-            border-radius: 6px;
-            color: black;
-            font-size: 1.15em; 
-        }
-    }
-
-    span {
-        color: red;
-    }
-
-    .reg-div {
-        display: flex;
-        gap: 10px; 
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-
-        .cancel-btn {
-            width: 50%;
-            background-color: transparent;
-            border: 2px solid white;
-            color: white;
-            transition: .3s ease-in-out;
-        }
-    
-        .cancel-btn:hover {
-            color: var(--bg1);
-            border-color: var(--bg1);
-        }
-
-        .adds-btn {
-            border: 2px solid white;
-            color: white;
-            width: 150px;
-            padding: 10px;
-        }
-    }
-    
+.student-record {
     .section-form {
-        align-items: center;
-        padding: 10px;
-        overflow-x: auto;
-        white-space: nowrap;
-        position: relative;
+        margin-bottom: 20px; 
+
+        .new-section-form {
+            margin-bottom: 20px; 
+            gap: 10px;
+        }
     }
 
     .sections-container {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-        overflow-x: auto;
-        white-space: nowrap;
-        flex-grow: 1;
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+    }
+
+    .section-item {
+        flex: 0 1 auto; 
+        max-width: 120px;
+        position: relative;
     }
 
     .section-btn {
-        min-width: 150px;
-        width: 100%;
-        border: none;
-        font-weight: bold;
-        background-color: transparent;
-        color: #fff;
-        padding: 10px 15px; 
-        cursor: pointer;
-        white-space: nowrap;
-        text-align: center;
-        font-size: 1.4em;
-        transition: background-color 0.3s, color 0.3s;
         position: relative;
-        border-bottom: 4px solid var(--bg1);
+        padding: 8px 40px;
+        transition: 0.1s ease-in-out; 
+    
+        &.selected {
+            font-size: 120%;
+            font-weight: bold;
+            padding: 7px 40px;
+            border-bottom: 4px solid var(--btn-hov);
+        }   
     }
 
-    .section-btn.selected {
-        background-color: var(--bg4);
-        color: var(--bg2);
-        font-weight: bold;
-        border-bottom: none;
-    }
+  .remove-btn {
+    position: absolute;
+    top: 0px;
+    right: 0px; 
+    padding: 3px 5px;
+    background-color: var(--del-btn);
+    border: none; 
+    color: white; 
+    cursor: pointer;
+    border-radius: 3px;
+  }
 
-    .section-btn:hover {
-        color: var(--bg1);
-        background-color: var(--bg4);
-    }
+  .remove-btn:hover {
+    background-color: var(--del-hov);
+  }
 
-    .remove-btn {
-        position: absolute;
-        top: -10px;
-        right: 0px;
-        width: 25px;
-        background-color: red;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        padding: 2px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;   
-        font-size: 10px;
+  .add-section-btn {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px 23px; 
+    color: white; 
+    border: none; /* Remove border */
+    border-radius: 4px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s; /* Smooth transition */
+    
+    &:hover {
+      background-color: var(--btn-hov); /* Hover effect */
     }
-
-    .remove-btn:hover {
-        background-color: var(--bg3);
-    }
-
-    .confirm-btn {
-        width: 150px;
-        padding: 6px 10px;
-    }
-
-    .cancel-btn {
-        width: 150px;
-        border: 1px solid #fff;
-        background-color: transparent;
-        color: #fff;
-        padding: 5px 10px;
-        cursor: pointer;
-        white-space: nowrap;
-        text-align: center;
-        flex-shrink: 0;
-    }
-
-    .cancel-btn:hover {
-        background-color: #ffffff1a;
-    }
-
-    .new-section-form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .new-section-form input {
-        padding: 5px;
-        width: 150px;
-        border: 1px solid #fff;
-        background-color: white;
-    }
-
-    .section-form::-webkit-scrollbar {
-        height: 5px;
-    }
-    .section-form::-webkit-scrollbar-thumb {
-        background: var(--bg1);
-        border-radius: 10px;
-    }
+  }
 }

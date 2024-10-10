@@ -1,4 +1,5 @@
     import React, { useState, useEffect } from 'react';
+    import { API_BASE_URL } from './config';
     import { useNavigate } from 'react-router-dom';
     import './StudentRecord.css';
 
@@ -66,7 +67,7 @@
             console.log('Deleting student with username:', username);
         
             try {
-                const response = await fetch('http://192.168.10.112:8000/delete_student', {
+                const response = await fetch(`${API_BASE_URL}/delete_student`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -94,7 +95,7 @@
         
         const fetchSections = async () => {
             try {
-                const response = await fetch('http://192.168.10.112:8000/get_all_sections');
+                const response = await fetch(`${API_BASE_URL}/get_all_sections`);
                 if (response.ok) {
                     const data = await response.json();
                     setSections(data.sections.map(sec => sec.name));
@@ -108,7 +109,7 @@
 
         const handleStudentList = async (sectionName) => {
             try {
-                const response = await fetch('http://192.168.10.112:8000/get_all_students');
+                const response = await fetch(`${API_BASE_URL}/get_all_students`);
                 if (response.ok) {
                     const data = await response.json();
                     const filteredStudents = data.students.filter(student => student.section === sectionName);
@@ -155,7 +156,7 @@
             setLoading(true);
 
             try {
-                const response = await fetch('http://192.168.10.112:8000/create_student', {
+                const response = await fetch(`${API_BASE_URL}/create_student`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -227,7 +228,7 @@
         const handleAddSection = async () => {
             if (newSectionName.trim()) {
                 try {
-                    const response = await fetch('http://192.168.10.112:8000/add_section', {
+                    const response = await fetch(`${API_BASE_URL}/add_section`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -277,7 +278,7 @@
                     return;
                 }
 
-                const response = await fetch('http://192.168.10.112:8000/delete_section', {
+                const response = await fetch(`${API_BASE_URL}/delete_section`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -310,7 +311,7 @@
             console.log('Username being sent to server:', username);
         
             try {
-                const response = await fetch('http://192.168.10.112:8000/move_section', {
+                const response = await fetch(`${API_BASE_URL}/move_section`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -357,7 +358,7 @@
             }
             
             try {
-                const response = await fetch('http://192.168.10.112:8000/change_password_student', {
+                const response = await fetch(`${API_BASE_URL}/change_password_student`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -386,8 +387,8 @@
 
         return (
             <>
-                <div className='stuent-record'>
-                    <div className="section-form">
+                <div className='student-record'>
+                    <div className="section-form cont">
                         {isAddingSection ? (
                             <div className="new-section-form">
                                 <input
@@ -428,7 +429,7 @@
                                                         handleRemoveSection(sec);
                                                     }}
                                                 >
-                                                    <i className="fa-solid fa-minus"></i>
+                                                    <b>–</b>
                                                 </button>
                                             )}
                                         </button>
@@ -440,8 +441,8 @@
 
                     {selectedSection ? (
                         <>
-                            <div className="student-form">
-                                {formVisible && (
+                            <div className="student-form cont">
+                                {formVisible ? (
                                     <form onSubmit={handleSubmit}>
                                         <div className="name-div">
                                             <div>
@@ -480,16 +481,16 @@
                                             <div>
                                                 <label htmlFor="section">Section: <span>*</span></label>
                                                 <select
-                                                id="section"
-                                                value={section || selectedSection}
-                                                onChange={(e) => setSection(e.target.value)} // Update section state
-                                                required
-                                            >
-                                                <option value=""></option>
-                                                {sections.map((sec) => (
-                                                    <option key={sec} value={sec}>{sec}</option>
-                                                ))}
-                                            </select>
+                                                    id="section"
+                                                    value={section || selectedSection}
+                                                    onChange={(e) => setSection(e.target.value)}
+                                                    required
+                                                >
+                                                    <option value=""></option>
+                                                    {sections.map((sec) => (
+                                                        <option key={sec} value={sec}>{sec}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                         <div className="password-div">
@@ -521,19 +522,15 @@
                                             </button>
                                         </div>
                                     </form>
-                                )}
-                            </div>
-
-                            <div className="reg-div">
-                                {!formVisible && (
+                                ) : (
                                     <button className="adds-btn" type="button" onClick={handleAddClick}>
                                         <i className="fa-solid fa-plus"></i> Student
                                     </button>
                                 )}
                             </div>
 
-                            <div className="edit-form">
-                                {editFormVisible && (
+                            {editFormVisible && (
+                                <div className="edit-form cont">
                                     <form onSubmit={handleSubmit}>
                                         <div className="name-div">
                                             <div>
@@ -610,10 +607,10 @@
                                             </button>
                                         </div>
                                     </form>
-                                )}
-                            </div>
+                                </div>
+                            )}
 
-                            <div className="student-table">
+                            <div className="student-table cont">
                                 <table>
                                     <thead>
                                         <tr>

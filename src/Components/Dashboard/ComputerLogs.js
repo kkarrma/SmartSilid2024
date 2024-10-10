@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './Logbook.css';
 
 function ComputerLogs() {
@@ -18,7 +19,7 @@ function ComputerLogs() {
 
   const fetchComputers = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_computers');
+      const response = await fetch(`${API_BASE_URL}/get_all_computers`);
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => pc.computer_name);
@@ -36,7 +37,7 @@ function ComputerLogs() {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : '';
       const formattedEndDate = end_date ? new Date(end_date).toISOString().split('T')[0] : '';
 
-      const response = await fetch('http://192.168.10.112:8000/get_logs_computer', {
+      const response = await fetch(`${API_BASE_URL}/get_logs_computer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

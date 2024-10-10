@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './RoomSchedule.css';
 
 function RoomSchedule() {
@@ -18,7 +19,7 @@ function RoomSchedule() {
 
   const fetchSchedules = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_schedule', {
+      const response = await fetch(`${API_BASE_URL}/get_all_schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -31,7 +32,7 @@ function RoomSchedule() {
 
   const fetchSections = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_sections');
+      const response = await fetch(`${API_BASE_URL}/get_all_sections`);
       if (response.ok) {
         const data = await response.json();
         setSections(data.sections.map(sec => sec.name));
@@ -45,7 +46,7 @@ function RoomSchedule() {
 
   const fetchFaculty = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_faculty', {
+      const response = await fetch(`${API_BASE_URL}/get_all_faculty`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -86,7 +87,7 @@ function RoomSchedule() {
     }
     
     try {
-      const response = await fetch('http://192.168.10.112:8000/add_schedule', {
+      const response = await fetch(`${API_BASE_URL}/add_schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,7 +132,7 @@ function RoomSchedule() {
 
   const handleEditSched = async () => {
     try {
-      await fetch('http://192.168.10.112:8000/update_schedule', {
+      await fetch(`${API_BASE_URL}/update_schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -158,7 +159,7 @@ function RoomSchedule() {
     if (!confirmDelete) return;
 
     try {
-      await fetch('http://192.168.10.112:8000/delete_schedule', {
+      await fetch(`${API_BASE_URL}/delete_schedule`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: schedule.id }),

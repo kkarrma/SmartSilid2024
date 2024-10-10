@@ -1,23 +1,21 @@
 .web-filter {
-  .urlBlock-form {
-    margin: 20px;
-  }
   
-  .new-section-form {
+  .new-url-form {
     display: flex;
+    flex-wrap: wrap;
+    flex: 1 1;
+    gap: 5px;
     align-items: center;
     margin-bottom: 10px;
   }
   
-  .sect-input {
+  .url-input {
     padding: 10px;
     width: 300px;
-    margin-right: 10px;
   }
   
   .confirm-btn, .cancel-btn {
     padding: 8px 16px;
-    margin-right: 10px;
     cursor: pointer;
   }
   
@@ -26,27 +24,28 @@
     cursor: pointer;
   }
   
-  .web-table {
-    margin-top: 20px;
-  }
-  
-  .black-list table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .black-list th, .black-list td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
   .del-btn {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 6px;
+    background-color: transparent;
+    border-color: var(--del-btn);
+    color: var(--del-btn);
+    padding: 6px 20px;
     cursor: pointer;
+    
+    &:hover {
+      border-color: var(--del-hov);
+      color: var(--del-hov);
+    }
+  }
+
+  @media (max-width: 426px) {
+    .new-url-form {
+      justify-content: center;
+      align-items: center;
+
+      input {
+        width: 100%;
+      }
+    }
   }
 }
   

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './Logbook.css';
 
 function RFIDLogs() {
@@ -20,7 +21,7 @@ function RFIDLogs() {
 
   const fetchSection = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_sections', {
+      const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify ({ section })
@@ -40,7 +41,7 @@ function RFIDLogs() {
   const fetchRFIDLogs = async () => {
     try {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : ''; // Ensure date is formatted
-      const response = await fetch('http://192.168.10.112:8000/get_logs_rfid', {
+      const response = await fetch(`${API_BASE_URL}/get_logs_rfid`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

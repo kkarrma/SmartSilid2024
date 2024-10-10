@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './ComputerControl.css';
 
 function ComputerControl() {
@@ -14,7 +15,7 @@ function ComputerControl() {
 
   const fetchComputers = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_computers');
+      const response = await fetch(`${API_BASE_URL}/get_all_computers`);
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => pc.computer_name);
@@ -30,7 +31,7 @@ function ComputerControl() {
 
   const shutdownPC = async (pcList) => {
     try {
-      await fetch('http://192.168.10.112:8000/shutdown_computers', {
+      await fetch(`${API_BASE_URL}/shutdown_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ function ComputerControl() {
 
   const wakenPC = async (pcList) => {
     try {
-      await fetch('http://192.168.10.112:8000/wake_computers', {
+      await fetch(`${API_BASE_URL}/wake_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

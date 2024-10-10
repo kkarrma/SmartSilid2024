@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './FacultyRecord.css';
 
 function FacultyRecord() {
@@ -26,7 +27,7 @@ function FacultyRecord() {
   const fetchFaculty = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_faculty_and_rfid', {
+      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -66,7 +67,7 @@ function FacultyRecord() {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://192.168.10.112:8000/create_faculty', {
+      const response = await fetch(`${API_BASE_URL}/create_faculty`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -95,7 +96,7 @@ function FacultyRecord() {
 
   const handleDeleteFaculty = async (facultyUsername) => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/delete_faculty', {
+      const response = await fetch(`${API_BASE_URL}/delete_faculty`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: facultyUsername }),
@@ -112,7 +113,7 @@ function FacultyRecord() {
 
   const handleDeleteRFID = async (rfid) => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/delete_rfid', {
+      const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rfid }),
@@ -131,7 +132,7 @@ function FacultyRecord() {
     const facultyUsername = rfidBindings[rfid];
     if (facultyUsername !== 'none') {
       try {
-        const response = await fetch('http://192.168.10.112:8000/bind_rfid', {
+        const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: facultyUsername, rfid }),
@@ -149,7 +150,7 @@ function FacultyRecord() {
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/bind_rfid', {
+      const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: '', rfid: '' }),
@@ -183,64 +184,66 @@ function FacultyRecord() {
   return (
     <>
       <div className='faculty-record'>
-        {!addFormVisible && (
-          <button onClick={() => setAddFormVisible(true)}>Add Faculty</button>
-        )}
+        <div className='add-faculty-form cont'>
+          {!addFormVisible && (
+            <button onClick={() => setAddFormVisible(true)}>Add Faculty</button>
+          )}
 
-        {addFormVisible && (
-          <form className="faculty-form">
-            <input
-              type="text"
-              placeholder="First Name"
-              value={first_name}
-              onChange={(e) => setFirstname(e.target.value)}
-              required
-            />
-            <input
-              type="text"
-              placeholder="Middle Initial"
-              value={middle_initial}
-              onChange={(e) => setMiddleinitial(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Last Name"
-              value={last_name}
-              onChange={(e) => setLastname(e.target.value)}
-              required
-            />
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              required
-            >
-              <option value="">Choose user type</option>
-              <option value="admin">Admin</option>
-              <option value="faculty">Faculty</option>
-            </select>
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirm_password}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <button type="button" onClick={handleAddFaculty} disabled={loading}>
-              {loading ? 'Adding...' : 'Add Faculty'}
-            </button>
-            <button type="button" onClick={handleCancelBtn}>Cancel</button>
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-          </form>
-        )}
+          {addFormVisible && (
+            <form className="faculty-form">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={first_name}
+                onChange={(e) => setFirstname(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Middle Initial"
+                value={middle_initial}
+                onChange={(e) => setMiddleinitial(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={last_name}
+                onChange={(e) => setLastname(e.target.value)}
+                required
+              />
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                required
+              >
+                <option value="">Choose user type</option>
+                <option value="admin">Admin</option>
+                <option value="faculty">Faculty</option>
+              </select>
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirm_password}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button type="button" onClick={handleAddFaculty} disabled={loading}>
+                {loading ? 'Adding...' : 'Add Faculty'}
+              </button>
+              <button type="button" onClick={handleCancelBtn}>Cancel</button>
+              {errorMessage && <p className="error-message">{errorMessage}</p>}
+            </form>
+          )}
+        </div>
 
-        <div className="faculty-list">
+        <div className="faculty-list cont">
           {Array.isArray(facultyData) && facultyData.length > 0 ? (
             facultyData.map((faculty, index) => (
               <div key={index} className="faculty-item">
@@ -281,7 +284,7 @@ function FacultyRecord() {
           )}
         </div>
 
-        <div className="rfid-list" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="rfid-list cont" style={{ display: 'flex', flexDirection: 'column' }}>
           <h3>Available RFIDs</h3>
           {availableRfids.length > 0 ? (
             availableRfids.map((rfid, index) => (
