@@ -212,14 +212,13 @@ function ComputerControl() {
                 &nbsp;&nbsp;&nbsp;
                 <button
                   type="button"
-                  onClick={handleClearSelection} // Clear button
-                  disabled={selectedPCs.length === 0} // Disable if no PCs are selected
+                  onClick={handleClearSelection}
                 >
                   Clear
                 </button>
               </div>
 
-              {pcs.length === 0 ? ( // Conditional rendering for no PCs found
+              {pcs.length === 0 ? ( 
                 <p>No PCs found</p>
               ) : (
                 <div className="pcs-grid">

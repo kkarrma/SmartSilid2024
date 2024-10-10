@@ -80,21 +80,6 @@
         overflow-y: auto;
         justify-content: center;
         align-items: center;
-        
-        table {
-            width: 100%;
-        }
-
-        th,
-        td {
-            padding: 2px;
-            text-align: center;
-            border: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
 
         .action {
             display: flex;
@@ -112,6 +97,7 @@
         display: none;
     }
 }
+
 @media (max-width: 426px) {
     .subj-table {
       display: none; /* Hide the subj-table on mobile */
@@ -133,7 +119,7 @@
     .section-faculty-row,
     .action-row {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       margin-bottom: 10px; /* Space between rows */
     }
   
