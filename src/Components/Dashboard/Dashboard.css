@@ -9,7 +9,7 @@
   /* --bg3: #f3e5ab; */
   --btn: #007bff; /* add, edit, and update btn */
   --btn-hov: #0056b3; /* hover */
-  --del-btn: #d22121; /* also for remove */
+  --del-btn: #e52929; /* also for remove */
   --del-hov: #821717; /* hover */
   --main-txt: #0c0c0c;
   --h1-txt: #121212;
@@ -30,24 +30,37 @@ body {
 /* Universal btn */
 button {
   flex: 1 1 auto;
-  min-width: 150px;
-  max-width: 200px;
-  padding: 10px;
+  min-width: 20px;
+  max-width: 120px;
+  padding: 8px 20px;
   border-radius: 4px;
   border: 1px solid #ccc;
   background-color: var(--btn);
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
-
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+            
+  &:hover {
+    background-color: var(--btn-hov);
   }
 
-  /* &:hover:not(:disabled) {
-    background-color: var(--btn-hov);
-  } */
+  &:disabled {
+    background-color: #ccc; 
+    cursor: not-allowed; 
+  }
+}
+
+.del-btn {
+  background-color: transparent;
+  border: 2px solid var(--del-btn);
+  color: var(--del-btn);
+  transition: 0.3s ease-in-out;
+  
+  &:hover {
+    color: var(--del-hov);
+    border: 2px solid var(--del-hov);
+    background-color: transparent;
+  }
 }
 
 /* Universal input */
@@ -61,11 +74,26 @@ input {
 /* Universal cont */
 .cont {
   margin-bottom: 20px;
-  gap: 10px;
+  gap: 5px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 10px;
+}
+
+/* Universal table */
+table {
+  width: 100%;
+  th,
+  td {
+    padding: 2px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f2f2f2;
+  }
 }
 
 .dashboard {
@@ -200,6 +228,23 @@ input {
   padding-left: 15px;
 }
 
+.error-message {
+  color: white; /* Text color */
+  background-color: #ffe6e6; /* Light red background */
+  border: 1px solid red; /* Red border */
+  padding: 10px; /* Padding around the text */
+  margin: 20px; /* Margin to separate from other elements */
+  border-radius: 5px; /* Rounded corners */
+  font-size: 16px; /* Font size */
+  display: flex; /* To align items */
+  align-items: center; /* Center vertically */
+  
+  i {
+    margin-right: 10px; /* Space between icon and text */
+  }
+}
+
+
 /* Responsive layout for tablet screens and below */
 @media (max-width: 1024px) {
   .dashboard-panels-wrapper {
@@ -240,6 +285,9 @@ input {
 
 /* Desktop and larger screens (keep panels side by side) */
 @media (min-width: 769px) {
+  body {
+    font-size: 80%;
+  }
   .dashboard-panels-wrapper {
     display: flex;
     flex-direction: row;
@@ -258,6 +306,9 @@ input {
 }
 
 @media (max-width: 769px) {
+  body {
+    font-size: 70%;
+  }
   .side-panel-L {
     display: none;
     position: fixed;
@@ -284,5 +335,11 @@ input {
 
   .mobile-menu-icon {
     display: flex;
+  }  
+}
+
+@media (max-width: 426px) {
+  body {
+    font-size: 70%;
   }
 }

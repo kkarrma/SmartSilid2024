@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './RFIDLogs.css';
+import { API_BASE_URL } from './config';
+import './Logbook.css';
 
 function RFIDLogs() {
   const [logs, setLogs] = useState([]);
@@ -20,7 +21,7 @@ function RFIDLogs() {
 
   const fetchSection = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_sections', {
+      const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify ({ section })
@@ -40,7 +41,7 @@ function RFIDLogs() {
   const fetchRFIDLogs = async () => {
     try {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : ''; // Ensure date is formatted
-      const response = await fetch('http://192.168.10.112:8000/get_logs_rfid', {
+      const response = await fetch(`${API_BASE_URL}/get_logs_rfid`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,44 +88,60 @@ function RFIDLogs() {
 
   return (
     <>
-      <div className='rfid-logs'>
-        <div className="filter-controls">
-          <input
-            type="date"
-            value={start_date}
-            onChange={e => setStartDate(e.target.value)}
-          />
-          <input
-            type="date"
-            value={end_date}
-            onChange={e => setEndDate(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Faculty Name"
-            value={facultyName}
-            onChange={e => setFacultyName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Subject"
-            value={subject}
-            onChange={e => setSubject(e.target.value)}
-          />
-          <select
-            value={section}
-            onChange={e => setSection(e.target.value)}
-          >
-            <option value="">Select Section</option>
-            {availableSections.map(section => (
-              <option key={section} value={section}>{section}</option>
-            ))}
-          </select>
-          <button type="button" onClick={handleFilter}>Filter</button>
-          <button type="button" onClick={handleClearFilters}>Clear</button>
+      <div className='logbook'>
+        <div className="filter-controls cont">
+          <div className='start-date-filter'>
+            <label className='start-date-input'>Start Date: </label>
+            <input
+              type="date"
+              value={start_date}
+              onChange={e => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className='end-date-filter'>
+            <label className='end-date-input'>End Date: </label>
+            <input
+              type="date"
+              value={end_date}
+              onChange={e => setEndDate(e.target.value)}
+            />
+          </div>
+          <div className='faculty-filter'>
+            <input
+              type="text"
+              placeholder="Faculty Name"
+              value={facultyName}
+              onChange={e => setFacultyName(e.target.value)}
+            />
+          </div>
+          <div className='subject-filter'>
+            <input
+              type="text"
+              placeholder="Subject"
+              value={subject}
+              onChange={e => setSubject(e.target.value)}
+            />
+          </div>
+          <div className='section-filter'>
+            <select
+              value={section}
+              onChange={e => setSection(e.target.value)}
+              >
+              <option value="">Select Section</option>
+              {availableSections.map(section => (
+                <option key={section} value={section}>{section}</option>
+              ))}
+            </select>
+          </div>
+          <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
+          <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+          <div className='action-filter'>
+            <button type="button" onClick={handleFilter}>Filter</button>
+            <button type="button" onClick={handleClearFilters}>Clear</button>
+          </div>
         </div>
 
-        <div className="log-table">
+        <div className="log-table cont">
           <table>
             <thead>
               <tr>
@@ -157,16 +174,18 @@ function RFIDLogs() {
           </table>
         </div>
 
-        <div className="pagination-controls">
+        <div className="pagination-controls cont">
           <button 
             onClick={() => setPagination(1)} 
             disabled={pagination === 1}
+            className='first-btn page-btn'
           >
             First
           </button>
           <button 
             onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
             disabled={pagination === 1}
+            className='prev-btn page-btn'
           >
             <i className="fa-solid fa-angle-left"></i>
           </button>
@@ -174,12 +193,14 @@ function RFIDLogs() {
           <button 
             onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
             disabled={pagination === totalPages}
+            className='next-btn page-btn'
           >
             <i className="fa-solid fa-angle-right"></i>
           </button>
           <button 
             onClick={() => setPagination(totalPages)} 
             disabled={pagination === totalPages}
+            className='last-btn page-btn'
           >
             Last
           </button>

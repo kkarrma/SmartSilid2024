@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config';
 import './ComputerControl.css';
+import { useNavigate } from 'react-router-dom';
 
 function ComputerControl() {
   const [pcs, setPcs] = useState([]);
@@ -7,30 +9,81 @@ function ComputerControl() {
   const [selectAll, setSelectAll] = useState(false);
   const [selectedPCs, setSelectedPCs] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [adminInputValue, setAdminInputValue] = useState('');
+  const Navigate = useNavigate();
 
   useEffect(() => {
     fetchComputers();
   }, []);
 
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
+
   const fetchComputers = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_computers');
+      const response = await fetch(`${API_BASE_URL}/get_all_computers`, {
+        headers: { Authorization: `Bearer ${accessToken}`, }
+      });
       if (response.ok) {
         const data = await response.json();
-        const fetchedPCs = data.computers.map(pc => pc.computer_name);
-        setPcs(fetchedPCs);
-        setPcStates(fetchedPCs.reduce((acc, pc) => ({ ...acc, [pc]: { isOn: false, isChecked: false } }), {}));
+        const fetchedPCs = data.computers.map(pc => ({
+          name: pc.computer_name,
+          isAdmin: pc.is_admin 
+        }));
+        
+        setPcs(fetchedPCs.map(pc => pc.name));
+        setPcStates((prevStates) => {
+          const newStates = fetchedPCs.reduce((acc, pc) => ({
+            ...acc,
+            [pc.name]: { 
+              isOn: prevStates[pc.name]?.isOn || false, 
+              isChecked: false, 
+              isAdmin: pc.isAdmin 
+            }
+          }), {});
+  
+          return newStates;
+        });
       } else {
         console.error('Failed to fetch computers');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching computers:', error);
     }
   };
 
   const shutdownPC = async (pcList) => {
     try {
-      await fetch('http://192.168.10.112:8000/shutdown_computers', {
+      await fetch(`${API_BASE_URL}/shutdown_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +97,7 @@ function ComputerControl() {
 
   const wakenPC = async (pcList) => {
     try {
-      await fetch('http://192.168.10.112:8000/wake_computers', {
+      await fetch(`${API_BASE_URL}/wake_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +174,6 @@ function ComputerControl() {
       )
     );
 
-    // Trigger the appropriate server request
     if (turnOn) {
       wakenPC(selectedPCs);
     } else {
@@ -136,7 +188,6 @@ function ComputerControl() {
       [pc]: { ...prevState[pc], isOn: newState },
     }));
 
-    // Trigger the appropriate server request
     if (newState) {
       wakenPC([pc]);
     } else {
@@ -156,6 +207,53 @@ function ComputerControl() {
       }, {})
     );
     setSelectAll(false);
+  };
+
+  const handleSetComputerAdmin = async () => {
+    
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (!adminInputValue) {
+      console.error('No PC selected to set as admin.');
+      return;
+    }
+  
+    try {
+      const response = await fetch(`${API_BASE_URL}/set_computer_admin`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
+        },
+        body: JSON.stringify({ computer_name: adminInputValue }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Failed to make the computer admin:', errorData.status);
+        alert(`Error: ${errorData.status}`);
+      } else {
+        const successData = await response.json();
+        alert(successData.status);
+        setAdminStatus(adminInputValue, true);
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
+      console.error('Failed to make the computer admin:', error);
+    }
+  };
+
+  const setAdminStatus = (computerName, status) => {
+    setPcStates((prevStates) => ({
+      ...prevStates,
+      [computerName]: { ...prevStates[computerName], isAdmin: status }
+    }));
+  };
+
+  const handleAdminInputChange = (event) => {
+    setAdminInputValue(event.target.value);
   };
 
   return (
@@ -188,19 +286,39 @@ function ComputerControl() {
               <button
                 type="button"
                 onClick={() => handleToggleSelectedPCs(true)}
-                disabled={selectedPCs.length === 0} // Disable if no PCs are selected
+                disabled={selectedPCs.length === 0} 
               >
                 Turn On
               </button>
               <button
                 type="button"
                 onClick={() => handleToggleSelectedPCs(false)}
-                disabled={selectedPCs.length === 0} // Disable if no PCs are selected
+                disabled={selectedPCs.length === 0} 
               >
                 Turn Off
               </button>
             </div>
+            
             <div className='computer-list cont'>
+
+              <div className="admin-controls">
+                <select onChange={handleAdminInputChange} value={adminInputValue}>
+                  <option value="">Select Admin PC</option>
+                  {pcs.map((pc) => (
+                    <option key={pc} value={pc}>
+                      {pc}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleSetComputerAdmin}
+                  disabled={!adminInputValue}
+                >
+                  Set Admin
+                </button>
+              </div>
+
               <div className="checkbox-container">
                 <input
                   type="checkbox"
@@ -211,32 +329,32 @@ function ComputerControl() {
                 &nbsp;&nbsp;&nbsp;
                 <button
                   type="button"
-                  onClick={handleClearSelection} // Clear button
-                  disabled={selectedPCs.length === 0} // Disable if no PCs are selected
+                  onClick={handleClearSelection}
                 >
                   Clear
                 </button>
               </div>
 
-              {pcs.length === 0 ? ( // Conditional rendering for no PCs found
+              {pcs.length === 0 ? ( 
                 <p>No PCs found</p>
               ) : (
                 <div className="pcs-grid">
                   {pcs.map((pc) => (
                     <div 
                       key={pc} 
-                      className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''}`} 
-                      onClick={() => handleCheckBoxChange(pc)} // Toggle checkbox on click
+                      className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''} 
+                                          ${pcStates[pc]?.isAdmin ? 'isAdmin' : ''}`}
+                      onClick={() => handleCheckBoxChange(pc)} 
                     >
                       <div className="pc-icon">
-                        <i className="fa-solid fa-desktop"></i> {/* Font Awesome PC icon */}
+                        <i className="fa-solid fa-desktop"></i> 
                       </div>
                       <div className="checkbox-cell">
                         <input
                           type="checkbox"
                           checked={pcStates[pc]?.isChecked}
-                          onChange={() => handleCheckBoxChange(pc)} // Ensure checkbox updates state
-                          className="hidden-checkbox" // Add class for styling
+                          onChange={() => handleCheckBoxChange(pc)}
+                          className="hidden-checkbox"
                         />
                         <div className="pc-name">{pc}</div>
                       </div>
@@ -245,7 +363,7 @@ function ComputerControl() {
                           <input
                             type="checkbox"
                             checked={pcStates[pc]?.isOn}
-                            onChange={() => handleRowTogglePC(pc)} // Toggle the PC state
+                            onChange={() => handleRowTogglePC(pc)} 
                           />
                           <span className="slider" />
                         </label>
@@ -261,7 +379,7 @@ function ComputerControl() {
                     <tr className="pcs-table-header">
                       <th>Select</th>
                       <th>PC Name</th>
-                      <th>Action</th>
+                      <th>Off | On</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -271,14 +389,21 @@ function ComputerControl() {
                           <input
                             type="checkbox"
                             checked={pcStates[pc]?.isChecked}
-                            onChange={() => handleCheckBoxChange(pc)} // Ensure checkbox updates state
+                            onChange={() => handleCheckBoxChange(pc)} 
                           />
                         </td>
                         <td>{pc}</td>
                         <td>
-                          <button onClick={() => handleRowTogglePC(pc)}>
-                            {pcStates[pc]?.isOn ? 'Turn Off' : 'Turn On'}
-                          </button>
+                          <div className="action">
+                            <label className="toggle-switch">
+                              <input
+                                type="checkbox"
+                                checked={pcStates[pc]?.isOn}
+                                onChange={() => handleRowTogglePC(pc)}
+                              />
+                              <span className="slider" />
+                            </label>
+                          </div>
                         </td>
                       </tr>
                     ))}

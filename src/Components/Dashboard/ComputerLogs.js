@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './ComputerLogs.css';
+import { API_BASE_URL } from './config';
+import './Logbook.css';
 
 function ComputerLogs() {
   const [logs, setLogs] = useState([]);
@@ -18,7 +19,7 @@ function ComputerLogs() {
 
   const fetchComputers = async () => {
     try {
-      const response = await fetch('http://192.168.10.112:8000/get_all_computers');
+      const response = await fetch(`${API_BASE_URL}/get_all_computers`);
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => pc.computer_name);
@@ -36,7 +37,7 @@ function ComputerLogs() {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : '';
       const formattedEndDate = end_date ? new Date(end_date).toISOString().split('T')[0] : '';
 
-      const response = await fetch('http://192.168.10.112:8000/get_logs_computer', {
+      const response = await fetch(`${API_BASE_URL}/get_logs_computer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -83,38 +84,52 @@ function ComputerLogs() {
 
   return (
     <>
-      <div className='copmuter-logs'>
-        <div className="filter-controls">
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-          />
-          <select
-            value={computer_name}
-            onChange={e => setComputerName(e.target.value)}
-          >
-            <option value="">Select Computer</option>
-            {availableComputers.map(computer => (
-              <option key={computer} value={computer}>{computer}</option>
-            ))}
-          </select>
-          <input
-            type="date"
-            value={start_date}
-            onChange={e => setStartDate(e.target.value)}
-          />
-          <input
-            type="date"
-            value={end_date}
-            onChange={e => setEndDate(e.target.value)}
-          />
-          <button type="button" onClick={handleFilter}>Filter</button>
-          <button type="button" onClick={handleClearFilters}>Clear</button>
+      <div className='logbook'>
+        <div className="filter-controls cont">
+          <div className='username-filter'>
+            <input
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+            />
+          </div>
+          <div className='computer-filter'>
+            <select
+              value={computer_name}
+              onChange={e => setComputerName(e.target.value)}
+            >
+              <option value="">Select Computer</option>
+              {availableComputers.map(computer => (
+                <option key={computer} value={computer}>{computer}</option>
+              ))}
+            </select>
+          </div>
+          <div className='start-date-filter'>
+            <label className='start-date-input'>Start Date: </label>
+            <input
+              type="date"
+              value={start_date}
+              onChange={e => setStartDate(e.target.value)}
+            />
+          </div>
+          <div className='end-date-filter'>
+            <label className='end-date-input'>End Date: </label>
+            <input
+              type="date"
+              value={end_date}
+              onChange={e => setEndDate(e.target.value)}
+            />
+          </div>
+          <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
+          <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+          <div className='action-filter'>
+            <button type="button" onClick={handleFilter}>Filter</button>
+            <button type="button" onClick={handleClearFilters}>Clear</button>
+          </div>
         </div>
 
-        <div className="log-table">
+        <div className="log-table cont">
           <table>
             <thead>
               <tr>
@@ -159,16 +174,18 @@ function ComputerLogs() {
           </table>
         </div>
 
-        <div className="pagination-controls">
+        <div className="pagination-controls cont">
           <button 
             onClick={() => setPagination(1)} 
             disabled={pagination === 1}
+            className='first-btn page-btn'
           >
             First
           </button>
           <button 
             onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
             disabled={pagination === 1}
+            className='prev-btn page-btn'
           >
             <i class="fa-solid fa-angle-left"></i>
           </button>
@@ -176,12 +193,14 @@ function ComputerLogs() {
           <button 
             onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
             disabled={pagination === totalPages}
+            className='next-btn page-btn'
           >
             <i class="fa-solid fa-angle-right"></i>
           </button>
           <button 
             onClick={() => setPagination(totalPages)} 
             disabled={pagination === totalPages}
+            className='last-btn page-btn'
           >
             Last
           </button>

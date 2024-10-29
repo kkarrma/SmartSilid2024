@@ -9,6 +9,8 @@ import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
 import WebFilter from './WebFilter';
 import Notification from './Notification';
+import { API_BASE_URL } from './config';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState(() => {
@@ -18,16 +20,48 @@ function Dashboard() {
   const [isUserRecordOpen, setIsUserRecordOpen] = useState(false);
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
-
-  // Store the selected menu in localStorage whenever it changes
+  const [userName, setUserName] = useState(false); 
+  const Navigate = useNavigate();
+  
   useEffect(() => {
     localStorage.setItem('selectedMenu', selectedMenu);
   }, [selectedMenu]);
+  
+  useEffect(() => {
+    handleTokenRefresh();
+  }, []);
 
   const toggleUserRecord = () => {
     setIsUserRecordOpen(!isUserRecordOpen);
     if (!isUserRecordOpen) {
       setIsLogbookOpen(false);
+    }
+  };
+
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
     }
   };
 
@@ -77,8 +111,8 @@ function Dashboard() {
 
   const renderRightPanelContent = () => {
     switch (selectedMenu) {
-      case 'Room Schedule':
-        return <div>Room Schedule Sidebar Content</div>;
+      // case 'Room Schedule':
+      //   return <div>Room Schedule Sidebar Content</div>;
       case 'RFID Record':
         return <div>RFID Record Sidebar Content</div>;
       default:
@@ -99,7 +133,7 @@ function Dashboard() {
         </div>
         <div className="right-head">
           <div className="prof-icon"><i className="fa-regular fa-user"></i></div>
-          <div className="prof-name">Juan Dela Cruz</div>
+          <div className="prof-name">{userName}</div>
           <div className="drop"><i className="fa-solid fa-angle-right"></i></div>
         </div>
       </div>
@@ -198,7 +232,7 @@ function Dashboard() {
           <div className="side-panel-R">
             {renderRightPanelContent()}
           </div>
-        )}
+        )}      
       </div>
     </div>
   );
