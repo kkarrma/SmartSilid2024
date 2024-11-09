@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
-// import videojs from 'video.js'; // Ensure video.js is installed: `npm install video.js`
-// import 'video.js/dist/video-js.css'; // Import video.js styles
+
+// npm install video.js
+// import videojs from 'video.js'; 
+// import 'video.js/dist/video-js.css'; 
 import './Casting.css';
 import { API_BASE_URL } from './config';
 import { useNavigate } from 'react-router-dom';

@@ -20,7 +20,7 @@ function Dashboard() {
   const [isUserRecordOpen, setIsUserRecordOpen] = useState(false);
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
-  const [userName, setUserName] = useState(false); 
+  const [userName, setUserName] = useState(false);
   const [userType, setUserType] = useState(''); 
   const Navigate = useNavigate();
   

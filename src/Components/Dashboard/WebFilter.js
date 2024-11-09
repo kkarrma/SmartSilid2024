@@ -56,7 +56,6 @@ function WebFilter() {
       }
     } catch (error) {
       if (error instanceof Error) {
-        // Handle 401 error (unauthorized)
         if (error.response && error.response.status === 401) {
           await handleTokenRefresh();
         }
@@ -80,7 +79,7 @@ function WebFilter() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ url: newBlockURL }),
       });
@@ -92,7 +91,6 @@ function WebFilter() {
       fetchURLs(); 
     } catch (error) {
       if (error instanceof Error) {
-        // Handle 401 error (unauthorized)
         if (error.response && error.response.status === 401) {
           await handleTokenRefresh();
         }
@@ -124,6 +122,9 @@ function WebFilter() {
 
       fetchURLs(); 
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       if (error instanceof Error) {
         console.error('Error deleting URL:', error.message || error);
         alert('Failed to delete URL. Please try again.');

@@ -1,12 +1,12 @@
 :root {
   /* bg colors */
   --bg1: #ffffff;
-  --bg2: #b5fbb6; /* header-footer gradient with white */
+  /* --bg2: #b5fbb6;  */
+  --bg2: #e0f2ff;
   --bg3: #75bdc3;
   --bg4: #f3c41c;
   --bg5: #edf3f0;
-  --bg6: #4caf50;
-  /* --bg3: #f3e5ab; */
+  --bg6: #75bdc3;
   --btn: #007bff; /* add, edit, and update btn */
   --btn-hov: #0056b3; /* hover */
   --del-btn: #e52929; /* also for remove */
@@ -38,7 +38,7 @@ button {
   background-color: var(--btn);
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s ease-in-out;
             
   &:hover {
     background-color: var(--btn-hov);
@@ -128,7 +128,7 @@ a {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: 0.3s ease-in-out;
 
     &:hover {
       background-color: var(--btn-hov);
@@ -175,7 +175,9 @@ a {
   align-items: center;
   padding: 1rem;
   background: var(--bg2);
-  background: linear-gradient(90deg, var(--bg1) 0%, var(--bg2) 80%);
+  /* background: linear-gradient(90deg, var(--bg1) 0%, var(--bg2) 80%); */
+  background: linear-gradient(180deg, var(--bg1) 30%, var(--bg2) 90%);
+
 }
 
 .mid-head .head-logo {
@@ -209,10 +211,9 @@ a {
 .side-panel-L {
   width: 100%;
   max-width: 200px;
-  background-color: var(--bg5);
   padding: 10px;
   overflow-y: auto;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -223,6 +224,7 @@ a {
   padding: 20px;
   background-color: var(--bg1);
   overflow-y: auto;
+  /* border-left: solid 2px var(--bg3); */
 }
 
 /* Right side panel (default layout for desktop/laptop) */
@@ -239,11 +241,12 @@ a {
   display: none;
   cursor: pointer;
   padding: 10px 10px 10px 15px; 
-  transition: background-color 0.5s ease, transform 0.5s ease;
+  transition: 0.3s ease-in-out, 0.5s ease-in-out;
 }
 
 .mobile-menu-icon.active {
-  background-color: rgba(0, 0, 0, 0.2); 
+  background-color: var(--bg3);
+  color: white; 
   transform: scale(1.1); 
   clip-path: polygon(0 50%, 35% 0, 100% 0, 100% 100%, 35% 100%);
 }
@@ -264,10 +267,9 @@ a {
 .menu-panel {
   display: flex;
   align-items: center;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s ease-in-out;
 }
 
 .menu-panel i {
@@ -275,15 +277,19 @@ a {
 }
 
 .menu-panel:hover {
-  background-color: #d7d7d7;
+  background-color: #f4f4f4;
 }
 
 .menu-panel.selected:hover {
-  background-color: #c2e6c5;
+  /* background-color: var(--bg3); */
 }
 
+.menu-panel.selected:hover,
 .menu-panel.selected {
-  background-color: #c2e6c5;
+  /* background-color: var(--bg3); */
+  color: var(--btn);
+  font-weight: bold;
+  transform: scale(1.1); 
 }
 
 /* Submenu indentation */
@@ -292,18 +298,18 @@ a {
 }
 
 .error-message {
-  color: black; /* Text color */
-  background-color: #ffe6e6; /* Light red background */
-  border: 1px solid red; /* Red border */
-  padding: 10px; /* Padding around the text */
-  margin: 20px; /* Margin to separate from other elements */
-  border-radius: 5px; /* Rounded corners */
-  font-size: 16px; /* Font size */
-  display: flex; /* To align items */
-  align-items: center; /* Center vertically */
+  color: black; 
+  background-color: #ffe6e6;
+  border: 1px solid red;
+  padding: 10px; 
+  margin: 20px; 
+  border-radius: 5px;
+  font-size: 16px; 
+  display: flex; 
+  align-items: center;
   
   i {
-    margin-right: 10px; /* Space between icon and text */
+    margin-right: 10px;
   }
 }
 
@@ -317,7 +323,7 @@ a {
   .side-panel-R {
     width: 100%;
     height: auto;
-    order: 1; /* Move the right panel to the top */
+    order: 1; 
     padding-bottom: 10px;
   }
 
@@ -359,12 +365,12 @@ a {
   .side-panel-R {
     width: 250px;
     flex-shrink: 0;
-    order: 2; /* Ensure right panel stays on the side */
+    order: 2;
   }
 
   .content-panel {
     order: 1;
-    margin-right: 10px; /* Prevent overlap by adding space */
+    margin-right: 10px; 
   }
 }
 
@@ -376,24 +382,24 @@ a {
     display: none;
     position: fixed;
     left: 0;
-    top: 82px; /* Adjust this to the height of your header */
+    top: 82px;
     width: 200px;
-    height: calc(100vh - 60px); /* Ensure the panel takes the full height of the screen minus the header */
+    height: calc(100vh - 60px);
     background-color: var(--bg5);
     opacity: 95%;
-    z-index: 1000; /* Ensure it overlaps the content */
+    z-index: 1000;
     transform: translateX(-0%);
-    transition: transform 0.3s ease;
+    transition: 0.3s ease-in-out;
   }
 
   .side-panel-L.open {
     display: block;
-    transform: translateX(0); /* Slide in when open */
+    transform: translateX(0); 
   }
 
   .content-panel {
     position: relative;
-    z-index: 1; /* Keep content below the side panel */
+    z-index: 1;
   }
 
   .mobile-menu-icon {

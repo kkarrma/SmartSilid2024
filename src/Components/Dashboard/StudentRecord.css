@@ -1,36 +1,36 @@
 .student-record {
   .section-form {
-      margin-bottom: 20px; 
+    margin-bottom: 20px; 
 
-      .new-section-form {
-          margin-bottom: 20px; 
-          gap: 10px;
-      }
+    .new-section-form {
+      margin-bottom: 20px; 
+      gap: 10px;
+    }
   }
 
   .sections-container {
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 10px; 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
   }
 
   .section-item {
-      flex: 0 1 auto; 
-      max-width: 120px;
-      position: relative;
+    flex: 0 1 auto; 
+    max-width: 120px;
+    position: relative;
   }
 
   .section-btn {
-      position: relative;
-      padding: 8px 40px;
-      transition: 0.1s ease-in-out; 
+    position: relative;
+    padding: 8px 40px;
+    transition: 0.1s ease-in-out; 
   
-      &.selected {
-          font-size: 120%;
-          font-weight: bold;
-          padding: 7px 40px;
-          border-bottom: 4px solid var(--btn-hov);
-      }   
+    &.selected {
+      font-size: 120%;
+      font-weight: bold;
+      padding: 7px 40px;
+      border-bottom: 4px solid var(--btn-hov);
+    }   
   }
 
   .remove-btn {

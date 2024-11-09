@@ -27,11 +27,16 @@
       gap: 5px;
     }
 
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 426px) {
       .stream-container {
         display: block; 
       }
     }
+  }
+
+  .cont-divider {
+    margin: 10px 0 10px 0;
+    border-top: 2px solid var(--bg2);
   }
 
   .admin-controls {
@@ -56,8 +61,6 @@
     align-items: center;
     margin-bottom: 10px;
   }
-
-
 
   .pcs-grid {
     display: grid;

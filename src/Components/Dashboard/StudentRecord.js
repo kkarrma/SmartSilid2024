@@ -48,6 +48,11 @@
             return 0;
         });
 
+        
+        useEffect(() => {
+            setUsername(`${first_name}.${last_name}.${middle_initial}`);
+        }, [first_name, last_name, middle_initial]);
+
         const handleTokenRefresh = async () => {
             const refreshToken = localStorage.getItem('refreshToken');
         
@@ -85,6 +90,8 @@
             setFormVisible(false)
             setEditFormVisible(true)
         };
+
+        const handleUpdateStudent = async () => {}
 
         const handleDeleteStudent = async (student) => { 
             const accessToken = localStorage.getItem('accessToken');
@@ -607,6 +614,16 @@
                                                     required
                                                 />
                                             </div>
+                                            <div>
+                                                <label htmlFor="username">Username: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="username"
+                                                    value={username}
+                                                    onChange={(e) => setUsername(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
                                         </div>
                                         <div className="creds-div">
                                             <input type="hidden" id="type" />
@@ -691,6 +708,12 @@
                                                     value={last_name}
                                                     onChange={(e) => setLastname(e.target.value)}
                                                 />
+                                            </div>
+                                            <div>
+                                                <button type="button" onClick={() => handleMoveSection(selectedStudent, section)}>
+                                                    Move Section
+                                                </button>
+                                                <button  type="button" onClick={() => handleEditStudent}></button>
                                             </div>
                                         </div>
                                         <div className="creds-div">

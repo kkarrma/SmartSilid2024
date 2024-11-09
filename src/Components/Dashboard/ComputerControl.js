@@ -344,9 +344,10 @@ function ComputerControl() {
               {/* <a href="192.168.10.112:8000/stream" target="_blank">Go to Stream Page</a> */}
               <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">Go to Stream Page</a>
 
-
             </div>
           </div>
+
+          <div className='cont-divider'></div>
 
           <form>
             <div className="controls-row cont">

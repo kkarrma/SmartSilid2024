@@ -340,7 +340,8 @@ function RoomSchedule() {
               setSchedFormVisible(true);
               setEditFormVisible(false);
             }}>
-              <i className="fa-solid fa-plus"></i> Add Schedule
+              {/* <i className="fa-solid fa-plus"></i>  */}
+              Add Schedule
             </button>
           </div>
         )}
