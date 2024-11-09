@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './Logbook.css';
+import { useNavigate } from 'react-router-dom';
 
 function ComputerLogs() {
   const [logs, setLogs] = useState([]);
@@ -11,15 +12,46 @@ function ComputerLogs() {
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
   const [availableComputers, setAvailableComputers] = useState([]);
+  const Navigate = useNavigate();
 
   useEffect(() => {
     fetchComputerLogs();
     fetchComputers();
   }, [pagination]);
+  
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
 
-  const fetchComputers = async () => {
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
+  
+  const fetchComputers = async () => { 
+    const accessToken = localStorage.getItem('accessToken');
     try {
-      const response = await fetch(`${API_BASE_URL}/get_all_computers`);
+      const response = await fetch(`${API_BASE_URL}/get_all_computers`, {
+        headers: { Authorization: `Bearer ${accessToken}`, }
+      });
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => pc.computer_name);
@@ -28,11 +60,15 @@ function ComputerLogs() {
         console.error('Failed to fetch computers');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching computers:', error);
     }
   };
 
-  const fetchComputerLogs = async () => {
+  const fetchComputerLogs = async () => { 
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : '';
       const formattedEndDate = end_date ? new Date(end_date).toISOString().split('T')[0] : '';
@@ -40,7 +76,8 @@ function ComputerLogs() {
       const response = await fetch(`${API_BASE_URL}/get_logs_computer`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
         },
         body: JSON.stringify({
           start_date: formattedStartDate,
@@ -61,6 +98,9 @@ function ComputerLogs() {
         console.error('Failed to fetch logs');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching logs:', error);
     }
   };
@@ -187,7 +227,7 @@ function ComputerLogs() {
             disabled={pagination === 1}
             className='prev-btn page-btn'
           >
-            <i class="fa-solid fa-angle-left"></i>
+            <i className="fa-solid fa-angle-left"></i>
           </button>
           <span>{pagination} of {totalPages}</span>
           <button 
@@ -195,7 +235,7 @@ function ComputerLogs() {
             disabled={pagination === totalPages}
             className='next-btn page-btn'
           >
-            <i class="fa-solid fa-angle-right"></i>
+            <i className="fa-solid fa-angle-right"></i>
           </button>
           <button 
             onClick={() => setPagination(totalPages)} 

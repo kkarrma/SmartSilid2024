@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
 import './RoomSchedule.css';
+import { useNavigate } from 'react-router-dom';
 
 function RoomSchedule() {
   const [id, setId] = useState('');
@@ -16,6 +17,34 @@ function RoomSchedule() {
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [editSchedule, setEditSchedule] = useState(null);
   const [facultyList, setFacultyList] = useState([]);
+  const Navigate = useNavigate();
+
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
 
   const fetchSchedules = async () => {
     try {
@@ -31,8 +60,11 @@ function RoomSchedule() {
   };
 
   const fetchSections = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
-      const response = await fetch(`${API_BASE_URL}/get_all_sections`);
+      const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
       if (response.ok) {
         const data = await response.json();
         setSections(data.sections.map(sec => sec.name));
@@ -40,19 +72,29 @@ function RoomSchedule() {
         console.error('Failed to fetch sections');
       }
     } catch (error) {
+      if(error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching sections:', error);
     }
   };
 
   const fetchFaculty = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/get_all_faculty`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        }
       });
       const data = await response.json();
       setFacultyList(data.faculties || []);
     } catch (error) {
+      if (error.response.status === 401) {  
+        await handleTokenRefresh();
+      }
       console.error('Error fetching faculty:', error);
     }
   };
@@ -81,6 +123,7 @@ function RoomSchedule() {
   };
 
   const handleAddSchedule = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     if (!newSubject || !newDay || !start_time || !end_time || !faculty || !selectedSection) {
       alert('Please fill in all fields');
       return;
@@ -89,7 +132,10 @@ function RoomSchedule() {
     try {
       const response = await fetch(`${API_BASE_URL}/add_schedule`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify({
           id,
           subject: newSubject,
@@ -108,6 +154,9 @@ function RoomSchedule() {
       fetchSchedules();
       resetForm();
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error adding schedule:', error);
       alert('Failed to add schedule. Please try again.');
     }
@@ -131,10 +180,14 @@ function RoomSchedule() {
   };
 
   const handleEditSched = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       await fetch(`${API_BASE_URL}/update_schedule`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify({
           id: editSchedule.id,
           subject: editSchedule.subject,
@@ -149,23 +202,33 @@ function RoomSchedule() {
       setEditFormVisible(false);
       resetForm();
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error editing schedule:', error);
       alert('Failed to edit schedule. Please try again.');
     }
   };
 
   const handleDeleteSchedule = async (schedule) => {
+    const accessToken = localStorage.getItem('accessToken');
     const confirmDelete = window.confirm(`Are you sure you want to delete ${schedule.subject}?`);
     if (!confirmDelete) return;
 
     try {
       await fetch(`${API_BASE_URL}/delete_schedule`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify({ id: schedule.id }),
       });
       fetchSchedules();
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error deleting schedule:', error);
     }
   };

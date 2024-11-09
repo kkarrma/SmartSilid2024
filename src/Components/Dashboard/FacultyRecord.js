@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from './config';
 import './FacultyRecord.css';
+import { useNavigate } from 'react-router-dom';
 
 function FacultyRecord() {
   const [first_name, setFirstname] = useState('');
@@ -10,6 +11,16 @@ function FacultyRecord() {
   const [type, setType] = useState('');
   const [password, setPassword] = useState('');
   const [confirm_password, setConfirmPassword] = useState('');
+  // New Inputted Credentials 
+  const [id, setId] = useState('');
+  const [newFName, setNewFName] = useState('');
+  const [newLName, setNewLName] = useState('');
+  const [newMInit, setNewMInit] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [newType, setNewType] = useState('');
+  // const [newPass,setNewPass] = useState('');
+  // const [newConfPass,setNewConfPass] = useState('');
+
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [addFormVisible, setAddFormVisible] = useState(false);
   const [facultyData, setFacultyData] = useState([]);
@@ -18,22 +29,55 @@ function FacultyRecord() {
   const [rfidBindings, setRfidBindings] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const fileInput = useRef(null);
+  const Navigate = useNavigate();
 
   useEffect(() => {
     setUsername(`${first_name}.${last_name}.${middle_initial}`);
   }, [first_name, last_name, middle_initial]);
 
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
 
-  const fetchFaculty = async () => {
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
+
+  const fetchFaculty = async () => { 
+    const accessToken = localStorage.getItem('accessToken');
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}` 
+         },
         body: JSON.stringify({ username }),
       });
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         setFacultyData(data.faculties);
         const rfids = data.rfid.map(r => r.rfid);
         setAvailableRfids(rfids);
@@ -41,6 +85,9 @@ function FacultyRecord() {
         setErrorMessage('Failed to fetch faculty data. Please try again later.');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       setErrorMessage('Error fetching faculty data. Please check your connection.');
     } finally {
       setLoading(false);
@@ -52,6 +99,7 @@ function FacultyRecord() {
   }, []);
 
   const handleAddFaculty = async (e) => {
+    const accessToken = localStorage.getItem('accessToken');
     e.preventDefault();
     if (!first_name || !last_name || !type || !password || !confirm_password) {
       setErrorMessage('Please fill in all fields correctly.');
@@ -69,7 +117,10 @@ function FacultyRecord() {
     try {
       const response = await fetch(`${API_BASE_URL}/create_faculty`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
+        },
         body: JSON.stringify({
           first_name,
           last_name,
@@ -88,17 +139,84 @@ function FacultyRecord() {
         setErrorMessage(errorData.message || 'Failed to create faculty. Please try again.');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       setErrorMessage('An error occurred while creating faculty. Please check your connection.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteFaculty = async (facultyUsername) => {
+  const handleEditFaculty = async (e) => {
+    const accessToken = localStorage.getItem('accessToken');
+  
+    if (!newFName || !newLName || !newMInit || !newUsername || !newType) {
+      setErrorMessage('Please fill in all fields correctly.');
+      return;
+    }
+  
+    setLoading(true);
+    setErrorMessage('');
+  
+    try {
+      const response = await fetch(`${API_BASE_URL}/update_faculty`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          id : id,
+          username: newUsername,
+          first_name: newFName,
+          last_name: newLName,
+          middle_initial: newMInit,
+          type: newType,
+        }),
+      });
+  
+      if (response.ok) {
+        fetchFaculty(); // Refresh faculty data
+        setEditFormVisible(false);
+        const data = await response.json();
+        console.log(data);
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Failed to update faculty. Please try again.');
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        await handleTokenRefresh();
+        handleEditFaculty(e);
+      } else {
+        setErrorMessage('An error occurred while updating faculty. Please check your connection.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditClick = (faculty) => {
+    setId(faculty.id);
+    setNewFName(faculty.first_name);
+    setNewLName(faculty.last_name);
+    setNewMInit(faculty.middle_initial);
+    setNewType(faculty.type);
+    setNewUsername(faculty.username);
+    setEditFormVisible(true);
+    setAddFormVisible(false);
+  };
+
+  const handleDeleteFaculty = async (facultyUsername) => { 
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/delete_faculty`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
         body: JSON.stringify({ username: facultyUsername }),
       });
       if (response.ok) {
@@ -107,15 +225,22 @@ function FacultyRecord() {
         setErrorMessage('Failed to delete faculty. Please try again later.');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       setErrorMessage('An error occurred while deleting faculty. Please check your connection.');
     }
   };
 
   const handleDeleteRFID = async (rfid) => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({ rfid }),
       });
       if (response.ok) {
@@ -129,12 +254,16 @@ function FacultyRecord() {
   };
 
   const handleBindRFID = async (username, rfid) => {
+    const accessToken = localStorage.getItem('accessToken');
     const facultyUsername = rfidBindings[rfid];
     if (facultyUsername !== 'none') {
       try {
         const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
           body: JSON.stringify({ username: facultyUsername, rfid }),
         });
         if (response.ok) {
@@ -143,16 +272,23 @@ function FacultyRecord() {
           setErrorMessage('Failed to bind RFID. Please try again later.');
         }
       } catch (error) {
+        if (error.response.status === 401) {
+          await handleTokenRefresh();
+        }
         setErrorMessage('An error occurred while binding RFID. Please check your connection.');
       }
     }
   };
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({ username: '', rfid: '' }),
       });
       if (response.ok) {
@@ -161,6 +297,9 @@ function FacultyRecord() {
         setErrorMessage('Failed to unbind RFID. Please try again later.');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
     }
   };
@@ -181,12 +320,53 @@ function FacultyRecord() {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
+  const handleFacultyFileUpload = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
+        method: 'POST',
+        headers: {
+          // 'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ file: fileInput.current.files[0] }),
+      })
+    } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
+      setErrorMessage('Failed to upload faculty. Please check your connection.');
+
+    }
+  }
+
   return (
     <>
       <div className='faculty-record'>
         <div className='add-faculty-form cont'>
           {!addFormVisible && (
-            <button onClick={() => setAddFormVisible(true)}>Add Faculty</button>
+            <div className='adding-section-btn'>
+               <div className='adding-btn-section'>
+                <button onClick={() => {
+                  setAddFormVisible(true);
+                  setEditFormVisible(false);
+                }}>
+                  Add Faculty
+                </button>
+                <div className='adding-file-section'>
+                    <input 
+                        className='file-batch-input'
+                        type='file'
+                        ref={fileInput}
+                        accept=".xlsx, .xls"
+                    />
+                    <button className="add-section-btn" onClick={handleFacultyFileUpload}>
+                        Upload
+                    </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {addFormVisible && (
@@ -209,6 +389,13 @@ function FacultyRecord() {
                 placeholder="Last Name"
                 value={last_name}
                 onChange={(e) => setLastname(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
               <select
@@ -243,6 +430,54 @@ function FacultyRecord() {
           )}
         </div>
 
+        <div className="edit-faculty-form cont">
+          {editFormVisible && (
+            <form className="faculty-form">
+              <input
+                type="text"
+                placeholder="First Name"
+                value={newFName}
+                onChange={(e) => setNewFName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Middle Initial"
+                value={newMInit}
+                onChange={(e) => setNewMInit(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Last Name"
+                value={newLName}
+                onChange={(e) => setNewLName(e.target.value)}
+                required
+              />
+              <input
+                type="text"
+                placeholder="Username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                required
+              />
+              <select
+                value={newType}
+                onChange={(e) => setNewType(e.target.value)}
+                required
+              >
+                <option value="">Choose user type</option>
+                <option value="admin">Admin</option>
+                <option value="faculty">Faculty</option>
+              </select>
+              <button type="button" onClick={handleEditFaculty} disabled={loading}>
+                {loading ? 'Updating...' : 'Update'}
+              </button>
+              <button type="button" onClick={handleCancelBtn}>Cancel</button>
+              {errorMessage && <p className="error-message">{errorMessage}</p>}
+            </form>
+          )}
+        </div>
+
         <div className="faculty-list cont">
           {Array.isArray(facultyData) && facultyData.length > 0 ? (
             facultyData.map((faculty, index) => (
@@ -253,6 +488,11 @@ function FacultyRecord() {
                   <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
                     <button onClick={() => handleDeleteFaculty(faculty.username)}>
                       <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                    <button onClick={() => {
+                      handleEditClick(faculty);
+                    }}>
+                      <i className="fa-solid fa-pen-to-square"></i>
                     </button>
                   </div>
                 </div>

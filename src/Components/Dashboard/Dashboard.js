@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import ComputerControl from './ComputerControl';
-import Casting from './Casting';
+// import Casting from './Casting';
 import RoomSchedule from './RoomSchedule';
 import ComputerLogs from './ComputerLogs';
 import RFIDLogs from './RFIDLogs';
 import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
 import WebFilter from './WebFilter';
-import Notification from './Notification';
+import UserPage from './UserPage';
 import { API_BASE_URL } from './config';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +21,7 @@ function Dashboard() {
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
   const [userName, setUserName] = useState(false); 
+  const [userType, setUserType] = useState(''); 
   const Navigate = useNavigate();
   
   useEffect(() => {
@@ -29,6 +30,7 @@ function Dashboard() {
   
   useEffect(() => {
     handleTokenRefresh();
+    checkDashToAccess(); 
   }, []);
 
   const toggleUserRecord = () => {
@@ -36,6 +38,12 @@ function Dashboard() {
     if (!isUserRecordOpen) {
       setIsLogbookOpen(false);
     }
+  };
+
+  const checkDashToAccess = () => {
+    const userTypeFromStorage = localStorage.getItem('type');
+    setUserType(userTypeFromStorage || ''); 
+    console.log('DATA TYPE: ', userType);
   };
 
   const handleTokenRefresh = async () => {
@@ -88,8 +96,8 @@ function Dashboard() {
     switch (selectedMenu) {
       case 'Computer Control':
         return <ComputerControl />;
-      case 'Casting':
-        return <Casting />;
+      // case 'Casting':
+      //   return <Casting />;
       case 'Room Schedule':
         return <RoomSchedule />;
       case 'Computer Logs':
@@ -102,8 +110,8 @@ function Dashboard() {
         return <FacultyRecord />;
       case 'Web Filter':
         return <WebFilter />;
-      case 'Notification':
-        return <Notification />;
+      case 'User Page':
+        return <UserPage/>;
       default:
         return <ComputerControl />;
     }
@@ -131,10 +139,16 @@ function Dashboard() {
         <div className='mid-head'>
           <div className="head-logo"></div>
         </div>
-        <div className="right-head">
-          <div className="prof-icon"><i className="fa-regular fa-user"></i></div>
-          <div className="prof-name">{userName}</div>
-          <div className="drop"><i className="fa-solid fa-angle-right"></i></div>
+        <div className="right-head"
+          onClick={() => {
+            setSelectedMenu('User Page');
+            closeAllDrops();
+          }}
+        >
+          <a>
+            <div className="prof-icon"><i className="fa-regular fa-user"></i></div>
+            <div className="prof-name">{userName}</div>
+          </a>
         </div>
       </div>
 
@@ -145,83 +159,80 @@ function Dashboard() {
               setSelectedMenu('Computer Control');
               closeAllDrops();
             }}>
-            <i className="fa-solid fa-network-wired"></i>
+            {/* <i className="fa-solid fa-network-wired"></i> */}
             Computer Controls
           </div>
-          <div className={`menu-panel dash ${selectedMenu === 'Casting' ? 'selected' : ''}`} 
+          {/* <div className={`menu-panel dash ${selectedMenu === 'Casting' ? 'selected' : ''}`} 
             onClick={() => {
               setSelectedMenu('Casting');
               closeAllDrops();
             }}>
             <i className="fa-solid fa-computer"></i>
             Casting
-          </div>
-          <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
-            onClick={() => {
-              setSelectedMenu('Room Schedule');
-              closeAllDrops();
-            }}>
-            <i className="fa-solid fa-calendar-days"></i>
-            Room Schedule
-          </div>
-          <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
-            <i className="fa-solid fa-book-open"></i>
-            Logbook
-            <i className={`fa-solid ${isLogbookOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
-          </div>
-          {isLogbookOpen && (
-            <div className="submenu">
-              <div className={`menu-panel dash ${selectedMenu === 'Computer Logs' ? 'selected' : ''}`} 
-                onClick={() => setSelectedMenu('Computer Logs')}>
-                &nbsp;&nbsp;
-                <i className="fa-solid fa-desktop"></i>
-                Computer Logs
+          </div> */}
+
+          {userType == 'admin' && (
+            <>
+              <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
+              onClick={() => {
+                setSelectedMenu('Room Schedule');
+                closeAllDrops();
+              }}>
+              {/* <i className="fa-solid fa-calendar-days"></i> */}
+              Room Schedule
               </div>
-              <div className={`menu-panel dash ${selectedMenu === 'RFID Logs' ? 'selected' : ''}`} 
-                onClick={() => setSelectedMenu('RFID Logs')}>
-                &nbsp;&nbsp;
-                <i className="fa-regular fa-credit-card"></i> 
-                RFID Logs
+              <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
+                {/* <i className="fa-solid fa-book-open"></i> */}
+                Logbook &nbsp;&nbsp;
+                <i className={`fa-solid ${isLogbookOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
               </div>
-            </div>
+              {isLogbookOpen && (
+                <div className="submenu">
+                  <div className={`menu-panel dash ${selectedMenu === 'Computer Logs' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('Computer Logs')}>
+                    &nbsp;&nbsp;
+                    {/* <i className="fa-solid fa-desktop"></i> */}
+                    Computer Logs
+                  </div>
+                  <div className={`menu-panel dash ${selectedMenu === 'RFID Logs' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('RFID Logs')}>
+                    &nbsp;&nbsp;
+                    {/* <i className="fa-regular fa-credit-card"></i>  */}
+                    RFID Logs
+                  </div>
+                </div>
+              )}
+              <div className={`menu-panel dash ${isUserRecordOpen ? 'open' : ''}`} onClick={toggleUserRecord}>
+                {/* <i className="fa-solid fa-user"></i> */}
+                User Record &nbsp;&nbsp;
+                <i className={`fa-solid ${isUserRecordOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
+              </div>
+              {isUserRecordOpen && (
+                <div className="submenu">
+                  <div className={`menu-panel dash ${selectedMenu === 'Student Record' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('Student Record')}>
+                    &nbsp;&nbsp;
+                    {/* <i className="fa-solid fa-users"></i> */}
+                    Student Record
+                  </div>
+                  <div className={`menu-panel dash ${selectedMenu === 'Faculty Record' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('Faculty Record')}>
+                    &nbsp;&nbsp;
+                    {/* <i className="fa-solid fa-user-tie"></i> */}
+                    Faculty Record
+                  </div>
+                </div>
+              )}
+              <div className={`menu-panel dash ${selectedMenu === 'Web Filter' ? 'selected' : ''}`} 
+                onClick={() => {
+                  setSelectedMenu('Web Filter');
+                  closeAllDrops();
+                }}>
+                {/* <i className="fa-solid fa-list-check"></i> */}
+                Web Filter
+              </div> 
+            </>
           )}
-          <div className={`menu-panel dash ${isUserRecordOpen ? 'open' : ''}`} onClick={toggleUserRecord}>
-            <i className="fa-solid fa-user"></i>
-            User Record
-            <i className={`fa-solid ${isUserRecordOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
-          </div>
-          {isUserRecordOpen && (
-            <div className="submenu">
-              <div className={`menu-panel dash ${selectedMenu === 'Student Record' ? 'selected' : ''}`} 
-                onClick={() => setSelectedMenu('Student Record')}>
-                &nbsp;&nbsp;
-                <i className="fa-solid fa-users"></i>
-                Student Record
-              </div>
-              <div className={`menu-panel dash ${selectedMenu === 'Faculty Record' ? 'selected' : ''}`} 
-                onClick={() => setSelectedMenu('Faculty Record')}>
-                &nbsp;&nbsp;
-                <i className="fa-solid fa-user-tie"></i>
-                Faculty Record
-              </div>
-            </div>
-          )}
-          <div className={`menu-panel dash ${selectedMenu === 'Web Filter' ? 'selected' : ''}`} 
-            onClick={() => {
-              setSelectedMenu('Web Filter');
-              closeAllDrops();
-            }}>
-            <i className="fa-solid fa-list-check"></i>
-            Web Filter
-          </div> 
-          <div className={`menu-panel dash ${selectedMenu === 'Notification' ? 'selected' : ''}`} 
-            onClick={() => {
-              setSelectedMenu('Notification');
-              closeAllDrops();
-            }}>
-            <i className="fa-solid fa-bell"></i>
-            Notification
-          </div>
         </div>
 
         <div className="content-panel">

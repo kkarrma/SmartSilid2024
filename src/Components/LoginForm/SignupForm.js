@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginForm.modules.css';
+import { API_BASE_URL } from '../Dashboard/config';
 
 function SignupForm() {
   const [username, setUsername] = useState('');
@@ -22,7 +23,7 @@ function SignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    if (!username || !password || !confirmPassword || !first_name || !last_name || !OU) {
+    if (!username || !password || !confirmPassword || !first_name || !last_name) {
       alert('Please fill in all required fields');
       return;
     }
@@ -35,7 +36,7 @@ function SignupForm() {
     setLoading(true);
   
     try {
-      const response = await fetch('http://192.168.10.118:8000/create_user', { // Update URL as needed
+      const response = await fetch(`${API_BASE_URL}/sign_up_admin`, { // Update URL as needed
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,9 +46,9 @@ function SignupForm() {
           username,
           password,
           first_name,
-          middle_initial,
           last_name,
-          OU
+          middle_initial,
+          type: 'admin',
         }),
       });
   
@@ -61,12 +62,13 @@ function SignupForm() {
   
       // Use data.then to handle the JSON response
       const data = await response.json();
+      console.log(`TYPE: `, data);
       if (data.status_message) {
         alert(data.status_message); // Display the status_message from the response
       } else {
-        alert('Signup successful'); // Fallback message if status_message is not present
+        alert('Signup successful'); // Fallback message if status_message is not present   
       }
-      // navigate('/loginform'); // Redirect to home page or login page
+      navigate('/');
   
     } catch (error) {
       console.error('Error:', error);
@@ -74,6 +76,10 @@ function SignupForm() {
     } finally {
       setLoading(false);
     }
+  };
+  
+  const goHome = () => {
+    navigate('/');
   };
   
   return (
@@ -123,26 +129,6 @@ function SignupForm() {
               required
             />
           </div>
-          {/* <div>
-            <label htmlFor="ou">User Type:</label>
-            <select
-              id="ou"
-              value={OU}
-              onChange={(e) => setOU(e.target.value)}
-            >
-              <option value="Student">Student</option>
-              <option value="Faculty">Faculty</option>
-            </select>
-          </div> */}
-          <div>
-            <label htmlFor="ou">Section:</label>
-            <input
-              type="text"
-              id="ou"
-              value={OU}
-              onChange={(e) => setOU(e.target.value)}
-            />
-          </div>
         </div>
         <div class="password-div">
           <label htmlFor="password">Password:</label>
@@ -166,6 +152,9 @@ function SignupForm() {
         </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Signing up...' : 'Sign Up'}
+        </button>
+        <button type="button" onClick={goHome}>
+          Cancel
         </button>
       </form>
     </div>

@@ -96,6 +96,71 @@ table {
   }
 }
 
+a {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Universal file input */
+.adding-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  .adding-btn-section,
+  .adding-file-section {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .file-batch-input {
+    margin: 0 10px;
+    max-width: 180px;
+  }
+
+  .add-section-btn {
+    display: inline-block;
+    padding: 8px 23px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: var(--btn-hov);
+    }
+  }
+
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch; /* Make elements full-width on smaller screens */
+
+    .adding-btn-section,
+    .adding-file-section {
+      width: 100%;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .file-batch-input {
+      width: 100%;
+      max-width: 100;
+      margin: 5px;
+    }
+
+    .add-section-btn {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+    }
+  }
+}
+
 .dashboard {
   height: 100vh;
   background-color: var(--bg1);
@@ -112,8 +177,6 @@ table {
   background: var(--bg2);
   background: linear-gradient(90deg, var(--bg1) 0%, var(--bg2) 80%);
 }
-
-
 
 .mid-head .head-logo {
   width: 50px;
@@ -229,7 +292,7 @@ table {
 }
 
 .error-message {
-  color: white; /* Text color */
+  color: black; /* Text color */
   background-color: #ffe6e6; /* Light red background */
   border: 1px solid red; /* Red border */
   padding: 10px; /* Padding around the text */

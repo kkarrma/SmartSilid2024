@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
 import './Logbook.css';
+import { useNavigate } from 'react-router-dom';
 
 function RFIDLogs() {
   const [logs, setLogs] = useState([]);
@@ -13,17 +14,49 @@ function RFIDLogs() {
   const [subject, setSubject] = useState('');
   const [section, setSection] = useState('');
   const [availableSections, setAvailableSection] = useState([]);
+  const Navigate = useNavigate();
 
   useEffect(() => {
     fetchRFIDLogs();
     fetchSection();
   }, [pagination]);
 
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken === null) {
+        console.log("Refresh token is missing.");
+        return Navigate('/'); 
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+          });
+          
+          if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return Navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
+
   const fetchSection = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`    
+        },
         body: JSON.stringify ({ section })
       });
       if (response.ok) {
@@ -34,17 +67,22 @@ function RFIDLogs() {
         console.error('Failed to fetch sections');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching sections:', error);
     }
   };
 
   const fetchRFIDLogs = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const formattedStartDate = start_date ? new Date(start_date).toISOString().split('T')[0] : ''; // Ensure date is formatted
       const response = await fetch(`${API_BASE_URL}/get_logs_rfid`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           faculty_name: facultyName,
@@ -65,6 +103,9 @@ function RFIDLogs() {
         console.error('Failed to fetch logs');
       }
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Error fetching logs:', error);
     }
   };  

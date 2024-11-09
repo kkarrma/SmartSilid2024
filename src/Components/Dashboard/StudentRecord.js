@@ -1,7 +1,8 @@
-    import React, { useState, useEffect } from 'react';
+    import React, { useState, useEffect, useRef } from 'react';
     import { API_BASE_URL } from './config';
-    import { useNavigate } from 'react-router-dom';
     import './StudentRecord.css';
+    import { useNavigate } from 'react-router-dom';
+    import * as XLSX from 'xlsx';
 
     function StudentRecord() {
         const type = "Student";
@@ -10,6 +11,7 @@
         const [first_name, setFirstname] = useState('');
         const [middle_initial, setMiddlename] = useState('');
         const [last_name, setLastname] = useState('');
+        const [username, setUsername] = useState('');
         const [section, setSection] = useState('');
         const [loading, setLoading] = useState(false);
         const [sections, setSections] = useState([]);
@@ -20,7 +22,8 @@
         const [students, setStudents] = useState([]);
         const [formVisible, setFormVisible] = useState(false);
         const [editFormVisible, setEditFormVisible] = useState(false);
-        const navigate = useNavigate();
+        const fileInput = useRef(null);
+        const Navigate = useNavigate();
 
         const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
@@ -45,6 +48,33 @@
             return 0;
         });
 
+        const handleTokenRefresh = async () => {
+            const refreshToken = localStorage.getItem('refreshToken');
+        
+            if (refreshToken === null) {
+                    console.log("Refresh token is missing.");
+                    return Navigate('/'); 
+                }
+              
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }, 
+                    body: JSON.stringify({ refresh: refreshToken }), 
+                });
+                  
+                if (!response.ok) {
+                    console.error('Failed to refresh token. Status:', response.status);
+                    return Navigate('/'); 
+                }
+        
+                const data = await response.json();
+                localStorage.setItem('accessToken', data.access);
+            } catch (error) {
+                console.error('Token refresh error:', error);
+            }
+        };
+
         const handleEditStudent = async (student) => {
             setFirstname(student.first_name)
             setLastname(student.last_name)
@@ -56,31 +86,29 @@
             setEditFormVisible(true)
         };
 
-        const handleDeleteStudent = async (student) => {
+        const handleDeleteStudent = async (student) => { 
+            const accessToken = localStorage.getItem('accessToken');
             const confirmDelete = window.confirm(`Are you sure you want to delete ${student.first_name} ${student.last_name}?`);
-            if (!confirmDelete) return; // Exit if the user cancels the action
+            if (!confirmDelete) return;
         
-            // Construct the username using unformatted first_name, last_name, and middle_initial
-            const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`;
-        
-            // Log the username to the console
-            console.log('Deleting student with username:', username);
-        
+            console.log('Deleting student with username:', student.username);
+            
             try {
                 const response = await fetch(`${API_BASE_URL}/delete_student`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
+                        'Content-Type': 'application/json', 
+                        Authorization: `Bearer ${accessToken}`, 
                     },
                     body: JSON.stringify({
-                        username, // Use the unformatted username for deletion
+                        username: student.username,
                     }),
                 });
+
         
                 if (response.ok) {
                     // Update the students state to remove the deleted student
-                    setStudents((prevStudents) => prevStudents.filter((s) => `${s.first_name}.${s.last_name}.${s.middle_initial}` !== username));
+                    setStudents((prevStudents) => prevStudents.filter((s) => username !== username));
                     alert(`${student.first_name} ${student.last_name} has been deleted successfully.`);
                 } else {
                     const text = await response.text();
@@ -88,14 +116,20 @@
                     alert(`Failed to delete student: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
+                if (error.response.status === 401) {
+                  await handleTokenRefresh();
+                }
                 console.error('Error deleting student:', error);
                 alert(`An error occurred: ${error.message}`);
             }
         };
         
         const fetchSections = async () => {
+            const accessToken = localStorage.getItem('accessToken');
             try {
-                const response = await fetch(`${API_BASE_URL}/get_all_sections`);
+                const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setSections(data.sections.map(sec => sec.name));
@@ -103,15 +137,22 @@
                     console.error('Failed to fetch sections');
                 }
             } catch (error) {
+                if (error.response.status === 401) {
+                  await handleTokenRefresh();
+                }
                 console.error('Error fetching sections:', error);
             }
         };
 
         const handleStudentList = async (sectionName) => {
+            const accessToken = localStorage.getItem('accessToken');
             try {
-                const response = await fetch(`${API_BASE_URL}/get_all_students`);
+                const response = await fetch(`${API_BASE_URL}/get_all_students`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(data.students);
                     const filteredStudents = data.students.filter(student => student.section === sectionName);
                     const formattedStudents = filteredStudents.map(formatStudentName);
                     setStudents(sortStudents(formattedStudents));
@@ -119,6 +160,9 @@
                     console.error('Failed to fetch students');
                 }
             } catch (error) {
+                if (error.response.status === 401) {
+                  await handleTokenRefresh();
+                }
                 console.error('Error fetching students:', error);
             }
         };
@@ -135,18 +179,14 @@
             }
         }, [selectedSection]);
 
-        const getCSRFToken = () => {
-            const tokenElement = document.querySelector('meta[name="csrf-token"]');
-            return tokenElement ? tokenElement.getAttribute('content') : '';
-        };
-
         const handleSubmit = async (e) => {
+            const accessToken = localStorage.getItem('accessToken');
             e.preventDefault();
 
-            // if (!password || !confirmPassword || !first_name || !last_name) {
-            //     alert('Please fill in all required fields');
-            //     return;
-            // }
+            if (!password || !confirmPassword || !first_name || !last_name) {
+                alert('Please fill in all required fields');
+                return;
+            }
 
             if (password !== confirmPassword) {
                 alert('Passwords do not match');
@@ -160,7 +200,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
+                        Authorization: `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({
                         type,
@@ -193,14 +233,7 @@
                     });
                     setStudents((prevStudents) => sortStudents([...prevStudents, newStudent]));
                 }
-                setFormVisible(false);
-                setEditFormVisible(false)
-                setPassword('');
-                setConfirmPassword('');
-                setFirstname('');
-                setMiddlename('');
-                setLastname('');
-                setSection('');
+                handleCancelClick();
             } catch (error) {
                 console.error('Error:', error);
                 alert(`An error occurred: ${error.message}`);
@@ -226,13 +259,14 @@
         };
 
         const handleAddSection = async () => {
+            const accessToken = localStorage.getItem('accessToken');
             if (newSectionName.trim()) {
                 try {
                     const response = await fetch(`${API_BASE_URL}/add_section`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRFToken': getCSRFToken()
+                            Authorization: `Bearer ${accessToken}`
                         },
                         body: JSON.stringify({ name: newSectionName.trim() }),
                     });
@@ -243,6 +277,9 @@
                         console.error('Failed to add section');
                     }
                 } catch (error) {
+                    if (error.response.status === 401) {
+                      await handleTokenRefresh();
+                    }
                     console.error('Error adding section:', error);
                 }
                 setNewSectionName('');
@@ -273,6 +310,7 @@
         };
 
         const handleRemoveSection = async (sectionToRemove) => {
+            const accessToken = localStorage.getItem('accessToken');
             try {
                 if (!window.confirm(`Are you sure you want to remove the section "${sectionToRemove}"?`)) {
                     return;
@@ -282,7 +320,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
+                        Authorization: `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({ name: sectionToRemove }),
                 });
@@ -298,12 +336,16 @@
                     alert(`Failed to remove section: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
+                if (error.response.status === 401) {
+                    await handleTokenRefresh();
+                }
                 console.error('Error removing section:', error);
                 alert(`An error occurred: ${error.message}`);
             }
         };
 
         const handleMoveSection = async (student, newSection) => {
+            const  accessToken = localStorage.getItem('accessToken');
             console.log('Attempting to move section for student:', student);
             console.log('New section:', newSection);
             
@@ -315,10 +357,10 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
+                        Authorization: `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
-                        username: username,
+                        username: student.username,
                         new_section: newSection,
                     }),
                 });
@@ -339,6 +381,9 @@
                 }
                 setEditFormVisible(false);
             } catch (error) {
+                if (error.response.status === 401) {
+                    await handleTokenRefresh();
+                }
                 console.error('Error moving student:', error);
                 alert(`An error occurred: ${error.message}`);
             }
@@ -346,6 +391,7 @@
         
         
         const handleChangePassword = async (student, newPassword) => {
+            const accessToken = localStorage.getItem('accessToken');
             console.log('Attempting to change password for student:', student);
             console.log('New password:', newPassword);
             
@@ -362,13 +408,16 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken(),
+                        AUthorization: `Bearer ${accessToken}`
                     },
                     body: JSON.stringify({
-                        username: username,
+                        username: student.username,
                         new_password: newPassword,
                     }),
                 });
+                
+                const data = await response.json();
+                console.log(data);
         
                 if (response.ok) {
                     alert('Password changed successfully!');
@@ -378,12 +427,80 @@
                     alert(`Failed to change password: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
+                if (error.response.status === 401) {
+                    await handleTokenRefresh();
+                }
                 console.error('Error changing password:', error);
                 alert(`An error occurred: ${error.message}`);
             }
             setEditFormVisible(false)
         };
+
+        const handleStudentFileUpload = async () => {
+            const accessToken = localStorage.getItem('accessToken');
         
+            // Check if a file is selected
+            if (!fileInput.current || !fileInput.current.files[0]) {
+                alert('Please select an Excel file to upload');
+                return;
+            }
+        
+            const file = fileInput.current.files[0];
+            const fileType = file.name.split('.').pop().toLowerCase();
+        
+            // Validate file type
+            if (fileType !== 'xlsx' && fileType !== 'xls') {
+                alert('Please upload a valid Excel file (.xlsx or .xls)');
+                return;
+            }
+        
+            // Read the Excel file and convert it to JSON
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const data = e.target.result;
+                
+                // Parse the Excel file using xlsx
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
+                const sheet = workbook.Sheets[sheetName];
+                
+                // Convert sheet to JSON
+                const jsonData = XLSX.utils.sheet_to_json(sheet);
+        
+                // Log the JSON data
+                console.log('Excel File Data:', jsonData);
+        
+                // Proceed with file upload
+                const formData = new FormData();
+                formData.append('file', file);
+        
+                // Send the request to the server
+                fetch(`${API_BASE_URL}/upload_students`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.errors) {
+                        alert('File uploaded successfully!');
+                    } else {
+                        console.error('Errors:', data.errors);
+                        alert('Some errors occurred while uploading.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading file:', error);
+                    alert(`An error occurred: ${error.message}`);
+                });
+            };
+        
+            // Read the file as an ArrayBuffer
+            reader.readAsArrayBuffer(file);
+        };
 
         return (
             <>
@@ -406,37 +523,52 @@
                                 </button>
                             </div>
                         ) : (
-                            <button className="add-section-btn" onClick={() => setIsAddingSection(true)}>
-                                <i className="fa-solid fa-plus"></i> Section
-                            </button>
+                            <div className='adding-section'>
+                                <div className='adding-btn-section'>
+                                    <button className="add-section-btn" onClick={() => setIsAddingSection(true)}>
+                                        Add Section
+                                    </button>
+                                </div>
+                                <div className='adding-file-section'>
+                                    <input 
+                                        className='file-batch-input'
+                                        type='file'
+                                        ref={fileInput}
+                                        accept=".xlsx, .xls"
+                                    />
+                                    <button className="add-section-btn" onClick={handleStudentFileUpload}>
+                                        Upload
+                                    </button>
+                                </div>
+                            </div>
                         )}
-                        <div className="sections-container">
-                            {sections.length === 0 ? (
-                                <p>No sections available</p>
-                            ) : (
-                                sections.map((sec, index) => (
-                                    <div key={index} className="section-item">
-                                        <button
-                                            className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
-                                            onClick={() => handleSectionClick(sec)}
-                                        >
-                                            {sec}
-                                            {selectedSection === sec && (
-                                                <button
-                                                    className="remove-btn"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleRemoveSection(sec);
-                                                    }}
-                                                >
-                                                    <b>–</b>
-                                                </button>
-                                            )}
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
+                    </div>
+                    <div className="sections-container cont">
+                        {sections.length === 0 ? (
+                            <p>No sections available</p>
+                        ) : (
+                            sections.map((sec, index) => (
+                                <div key={index} className="section-item">
+                                    <button
+                                        className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
+                                        onClick={() => handleSectionClick(sec)}
+                                    >
+                                        {sec}
+                                        {selectedSection === sec && (
+                                            <button
+                                                className="remove-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveSection(sec);
+                                                }}
+                                            >
+                                                <b>–</b>
+                                            </button>
+                                        )}
+                                    </button>
+                                </div>
+                            ))
+                        )}
                     </div>
 
                     {selectedSection ? (
@@ -614,6 +746,7 @@
                                 <table>
                                     <thead>
                                         <tr>
+                                            <th>Username</th>
                                             <th>Surname</th>
                                             <th>First Name</th>
                                             <th>Initial</th>
@@ -629,6 +762,7 @@
                                         ) : (
                                             students.map((student, index) => (
                                                 <tr key={index}>
+                                                    <td className="username">{student.username}</td>
                                                     <td className="last-name">{student.last_name}</td>
                                                     <td className="first-name">{student.first_name}</td>
                                                     <td className="mid-init">{student.middle_initial}</td>

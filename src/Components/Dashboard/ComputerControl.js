@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './ComputerControl.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,6 +56,10 @@ function ComputerControl() {
           name: pc.computer_name,
           isAdmin: pc.is_admin 
         }));
+
+        console.log(`ALL PCs`, fetchedPCs.map(pc => pc.name));
+        console.log(`ALL ADMIN PCs`, fetchedPCs.filter(pc => pc.isAdmin).map(pc => pc.name));
+
         
         setPcs(fetchedPCs.map(pc => pc.name));
         setPcStates((prevStates) => {
@@ -82,29 +86,39 @@ function ComputerControl() {
   };
 
   const shutdownPC = async (pcList) => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       await fetch(`${API_BASE_URL}/shutdown_computers`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${accessToken}`, 
         },
         body: JSON.stringify({ computers: pcList }),
       });
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Failed to shutdown computers:', error);
     }
   };
 
   const wakenPC = async (pcList) => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       await fetch(`${API_BASE_URL}/wake_computers`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${accessToken}`, 
         },
         body: JSON.stringify({ computers: pcList }),
       });
     } catch (error) {
+      if (error.response.status === 401) {
+        await handleTokenRefresh();
+      }
       console.error('Failed to wake computers:', error);
     }
   };
@@ -210,7 +224,6 @@ function ComputerControl() {
   };
 
   const handleSetComputerAdmin = async () => {
-    
     const accessToken = localStorage.getItem('accessToken');
 
     if (!adminInputValue) {
@@ -237,6 +250,8 @@ function ComputerControl() {
         alert(successData.status);
         setAdminStatus(adminInputValue, true);
       }
+      
+      window.location.reload();
     } catch (error) {
       if (error.response.status === 401) {
         await handleTokenRefresh();
@@ -256,10 +271,83 @@ function ComputerControl() {
     setAdminInputValue(event.target.value);
   };
 
+  const startStream = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stream/start/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const result = await response.text();
+        alert(result); // Show a message to the user that streaming has started
+      } else {
+        alert("Failed to start streaming.");
+      }
+    } catch (error) {
+      console.error("Error starting stream:", error);
+      alert("Error starting stream. Please try again.");
+    }
+  };
+
+  const stopStream = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stream/stop/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        const result = await response.text();
+        alert(result); // Show a message to the user that streaming has stopped
+      } else {
+        alert("Failed to stop streaming.");
+      }
+    } catch (error) {
+      console.error("Error stopping stream:", error);
+      alert("Error stopping stream. Please try again.");
+    }
+  };
+
+  const viewStream = () => {
+    // const streamDiv = document.getElementById('stream');
+    // streamDiv.innerHTML = `<iframe src="${API_BASE_URL}/stream" style="border: none;}" width="100%" height="500" frameborder="0" allowfullscreen></iframe>`;
+  };
+  const streamUrl = '192.168.10.112:8000/stream'; // The URL part you want
+  
+  useEffect(() => {
+    // Make sure the link exists in the DOM before attempting to modify it
+    const streamLink = document.getElementById('stream-link');
+    if (streamLink) {
+      streamLink.href = `http://${streamUrl}`;
+    }
+  }, [streamUrl]);
   return (
     <>
       <div className='computer-controls'>
         <div className="dash-container">
+          <div className='stream-container cont'>
+            <div className="stream-row">
+              <h4>Casting Controls &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+              <button onClick={startStream}>Start Stream</button>
+              <button onClick={stopStream}>Stop Stream</button>
+              <button onClick={viewStream}>View Stream</button>
+              <div id="stream"></div> 
+            </div>
+
+            <div className="view-stream-row">
+              <h4>View Client Screens &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+              {/* <a href="192.168.10.112:8000/stream" target="_blank">Go to Stream Page</a> */}
+              <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">Go to Stream Page</a>
+
+
+            </div>
+          </div>
+
           <form>
             <div className="controls-row cont">
               <select onChange={handleSelectPC} value="">

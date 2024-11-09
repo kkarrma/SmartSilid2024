@@ -1,0 +1,74 @@
+.user-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .user-pic {
+    i {
+      border-radius: 50px;
+      width: 80px;
+      height: 70px;
+      border: 5px solid #fff;
+      box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+      font-size: 3.4em;
+      padding-top: 10px;
+      margin-bottom: 0.5em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      /* Add a style for when editing mode is off */
+      &.no-border {
+        border: none;
+      }
+    }
+  }
+
+  .user-info {
+    margin: 0;
+    width: 100%;
+    max-width: 400px;
+    padding: 2em 4em 2em 4em;
+
+    .username-row {
+      h3 {
+        margin: 0;
+        font-size: 2em;
+        margin-bottom: 1em;
+      }
+      i {
+        cursor: pointer;
+        font-size: 130%;
+        margin-bottom: 1em;
+        transition: 0.2s ease-in-out;
+        color: var(--bg6);
+
+        &:hover {
+          color: var(--sub-txt);
+        }
+      }
+    }
+
+    .user-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5em 0;
+      border-bottom: 1px solid #ddd;
+
+      .user-label {
+        font-weight: bold;
+        color: var(--sub-txt);
+      }
+
+      .user-value {
+        color: #555;
+      }
+    }
+
+    .action-btn {
+      margin-top: 1em;
+    }
+  }
+}

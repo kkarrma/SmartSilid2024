@@ -41,10 +41,13 @@ function LoginForm() {
       }
 
       const data = await response.json();
+      console.log(data);
       if (data.access && data.refresh) {
         // Store tokens in local storage
         localStorage.setItem('accessToken', data.access);
         localStorage.setItem('refreshToken', data.refresh);
+        localStorage.setItem('id', data.user_id);
+        localStorage.setItem('type', data.type);
         alert('Login successful!');
         navigate('/dashboard'); // Redirect to the dashboard or home page
       } else {
@@ -57,43 +60,6 @@ function LoginForm() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchProtectedData = async () => {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const response = await fetch(`${API_BASE_URL}/api/protected`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-
-    if (response.status === 401) {
-      await handleTokenRefresh(); // Refresh token if unauthorized
-    } else if (!response.ok) {
-      throw new Error('Failed to fetch protected data');
-    }
-
-    return response.json(); // Return the protected data
-  };
-
-  const handleTokenRefresh = async () => {
-    const refreshToken = localStorage.getItem('refreshToken');
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ refresh: refreshToken }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Token refresh failed');
-    }
-
-    const tokens = await response.json();
-    localStorage.setItem('accessToken', tokens.access);
   };
 
   return (
@@ -126,7 +92,7 @@ function LoginForm() {
             <button type="submit" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <Link to="/signup" className='link'>Sign Up</Link>
+            <Link to="/signup" className='link'>Set up Admin →</Link>
           </div>
         </form>
         <div className="links">
