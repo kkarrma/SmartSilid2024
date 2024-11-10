@@ -13,7 +13,7 @@ function UserPage() {
 
   // New Inputted Credentials initialized as null
   const [newFName, setNewFName] = useState(null);
-  const [id, setId] = useState('');
+  // const [id, setId] = useState('');
   const [newLName, setNewLName] = useState(null);
   const [newMInit, setNewMInit] = useState(null);
   const [newUsername, setNewUsername] = useState(null);
@@ -22,9 +22,10 @@ function UserPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
+  
   const user_id = localStorage.getItem('id');
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePass, setIsChangePass] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +75,9 @@ function UserPage() {
 
   const handleCancelClick = () => {
     setIsEditing(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setOldPassword('');
   };
 
   const handleUpdateClick = async () => {
@@ -145,6 +149,10 @@ function UserPage() {
     }
   };
 
+ const openChangePassForm = async() => {
+  setIsChangePass(true);
+ }
+
   return (
     <div className="user-page">
       <div className="user-pic">
@@ -152,11 +160,21 @@ function UserPage() {
       </div>
       <div className="user-info cont">
         <div className="username-row">
-          <h3>{data.username}</h3>
-          <i
-            className="fa-solid fa-pen edit-icon"
-            onClick={handleEditClick}
-          ></i>
+          <div className="user-L-side">
+            <h3>{data.username}</h3>
+          </div>
+          <div className="user-R-side">
+            <i
+              className="fa-solid fa-pen edit-icon"
+              onClick={handleEditClick}
+            ></i>
+            <button onClick={async() => {
+              localStorage.clear();
+              window.location.reload();
+            }}>
+              <i className="fa-solid fa-right-from-bracket logout-icon"></i>
+            </button>
+          </div>
         </div>
 
         {isEditing ? (
@@ -276,14 +294,6 @@ function UserPage() {
             </div>
           </>
         )}
-      </div>
-      <div className="user-logout">
-        <button onClick={async() => {
-          localStorage.clear();
-          window.location.reload();
-        }}>
-          <i className="fa-solid fa-right-from-bracket logout-icon"></i>
-        </button>
       </div>
     </div>
   );
