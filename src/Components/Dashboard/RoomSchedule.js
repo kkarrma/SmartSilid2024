@@ -410,7 +410,7 @@ function RoomSchedule() {
               <label className=''>Faculty Name: </label>
               <select
                 className="faculty-select"
-                value={editSchedule.faculty}
+                value={editSchedule.faculty_name}  
                 onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
                 required
               >
@@ -452,25 +452,29 @@ function RoomSchedule() {
         )}
 
       <div className="subj-table cont">
+        <table>
+          <thead>
+            <tr>
+              <th>Faculty</th>
+              <th>Section</th>
+              <th>Subject</th>
+              <th>Day</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
           {schedules.length === 0 ? (
-            <div>
-              <p className='no-fetch-msg'>No schedules found</p>
-            </div>
+            <tr>
+              <td colSpan={7}>
+                <div>
+                  <p className='no-fetch-msg'>No schedules found</p>
+                </div>
+              </td>
+            </tr>
           ) : (
             schedules.map((schedule) => (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Faculty</th>
-                    <th>Section</th>
-                    <th>Subject</th>
-                    <th>Day</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
                   <tr key={schedule.id}>
                     <td className="faculty">{schedule.faculty}</td>
                     <td className="faculty">{schedule.section}</td>
@@ -491,11 +495,11 @@ function RoomSchedule() {
                       </button>
                     </td>
                   </tr>
-                </tbody>
-              </table>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
   
         {/* Mobile Schedule Table */}
         <div className="mobile-subj-table cont">

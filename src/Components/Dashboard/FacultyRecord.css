@@ -18,11 +18,24 @@
   
   .faculty-details {
     padding: 10px 0 0 20px;
+  
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+/* 
+    .rfid-unbind-label {
+      position: relative;
+    }
+    
+    .rfid-unbind-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+      background-color: var(--btn);
+    } */
   }
   
-  .faculty-details ul {
-    list-style-type: none;
-    padding: 0;
-  }
 }
   

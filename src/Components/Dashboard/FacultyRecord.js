@@ -27,7 +27,7 @@ function FacultyRecord() {
   const [facultyData, setFacultyData] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [availableRfids, setAvailableRfids] = useState([]);
-  const [rfidBindings, setRfidBindings] = useState({});
+  const [rfidBindUser, setRfidBindUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const fileInput = useRef(null);
@@ -286,7 +286,7 @@ function FacultyRecord() {
 
   const handleBindRFID = async (username, rfid) => {
     const accessToken = localStorage.getItem('accessToken');
-    const facultyUsername = rfidBindings[rfid];
+    const facultyUsername = rfidBindUser[rfid];
     if (facultyUsername !== 'none') {
       try {
         const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
@@ -295,7 +295,10 @@ function FacultyRecord() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ username: facultyUsername, rfid }),
+          body: JSON.stringify({ 
+            username: facultyUsername, 
+            rfid 
+          }),
         });
         if (response.ok) {
           fetchFaculty();
@@ -320,7 +323,10 @@ function FacultyRecord() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ username: '', rfid: '' }),
+        body: JSON.stringify({ 
+          username: '',
+          rfid: rfid,
+        }),
       });
       if (response.ok) {
         fetchFaculty();
@@ -386,15 +392,15 @@ function FacultyRecord() {
                   Add Faculty
                 </button>
                 <div className='adding-file-section'>
-                    <input 
-                        className='file-batch-input'
-                        type='file'
-                        ref={fileInput}
-                        accept=".xlsx, .xls"
-                    />
-                    <button className="add-section-btn" onClick={handleFacultyFileUpload}>
-                        Upload
-                    </button>
+                  <input 
+                      className='file-batch-input'
+                      type='file'
+                      ref={fileInput}
+                      accept=".xlsx, .xls"
+                  />
+                  <button className="add-section-btn" onClick={handleFacultyFileUpload}>
+                      Upload
+                  </button>
                 </div>
               </div>
             </div>
@@ -551,24 +557,30 @@ function FacultyRecord() {
                 </div>
                 {expandedIndex === index && (
                   <div className="faculty-details">
-                    <ul>
-                      {faculty.rfid && faculty.rfid.length > 0 ? (
-                        faculty.rfid.map((rfid, rfidIndex) => (
-                          <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                  <ul>
+                    {faculty.rfid && faculty.rfid.length > 0 ? (
+                      faculty.rfid.map((rfid, rfidIndex) => (
+                        <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                          <div className='rfid-unbind-label'>
                             {rfid}
+                          </div>
+                          <div className='rfid-unbind-btn'>
                             <button 
+                              className='unbind-btn'
                               style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                              onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)}
+                              onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
                             >
                               -
                             </button>
-                          </li>
-                        ))
-                      ) : (
-                        <li>No RFID allocated</li>
-                      )}
-                    </ul>
-                  </div>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <li>No RFID allocated</li>
+                    )}
+                  </ul>
+                </div>
+
                 )}
               </div>
             ))
@@ -584,8 +596,12 @@ function FacultyRecord() {
               <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
                 <span style={{ marginLeft: '8px' }}>{rfid}</span>
                 <select 
-                  value={rfidBindings[rfid] || 'none'} 
-                  onChange={(e) => setRfidBindings({ ...rfidBindings, [rfid]: e.target.value })}
+                  value={rfidBindUser[rfid] || 'none'} 
+                  onChange={(e) => {
+                    setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
+                    console.log("USERNAME", rfidBindUser[rfid]);
+                  }
+                }
                 >
                   <option value="none">None</option>
                   {facultyData.map((faculty, facultyIndex) => (
@@ -596,7 +612,11 @@ function FacultyRecord() {
                 </select>
                 <button 
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                  onClick={() => handleBindRFID(rfidBindings[rfid], rfid)} // Pass the selected username and RFID
+                  onClick={() => {
+                    handleBindRFID(rfidBindUser[rfid], rfid)
+                    console.log(rfidBindUser[rfid] + rfid)
+                  }
+                  } // Pass the selected username and RFID
                 >
                   Add
                 </button>
