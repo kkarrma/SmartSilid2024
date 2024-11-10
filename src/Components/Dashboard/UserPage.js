@@ -13,10 +13,15 @@ function UserPage() {
 
   // New Inputted Credentials initialized as null
   const [newFName, setNewFName] = useState(null);
+  const [id, setId] = useState('');
   const [newLName, setNewLName] = useState(null);
   const [newMInit, setNewMInit] = useState(null);
   const [newUsername, setNewUsername] = useState(null);
   const [newType, setNewType] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const user_id = localStorage.getItem('id');
   const [isEditing, setIsEditing] = useState(false);
@@ -62,6 +67,9 @@ function UserPage() {
     setNewLName(data.last_name);
     setNewMInit(data.middle_initial);
     setNewType(data.type);
+    setNewPassword('');
+    setConfirmPassword('');
+    setOldPassword('');
   };
 
   const handleCancelClick = () => {
@@ -98,6 +106,42 @@ function UserPage() {
     } catch (error) {
       console.error('Error:', error);
       alert('Error updating user!');
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_faculty`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          id: user_id,
+          old_password: oldPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Password changed successfully!');
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        const errorData = await response.json();
+        setPasswordError(errorData.status_message || 'Error changing password');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error changing password!');
     }
   };
 
@@ -163,14 +207,14 @@ function UserPage() {
             </div>
             <div className="role-row user-row">
               <div className="user-label">Role</div>
-              <input
-                type="text"
-                placeholder={data.type}
+              <select
                 value={newType}
                 onChange={(e) => setNewType(e.target.value)}
-                onBlur={() => newType === '' && setNewType(data.type)}
                 className="user-input"
-              />
+              >
+                <option value="admin">Admin</option>
+                <option value="faculty">Faculty</option>
+              </select>
             </div>
             <div className="action-btn">
               <button className="update-button" onClick={handleUpdateClick}>
@@ -178,6 +222,37 @@ function UserPage() {
               </button>
               <button className="cancel-button" onClick={handleCancelClick}>
                 Cancel
+              </button>
+            </div>
+
+            <div className="change-pass-row user-row">
+              <div className="user-label">Old Password</div>
+              <input
+                type="password"
+                placeholder="************"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="user-input"
+              />
+              <div className="user-label">New Password</div>
+              <input
+                type="password"
+                placeholder="************"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="user-input"
+              />
+              <div className="user-label">Confirm Password</div>
+              <input
+                type="password"
+                placeholder="************"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="user-input"
+              />
+              {passwordError && <div className="error-message">{passwordError}</div>}
+              <button className="update-button" onClick={handleChangePassword}>
+                Change Password
               </button>
             </div>
           </>
@@ -201,6 +276,14 @@ function UserPage() {
             </div>
           </>
         )}
+      </div>
+      <div className="user-logout">
+        <button onClick={async() => {
+          localStorage.clear();
+          window.location.reload();
+        }}>
+          <i className="fa-solid fa-right-from-bracket logout-icon"></i>
+        </button>
       </div>
     </div>
   );

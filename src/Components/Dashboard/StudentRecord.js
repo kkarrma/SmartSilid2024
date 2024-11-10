@@ -12,8 +12,18 @@
         const [middle_initial, setMiddlename] = useState('');
         const [last_name, setLastname] = useState('');
         const [username, setUsername] = useState('');
+        
+        // New Inputted Credentials for UpdateStudent
+        const [id, setId] = useState('');
+        const [newFName, setNewFName] = useState('');
+        const [newLName, setNewLName] = useState('');
+        const [newMInit, setNewMInit] = useState('');
+        const [newUsername, setNewUsername] = useState('');
+        const [newType, setNewType] = useState('');
+
         const [section, setSection] = useState('');
         const [loading, setLoading] = useState(false);
+        const [errorMessage, setErrorMessage] = useState('');
         const [sections, setSections] = useState([]);
         const [newSectionName, setNewSectionName] = useState('');
         const [isAddingSection, setIsAddingSection] = useState(false);
@@ -50,7 +60,11 @@
 
         
         useEffect(() => {
-            setUsername(`${first_name}.${last_name}.${middle_initial}`);
+            if (!username) {
+                setUsername(`${first_name}.${last_name}.${middle_initial}`);
+            } else {
+                setUsername(username);
+            }
         }, [first_name, last_name, middle_initial]);
 
         const handleTokenRefresh = async () => {
@@ -81,17 +95,17 @@
         };
 
         const handleEditStudent = async (student) => {
-            setFirstname(student.first_name)
-            setLastname(student.last_name)
-            setMiddlename(student.middle_initial)
+            setId(student.id);
+            setNewFName(student.first_name)
+            setNewLName(student.last_name)
+            setNewMInit(student.middle_initial)
+            setNewUsername(student.username)
             setSelectedStudent(student);
             setPassword('')
             setConfirmPassword('')
             setFormVisible(false)
             setEditFormVisible(true)
         };
-
-        const handleUpdateStudent = async () => {}
 
         const handleDeleteStudent = async (student) => { 
             const accessToken = localStorage.getItem('accessToken');
@@ -316,6 +330,46 @@
             }
         };
 
+        const handleUpdateStudent = async () => {
+            const accessToken = localStorage.getItem('accessToken');
+    
+            try {
+                const response = await fetch(`${API_BASE_URL}/update_student`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        id: id,  
+                        first_name: newFName, 
+                        middle_initial: newMInit,
+                        last_name: newLName, 
+                        username: newUsername
+                    }),  
+                });
+    
+                if (response.ok) {
+                    const responseData = await response.json();
+                    console.log("Student updated successfully", responseData);
+                    // Optionally handle success, e.g., refresh student data or show success message
+                } else {
+                    const errorData = await response.json();
+                    console.error("Failed to update student:", errorData);
+                    // Handle the error based on the backend response
+                }
+            } catch (error) {
+                console.error('Error updating student:', error);
+                if (error.response?.status === 401) {
+                    await handleTokenRefresh();
+                } else {
+                    setErrorMessage('An error occurred while updating student. Please check your connection.');
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
+
         const handleRemoveSection = async (sectionToRemove) => {
             const accessToken = localStorage.getItem('accessToken');
             try {
@@ -396,14 +450,11 @@
             }
         };
         
-        
         const handleChangePassword = async (student, newPassword) => {
             const accessToken = localStorage.getItem('accessToken');
             console.log('Attempting to change password for student:', student);
             console.log('New password:', newPassword);
             
-            const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`; // Format the username
-            console.log('Username being sent to server:', username); // Log the formatted username
 
             if (newPassword !== confirmPassword) {
                 alert('Passwords do not match');
@@ -680,15 +731,15 @@
 
                             {editFormVisible && (
                                 <div className="edit-form cont">
-                                    <form onSubmit={handleSubmit}>
+                                    <form>
                                         <div className="name-div">
                                             <div>
                                                 <label htmlFor="firstname">First Name: <span>*</span></label>
                                                 <input
                                                     type="text"
                                                     id="firstname"
-                                                    value={first_name}
-                                                    onChange={(e) => setFirstname(e.target.value)}
+                                                    value={newFName}
+                                                    onChange={(e) => setNewFName(e.target.value)}
                                                 />
                                             </div>
                                             <div>
@@ -696,8 +747,8 @@
                                                 <input
                                                     type="text"
                                                     id="middlename"
-                                                    value={middle_initial}
-                                                    onChange={(e) => setMiddlename(e.target.value)}
+                                                    value={newMInit}
+                                                    onChange={(e) => setNewMInit(e.target.value)}
                                                 />
                                             </div>
                                             <div>
@@ -705,15 +756,23 @@
                                                 <input
                                                     type="text"
                                                     id="lastname"
-                                                    value={last_name}
-                                                    onChange={(e) => setLastname(e.target.value)}
+                                                    value={newLName}
+                                                    onChange={(e) => setNewLName(e.target.value)}
                                                 />
                                             </div>
                                             <div>
-                                                <button type="button" onClick={() => handleMoveSection(selectedStudent, section)}>
-                                                    Move Section
+                                                <label htmlFor="username">Username: <span>*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="username"
+                                                    value={newUsername}
+                                                    onChange={(e) => setNewUsername(e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <button  type="button" onClick={handleUpdateStudent} disabled={loading}>
+                                                    {loading ? 'Updating...' : 'Update'}
                                                 </button>
-                                                <button  type="button" onClick={() => handleEditStudent}></button>
                                             </div>
                                         </div>
                                         <div className="creds-div">

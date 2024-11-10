@@ -10,7 +10,8 @@ function FacultyRecord() {
   const [username, setUsername] = useState('');
   const [type, setType] = useState('');
   const [password, setPassword] = useState('');
-  const [confirm_password, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
   // New Inputted Credentials 
   const [id, setId] = useState('');
   const [newFName, setNewFName] = useState('');
@@ -101,12 +102,12 @@ function FacultyRecord() {
   const handleAddFaculty = async (e) => {
     const accessToken = localStorage.getItem('accessToken');
     e.preventDefault();
-    if (!first_name || !last_name || !type || !password || !confirm_password) {
+    if (!first_name || !last_name || !type || !password || !confirmPassword) {
       setErrorMessage('Please fill in all fields correctly.');
       return;
     }
 
-    if (password !== confirm_password) {
+    if (password !== confirmPassword) {
       setErrorMessage('Password does not matched. Try again.');
       return;
     }
@@ -202,11 +203,41 @@ function FacultyRecord() {
     setNewFName(faculty.first_name);
     setNewLName(faculty.last_name);
     setNewMInit(faculty.middle_initial);
-    setNewType(faculty.type);
     setNewUsername(faculty.username);
+    setSelectedFaculty(faculty);
+    setNewType(faculty.type);
     setEditFormVisible(true);
     setAddFormVisible(false);
   };
+
+  const handleChangePassword = async (faculty, newPassword) => {
+    const accessToken = localStorage.getItem('accessToken');
+    console.log('Attempting to change password for faculty:', faculty);
+    console.log('New password:', newPassword);
+    
+    if (newPassword !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_admin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({
+          id: id,
+          new_password: newPassword,
+        }),
+        
+      })
+    } catch (error) {
+    
+    }
+  }
+
 
   const handleDeleteFaculty = async (facultyUsername) => { 
     const accessToken = localStorage.getItem('accessToken');
@@ -417,7 +448,7 @@ function FacultyRecord() {
               <input
                 type="password"
                 placeholder="Confirm Password"
-                value={confirm_password}
+                value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
@@ -474,6 +505,28 @@ function FacultyRecord() {
               </button>
               <button type="button" onClick={handleCancelBtn}>Cancel</button>
               {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+              <div className="change-pass-div">
+                <label htmlFor="password">New Password: </label>
+                <input
+                  type="password"
+                  placeholder="**********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <label htmlFor="password">Confirm Password: </label>
+                <input
+                  type="password"
+                  placeholder="**********"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <button type="button" onClick={() => handleChangePassword(selectedFaculty, password)}>
+                  Change Password
+                </button>
+              </div>
             </form>
           )}
         </div>
