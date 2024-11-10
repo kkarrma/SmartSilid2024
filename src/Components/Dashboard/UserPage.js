@@ -75,12 +75,20 @@ function UserPage() {
 
   const handleCancelClick = () => {
     setIsEditing(false);
+    setIsChangePass(false);
     setNewPassword('');
     setConfirmPassword('');
     setOldPassword('');
   };
 
-  const handleUpdateClick = async () => {
+  const handleCancelPassClick = () => {
+    setIsChangePass(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setOldPassword('');
+  };
+
+  const handleUpdateFaculty = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${API_BASE_URL}/update_faculty`, {
@@ -234,43 +242,63 @@ function UserPage() {
                 <option value="faculty">Faculty</option>
               </select>
             </div>
+            {isChangePass ? (
+              <>
+                <div className="old-pass-row user-row">
+                  <div className="user-label">Old Password</div>
+                  <input
+                    type="password"
+                    placeholder="************"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="user-input"
+                  />
+                </div>
+                <div className="new-pass-row user-row">
+                  <div className="user-label">New Password</div>
+                  <input
+                    type="password"
+                    placeholder="************"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="user-input"
+                  />
+                </div>
+                <div className="new-pass-row user-row">
+                  <div className="user-label">Confirm Password</div>
+                  <input
+                    type="password"
+                    placeholder="************"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="user-input"
+                    />
+                  {passwordError && <div className="error-message">{passwordError}</div>}
+                </div>
+                <div className="action-btn">
+                  <button className="update-pass-button" onClick={handleChangePassword}>
+                    Update Password
+                  </button>
+                  <button className="cancel-button" onClick={handleCancelPassClick}>
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className='open-pass-form'>
+                  <button className='update-pass-button' onClick={openChangePassForm}>
+                    Change Password
+                  </button>
+                </div>
+              </>
+            )}
             <div className="action-btn">
-              <button className="update-button" onClick={handleUpdateClick}>
+              <button className="update-button" onClick={handleUpdateFaculty}>
                 Update
               </button>
               <button className="cancel-button" onClick={handleCancelClick}>
                 Cancel
-              </button>
-            </div>
-
-            <div className="change-pass-row user-row">
-              <div className="user-label">Old Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="user-input"
-              />
-              <div className="user-label">New Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="user-input"
-              />
-              <div className="user-label">Confirm Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="user-input"
-              />
-              {passwordError && <div className="error-message">{passwordError}</div>}
-              <button className="update-button" onClick={handleChangePassword}>
-                Change Password
               </button>
             </div>
           </>

@@ -31,7 +31,7 @@ body {
 button {
   flex: 1 1 auto;
   min-width: 20px;
-  max-width: 120px;
+  max-width: fit-content;
   padding: 8px 20px;
   border-radius: 4px;
   border: 1px solid #ccc;
