@@ -16,7 +16,12 @@
       flex-wrap: wrap; 
       justify-content: center;
       align-items: center;
-      gap: 5px;
+      gap: 10px;
+    }
+
+    .stream-btn {
+      display: flex;
+      gap: 10px;
     }
 
     .view-stream-row {
@@ -24,7 +29,7 @@
       flex-wrap: wrap; 
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 10px;
     }
 
     @media screen and (max-width: 426px) {
@@ -42,27 +47,34 @@
     border-radius: 2px;
   }
 
-  .admin-controls {
-    display: flex;
-    flex-wrap: wrap; 
-    justify-content: start;
-    align-items: center;
-    gap: 5px;
-    margin: 5px;
-  }
-
   .controls-row {
     display: flex;
     flex-wrap: wrap; 
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 10px;
+  }
+
+  .computer-list {
+    p {
+      font-size: 120%;
+      font-weight: bold;
+      padding: 4px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--btn);
+    }
   }
 
   .checkbox-container {
     display: flex;
+    flex-wrap: wrap; 
     align-items: center;
     margin-bottom: 10px;
+    justify-content: center;
+    gap: 10px;
+    margin: 5px;
   }
 
   .pcs-grid {
@@ -103,6 +115,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+    width: 150px;
     background-color: #e9ecef;
     border-radius: 8px;
     cursor: pointer;
@@ -143,8 +156,8 @@
   .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 60px; 
-    height: 34px; 
+    width: 54px; 
+    height: 27.5px; 
 
     input {
       opacity: 0; 
@@ -166,8 +179,8 @@
       &::before {
         position: absolute;
         content: "";
-        height: 26px; 
-        width: 26px; 
+        height: 20px; 
+        width: 20px; 
         left: 4px; 
         bottom: 4px; 
         background-color: white; 
