@@ -47,10 +47,15 @@ function RoomSchedule() {
   };
 
   const fetchSchedules = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
     try {
       const response = await fetch(`${API_BASE_URL}/get_all_schedule`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        }
       });
       const data = await response.json();
       setSchedules(data.schedule || []);
@@ -445,27 +450,27 @@ function RoomSchedule() {
             </div>
           </div>
         )}
-  
-        <div className="subj-table cont">
-          <table>
-            <thead>
-              <tr>
-                <th>Faculty</th>
-                <th>Section</th>
-                <th>Subject</th>
-                <th>Day</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schedules.length === 0 ? (
-                <tr>
-                  <td colSpan="6">No schedules found</td>
-                </tr>
-              ) : (
-                schedules.map((schedule) => (
+
+      <div className="subj-table cont">
+          {schedules.length === 0 ? (
+            <div>
+              <p className='no-fetch-msg'>No schedules found</p>
+            </div>
+          ) : (
+            schedules.map((schedule) => (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Faculty</th>
+                    <th>Section</th>
+                    <th>Subject</th>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
                   <tr key={schedule.id}>
                     <td className="faculty">{schedule.faculty}</td>
                     <td className="faculty">{schedule.section}</td>
@@ -486,16 +491,20 @@ function RoomSchedule() {
                       </button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                </tbody>
+              </table>
+            ))
+          )}
         </div>
   
         {/* Mobile Schedule Table */}
         <div className="mobile-subj-table cont">
           {schedules.length === 0 ? (
-            <div>No schedules found</div>
+            <div>
+              <p className='no-fetch-msg'>
+                No schedules found
+              </p>
+            </div>
           ) : (
             schedules.map((schedule) => (
               <div key={schedule.id} className="subject-entry">

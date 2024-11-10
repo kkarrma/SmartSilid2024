@@ -55,18 +55,6 @@
     gap: 10px;
   }
 
-  .computer-list {
-    p {
-      font-size: 120%;
-      font-weight: bold;
-      padding: 4px;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: var(--btn);
-    }
-  }
-
   .checkbox-container {
     display: flex;
     flex-wrap: wrap; 

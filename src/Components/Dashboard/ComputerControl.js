@@ -347,8 +347,7 @@ function ComputerControl() {
           <div className='cont-divider'></div>
 
           <form>
-            <div className="controls-row cont">
-              
+            <div className="controls-row cont"> 
               <h4>Copmuter List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
               <select onChange={handleSelectPC} value="">
                 <option value="">Select a PC</option>
@@ -404,24 +403,25 @@ function ComputerControl() {
                 >
                   Set Admin
                 </button>
-
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                />
-                <label>Select All</label> 
-                &nbsp;&nbsp;&nbsp;
-                <button
-                  type="button"
-                  onClick={handleClearSelection}
-                >
-                  Clear
-                </button>
+                <div>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  />
+                  <label>Select All</label> 
+                  &nbsp;&nbsp;&nbsp;
+                  <button
+                    type="button"
+                    onClick={handleClearSelection}
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
 
               {pcs.length === 0 ? ( 
-                <p>No PCs found</p>
+                <p className='no-fetch-msg'>No PCs found</p>
               ) : (
                 <>
                   <div className="pcs-grid">
