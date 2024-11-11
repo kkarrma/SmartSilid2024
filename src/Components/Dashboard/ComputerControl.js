@@ -47,9 +47,12 @@ function ComputerControl() {
     const accessToken = localStorage.getItem('accessToken');
 
     try {
+      console.log(`${API_BASE_URL}/get_all_computers`)
       const response = await fetch(`${API_BASE_URL}/get_all_computers`, {
         headers: { Authorization: `Bearer ${accessToken}`, }
       });
+
+      console.log(await response.json()); 
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => ({
@@ -78,9 +81,10 @@ function ComputerControl() {
         console.error('Failed to fetch computers');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      console.log(error);
+      // if (error.response.status === 401) {
+      //   await handleTokenRefresh();
+      // }
       console.error('Error fetching computers:', error);
     }
   };
@@ -317,13 +321,13 @@ function ComputerControl() {
     // const streamDiv = document.getElementById('stream');
     // streamDiv.innerHTML = `<iframe src="${API_BASE_URL}/stream" style="border: none;}" width="100%" height="500" frameborder="0" allowfullscreen></iframe>`;
   };
-  const streamUrl = '192.168.10.112:8000/stream'; // The URL part you want
+  const streamUrl = `${API_BASE_URL}/stream/`; // The URL part you want
   
   useEffect(() => {
     // Make sure the link exists in the DOM before attempting to modify it
     const streamLink = document.getElementById('stream-link');
     if (streamLink) {
-      streamLink.href = `http://${streamUrl}`;
+      streamLink.href = `${streamUrl}`;
     }
   }, [streamUrl]);
   return (
