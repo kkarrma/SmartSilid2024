@@ -207,7 +207,7 @@ function ComputerLogs() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5">No logs available</td>
+                  <td colSpan="5" className='no-fetch-msg'>No logs available</td>
                 </tr>
               )}
             </tbody>

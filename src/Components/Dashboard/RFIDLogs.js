@@ -187,19 +187,18 @@ function RFIDLogs() {
             <thead>
               <tr>
                 <th>Faculty Name</th>
-                <th>Attempt</th>
                 <th>Subject</th>
                 <th>Section</th>
                 <th>Log Date</th>
                 <th>Login</th>
               </tr>
             </thead>
+            
             <tbody>
               {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
                 sortedLogs.map((log, index) => (
                   <tr key={index}>
                     <td className="faculty-name">{log.faculty_name}</td>
-                    <td className="attempt">{log.attempt}</td>
                     <td className="subject">{log.subject}</td>
                     <td className="section">{log.section}</td>
                     <td className="log-date">{log.date}</td>
@@ -208,7 +207,7 @@ function RFIDLogs() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6">No logs available</td>
+                  <td colSpan="6" className='no-fetch-msg'>No logs available</td>
                 </tr>
               )}
             </tbody>

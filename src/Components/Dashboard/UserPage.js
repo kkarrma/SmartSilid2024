@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
 import './UserPage.css';
 import { useNavigate } from 'react-router-dom';
+import PasswordInput from '../LoginForm/PasswordInput';
 
 function UserPage() {
   const [data, setData] = useState({
@@ -246,8 +247,7 @@ function UserPage() {
               <>
                 <div className="old-pass-row user-row">
                   <div className="user-label">Old Password</div>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="************"
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
@@ -256,8 +256,7 @@ function UserPage() {
                 </div>
                 <div className="new-pass-row user-row">
                   <div className="user-label">New Password</div>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="************"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -266,8 +265,7 @@ function UserPage() {
                 </div>
                 <div className="new-pass-row user-row">
                   <div className="user-label">Confirm Password</div>
-                  <input
-                    type="password"
+                  <PasswordInput
                     placeholder="************"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

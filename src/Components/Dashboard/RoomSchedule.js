@@ -410,18 +410,20 @@ function RoomSchedule() {
               <label className=''>Faculty Name: </label>
               <select
                 className="faculty-select"
-                value={editSchedule.faculty_name}  
+                value={editSchedule.faculty_name || ""} 
+                placeholder={editSchedule.faculty} 
                 onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
                 required
               >
                 <option value="" disabled>Select a faculty</option>
                 {facultyList.map(faculty => (
-                  <option key={faculty.username} value={faculty.username}>
+                  <option key={faculty.name} value={faculty.username}>
                     {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
                   </option>
                 ))}
               </select>
             </div>
+
             
             <div className='input-sect input-row'> 
               <label className=''>Section: </label>
@@ -451,55 +453,55 @@ function RoomSchedule() {
           </div>
         )}
 
-      <div className="subj-table cont">
-        <table>
-          <thead>
-            <tr>
-              <th>Faculty</th>
-              <th>Section</th>
-              <th>Subject</th>
-              <th>Day</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-          {schedules.length === 0 ? (
-            <tr>
-              <td colSpan={7}>
-                <div>
-                  <p className='no-fetch-msg'>No schedules found</p>
-                </div>
-              </td>
-            </tr>
-          ) : (
-            schedules.map((schedule) => (
-                  <tr key={schedule.id}>
-                    <td className="faculty">{schedule.faculty}</td>
-                    <td className="faculty">{schedule.section}</td>
-                    <td className="sub">{schedule.subject}</td>
-                    <td className="day">{weekdayMap[schedule.weekdays]}</td>
-                    <td className="start-time">{formatTime(schedule.start_time)}</td>
-                    <td className="end-time">{formatTime(schedule.end_time)}</td>
-                    <td className="action">
-                      <button type="button" className="edit-btn" onClick={() => {
-                        handleEditForm(schedule);
-                        setSchedFormVisible(false);
-                        console.log(schedule.faculty);
-                      }}>
-                        Edit
-                      </button>
-                      <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+        <div className="subj-table cont">
+          <table>
+            <thead>
+              <tr>
+                <th>Faculty</th>
+                <th>Section</th>
+                <th>Subject</th>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+            {schedules.length === 0 ? (
+              <tr>
+                <td colSpan={7}>
+                  <div>
+                    <p className='no-fetch-msg'>No schedules found</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              schedules.map((schedule) => (
+                    <tr key={schedule.id}>
+                      <td className="faculty">{schedule.faculty}</td>
+                      <td className="faculty">{schedule.section}</td>
+                      <td className="sub">{schedule.subject}</td>
+                      <td className="day">{weekdayMap[schedule.weekdays]}</td>
+                      <td className="start-time">{formatTime(schedule.start_time)}</td>
+                      <td className="end-time">{formatTime(schedule.end_time)}</td>
+                      <td className="action">
+                        <button type="button" className="edit-btn" onClick={() => {
+                          handleEditForm(schedule);
+                          setSchedFormVisible(false);
+                          console.log(schedule.faculty);
+                        }}>
+                          Edit
+                        </button>
+                        <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
   
         {/* Mobile Schedule Table */}
         <div className="mobile-subj-table cont">
@@ -518,8 +520,8 @@ function RoomSchedule() {
                   <div>{`${formatTime(schedule.start_time)} - ${formatTime(schedule.end_time)}`}</div>
                 </div>
                 <div className="section-faculty-row">
-                  <div>{schedule.section}</div>
-                  <div>{schedule.faculty}</div>
+                  <div>Section: {schedule.section}</div>
+                  <div>By: {schedule.faculty}</div>
                 </div>
                 <div className="action-row">
                   <button type="button" className="edit-btn" onClick={() => {

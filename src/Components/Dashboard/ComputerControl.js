@@ -348,7 +348,7 @@ function ComputerControl() {
 
           <form>
             <div className="controls-row cont"> 
-              <h4>Copmuter List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+              <h4>Computer List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
               <select onChange={handleSelectPC} value="">
                 <option value="">Select a PC</option>
                 {pcs.map((pc) => (

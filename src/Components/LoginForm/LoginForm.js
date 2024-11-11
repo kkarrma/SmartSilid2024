@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.modules.css';
 import { API_BASE_URL } from '../Dashboard/config';
+import PasswordInput from './PasswordInput';
 
 function LoginForm() {
   const [username, setUser] = useState('');
@@ -80,12 +81,10 @@ function LoginForm() {
           </div>
           <div className="password-div">
             <label htmlFor="password">Password:</label>
-            <input
-              type="password"
+            <PasswordInput
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
             />
           </div>
           <div className="btn-div">

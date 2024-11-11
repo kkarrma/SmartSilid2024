@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from './config';
 import './FacultyRecord.css';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
+import PasswordInput from '../LoginForm/PasswordInput';
 
 function FacultyRecord() {
   const [first_name, setFirstname] = useState('');
@@ -238,7 +240,6 @@ function FacultyRecord() {
     }
   }
 
-
   const handleDeleteFaculty = async (facultyUsername) => { 
     const accessToken = localStorage.getItem('accessToken');
     try {
@@ -360,48 +361,89 @@ function FacultyRecord() {
   const handleFacultyFileUpload = async () => {
     const accessToken = localStorage.getItem('accessToken');
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
-        method: 'POST',
-        headers: {
-          // 'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ file: fileInput.current.files[0] }),
-      })
-    } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
-      setErrorMessage('Failed to upload faculty. Please check your connection.');
-
+    // Check if a file is selected
+    if (!fileInput.current || !fileInput.current.files[0]) {
+        alert('Please select an Excel file to upload');
+        return;
     }
-  }
+
+    const file = fileInput.current.files[0];
+    const fileType = file.name.split('.').pop().toLowerCase();
+
+    // Validate file type
+    if (fileType !== 'xlsx' && fileType !== 'xls') {
+        alert('Please upload a valid Excel file (.xlsx or .xls)');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        const data = e.target.result;
+
+        // Parse the Excel file using xlsx
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        // Convert sheet to JSON
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+        // Prepare the request payload
+        const payload = { faculty_list: jsonData };
+
+        // Send the request to the server
+        fetch(`${API_BASE_URL}/upload_faculty`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify(payload),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status_message && !data.status_message.failed_entries.length) {
+                alert('File uploaded successfully!');
+            } else {
+                console.error('Errors:', data.status_message.failed_entries);
+                alert('Some errors occurred while uploading. Check console for details.');
+            }
+        })
+        .catch(error => {
+            console.error('Error uploading file:', error);
+            alert(`An error occurred: ${error.message}`);
+        });
+    };
+
+    // Read the file as an ArrayBuffer
+    reader.readAsArrayBuffer(file);
+};
 
   return (
     <>
       <div className='faculty-record'>
         <div className='add-faculty-form cont'>
           {!addFormVisible && (
-            <div className='adding-section-btn'>
-               <div className='adding-btn-section'>
-                <button onClick={() => {
+            <div className='adding-section'>
+              <div className='adding-btn-section'>
+                <button className="add-section-btn" onClick={() => {
                   setAddFormVisible(true);
                   setEditFormVisible(false);
                 }}>
                   Add Faculty
                 </button>
-                <div className='adding-file-section'>
-                  <input 
-                      className='file-batch-input'
-                      type='file'
-                      ref={fileInput}
-                      accept=".xlsx, .xls"
-                  />
-                  <button className="add-section-btn" onClick={handleFacultyFileUpload}>
-                      Upload
-                  </button>
-                </div>
+              </div>
+              <div className='adding-file-section'>
+                <input 
+                    className='file-batch-input'
+                    type='file'
+                    ref={fileInput}
+                    accept=".xlsx, .xls"
+                />
+                <button className="add-section-btn" onClick={handleFacultyFileUpload}>
+                    Upload
+                </button>
               </div>
             </div>
           )}
@@ -444,19 +486,15 @@ function FacultyRecord() {
                 <option value="admin">Admin</option>
                 <option value="faculty">Faculty</option>
               </select>
-              <input
-                type="password"
+              <PasswordInput
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
-              <input
-                type="password"
+              <PasswordInput
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                required
               />
               <button type="button" onClick={handleAddFaculty} disabled={loading}>
                 {loading ? 'Adding...' : 'Add Faculty'}
@@ -467,8 +505,8 @@ function FacultyRecord() {
           )}
         </div>
 
-        <div className="edit-faculty-form cont">
-          {editFormVisible && (
+        {editFormVisible && (
+          <div className="edit-faculty-form cont">
             <form className="faculty-form">
               <input
                 type="text"
@@ -514,79 +552,78 @@ function FacultyRecord() {
 
               <div className="change-pass-div">
                 <label htmlFor="password">New Password: </label>
-                <input
-                  type="password"
+                <PasswordInput
                   placeholder="**********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
                 />
                 <label htmlFor="password">Confirm Password: </label>
-                <input
-                  type="password"
+                <PasswordInput
                   placeholder="**********"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
                 />
                 <button type="button" onClick={() => handleChangePassword(selectedFaculty, password)}>
                   Change Password
                 </button>
               </div>
             </form>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="faculty-list cont">
-          {Array.isArray(facultyData) && facultyData.length > 0 ? (
-            facultyData.map((faculty, index) => (
-              <div key={index} className="faculty-item">
-                <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                  <span>{expandedIndex === index ? '-' : '+'}</span>
-                  <strong>{`${faculty.username}`}</strong>
-                  <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                    <button onClick={() => handleDeleteFaculty(faculty.username)}>
-                      <i className="fa-solid fa-trash-can"></i>
-                    </button>
-                    <button onClick={() => {
-                      handleEditClick(faculty);
-                    }}>
-                      <i className="fa-solid fa-pen-to-square"></i>
-                    </button>
+        <div className="faculty-list-label cont">
+          <h3>Faculty List</h3>
+          <div className='faculty-list'>
+            {Array.isArray(facultyData) && facultyData.length > 0 ? (
+              facultyData.map((faculty, index) => (
+                <div key={index} className="faculty-item">
+                  <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
+                    <span>{expandedIndex === index ? '-' : '+'}</span>
+                    <strong>{`${faculty.username}`}</strong>
+                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                      <button onClick={() => handleDeleteFaculty(faculty.username)}>
+                        <i className="fa-solid fa-trash-can"></i>
+                      </button>
+                      <button onClick={() => {
+                        handleEditClick(faculty);
+                      }}>
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </button>
+                    </div>
                   </div>
-                </div>
-                {expandedIndex === index && (
-                  <div className="faculty-details">
-                  <ul>
-                    {faculty.rfid && faculty.rfid.length > 0 ? (
-                      faculty.rfid.map((rfid, rfidIndex) => (
-                        <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
-                          <div className='rfid-unbind-label'>
-                            {rfid}
-                          </div>
-                          <div className='rfid-unbind-btn'>
-                            <button 
-                              className='unbind-btn'
-                              style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                              onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
-                            >
-                              -
-                            </button>
-                          </div>
-                        </li>
-                      ))
-                    ) : (
-                      <li>No RFID allocated</li>
-                    )}
-                  </ul>
-                </div>
+                  {expandedIndex === index && (
+                    <div className="faculty-details">
+                    <ul>
+                      {faculty.rfid && faculty.rfid.length > 0 ? (
+                        faculty.rfid.map((rfid, rfidIndex) => (
+                          <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className='rfid-unbind-label'>
+                              {rfid}
+                            </div>
+                            <div className='rfid-unbind-btn'>
+                              <button 
+                                className='unbind-btn'
+                                style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                                onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
+                              >
+                                -
+                              </button>
+                            </div>
+                          </li>
+                        ))
+                      ) : (
+                        <li className='no-fetch-msg'>No RFID allocated</li>
+                      )}
+                    </ul>
+                  </div>
 
-                )}
-              </div>
-            ))
-          ) : (
-            <p>No faculty records found.</p>
-          )}
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className='no-fetch-msg'>No faculty records found.</p>
+            )}
+          </div>
         </div>
 
         <div className="rfid-list cont" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -629,7 +666,7 @@ function FacultyRecord() {
               </div>
             ))
           ) : (
-            <p>No available RFIDs.</p>
+            <p className='no-fetch-msg'>No available RFIDs.</p>
           )}
         </div>
       </div>
