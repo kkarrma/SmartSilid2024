@@ -52,6 +52,11 @@ function ComputerLogs() {
       const response = await fetch(`${API_BASE_URL}/get_all_computers`, {
         headers: { Authorization: `Bearer ${accessToken}`, }
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchComputers();
+      }
       if (response.ok) {
         const data = await response.json();
         const fetchedPCs = data.computers.map(pc => pc.computer_name);
@@ -60,9 +65,7 @@ function ComputerLogs() {
         console.error('Failed to fetch computers');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       console.error('Error fetching computers:', error);
     }
   };
@@ -88,19 +91,25 @@ function ComputerLogs() {
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Fetched logs:', data);
-        console.log('Pagination length:', data.pagination_length); // Log the pagination_length
-        setLogs(Array.isArray(data.logs) ? data.logs : []);
-        setTotalPages(data.pagination_length); // Set totalPages based on the API response
-      } else {
-        console.error('Failed to fetch logs');
-      }
-    } catch (error) {
-      if (error.response.status === 401) {
+      if (response.status === 401) {
         await handleTokenRefresh();
+        return fetchComputerLogs();
       }
+
+      const data = await response.json();
+      console.log('Fetched logs:', data);
+      console.log('Pagination length:', data.pagination_length); // Log the pagination_length
+      setLogs(Array.isArray(data.logs) ? data.logs : []);
+      setTotalPages(data.pagination_length); // Set totalPages based on the API response
+
+      // if (response.ok) {
+      //   
+      // } else {
+      //   console.error('Failed to fetch logs');
+      //   console.log(response.status); 
+      // }
+    } catch (error) {
+      
       console.error('Error fetching logs:', error);
     }
   };

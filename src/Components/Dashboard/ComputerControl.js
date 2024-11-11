@@ -52,39 +52,33 @@ function ComputerControl() {
         headers: { Authorization: `Bearer ${accessToken}`, }
       });
 
-      console.log(await response.json()); 
-      if (response.ok) {
-        const data = await response.json();
-        const fetchedPCs = data.computers.map(pc => ({
-          name: pc.computer_name,
-          isAdmin: pc.is_admin 
-        }));
-
-        console.log(`ALL PCs`, fetchedPCs.map(pc => pc.name));
-        console.log(`ALL ADMIN PCs`, fetchedPCs.filter(pc => pc.isAdmin).map(pc => pc.name));
-
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchComputers();
         
-        setPcs(fetchedPCs.map(pc => pc.name));
-        setPcStates((prevStates) => {
-          const newStates = fetchedPCs.reduce((acc, pc) => ({
-            ...acc,
-            [pc.name]: { 
-              isOn: prevStates[pc.name]?.isOn || false, 
-              isChecked: false, 
-              isAdmin: pc.isAdmin 
-            }
-          }), {});
-  
-          return newStates;
-        });
-      } else {
-        console.error('Failed to fetch computers');
       }
+
+      const data = await response.json();
+      const fetchedPCs = data.computers.map(pc => ({
+        name: pc.computer_name,
+        isAdmin: pc.is_admin 
+      }));
+        
+      setPcs(fetchedPCs.map(pc => pc.name));
+      setPcStates((prevStates) => {
+        const newStates = fetchedPCs.reduce((acc, pc) => ({
+          ...acc,
+          [pc.name]: { 
+            isOn: prevStates[pc.name]?.isOn || false, 
+            isChecked: false, 
+            isAdmin: pc.isAdmin 
+          }
+        }), {});
+
+        return newStates;
+      });
+      
     } catch (error) {
-      console.log(error);
-      // if (error.response.status === 401) {
-      //   await handleTokenRefresh();
-      // }
       console.error('Error fetching computers:', error);
     }
   };
@@ -92,7 +86,7 @@ function ComputerControl() {
   const shutdownPC = async (pcList) => {
     const accessToken = localStorage.getItem('accessToken');
     try {
-      await fetch(`${API_BASE_URL}/shutdown_computers`, {
+      const response = await fetch(`${API_BASE_URL}/shutdown_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', 
@@ -100,10 +94,14 @@ function ComputerControl() {
         },
         body: JSON.stringify({ computers: pcList }),
       });
-    } catch (error) {
-      if (error.response.status === 401) {
+
+      if (response.status === 401) {
         await handleTokenRefresh();
+        return shutdownPC(pcList); 
+        
       }
+    } catch (error) {
+      
       console.error('Failed to shutdown computers:', error);
     }
   };
@@ -111,7 +109,7 @@ function ComputerControl() {
   const wakenPC = async (pcList) => {
     const accessToken = localStorage.getItem('accessToken');
     try {
-      await fetch(`${API_BASE_URL}/wake_computers`, {
+      const response = await fetch(`${API_BASE_URL}/wake_computers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', 
@@ -119,10 +117,13 @@ function ComputerControl() {
         },
         body: JSON.stringify({ computers: pcList }),
       });
-    } catch (error) {
-      if (error.response.status === 401) {
+
+      if (response.status === 401) {
         await handleTokenRefresh();
+        return wakenPC(pcList);
       }
+    } catch (error) {
+      
       console.error('Failed to wake computers:', error);
     }
   };
@@ -244,6 +245,11 @@ function ComputerControl() {
         },
         body: JSON.stringify({ computer_name: adminInputValue }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleSetComputerAdmin(); 
+      }
   
       if (!response.ok) {
         const errorData = await response.json();
@@ -257,9 +263,7 @@ function ComputerControl() {
       
       window.location.reload();
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       console.error('Failed to make the computer admin:', error);
     }
   };

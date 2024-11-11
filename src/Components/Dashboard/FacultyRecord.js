@@ -78,6 +78,12 @@ function FacultyRecord() {
          },
         body: JSON.stringify({ username }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchFaculty();
+      }
+
       if (response.ok) {
         const data = await response.json();
         console.log(data);
@@ -88,9 +94,7 @@ function FacultyRecord() {
         setErrorMessage('Failed to fetch faculty data. Please try again later.');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       setErrorMessage('Error fetching faculty data. Please check your connection.');
     } finally {
       setLoading(false);
@@ -114,6 +118,9 @@ function FacultyRecord() {
       return;
     }
 
+    const confirm = window.confirm('Are you sure you want to add this faculty?');
+    if (!confirm) return;
+
     setLoading(true);
     setErrorMessage('');
 
@@ -134,6 +141,11 @@ function FacultyRecord() {
         }),
       });
 
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleAddFaculty(e);
+      }
+
       if (response.ok) {
         fetchFaculty();
         handleCancelBtn();
@@ -142,9 +154,7 @@ function FacultyRecord() {
         setErrorMessage(errorData.message || 'Failed to create faculty. Please try again.');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       setErrorMessage('An error occurred while creating faculty. Please check your connection.');
     } finally {
       setLoading(false);
@@ -159,6 +169,9 @@ function FacultyRecord() {
       return;
     }
   
+    const confirm = window.confirm(`Are you sure you want to edit the faculty details of ${selectedFaculty.first_name} ${selectedFaculty.last_name}?`);
+    if (!confirm) return;
+
     setLoading(true);
     setErrorMessage('');
   
@@ -178,6 +191,11 @@ function FacultyRecord() {
           type: newType,
         }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        handleEditFaculty(e);
+      } 
   
       if (response.ok) {
         fetchFaculty(); // Refresh faculty data
@@ -189,12 +207,9 @@ function FacultyRecord() {
         setErrorMessage(errorData.message || 'Failed to update faculty. Please try again.');
       }
     } catch (error) {
-      if (error.response?.status === 401) {
-        await handleTokenRefresh();
-        handleEditFaculty(e);
-      } else {
-        setErrorMessage('An error occurred while updating faculty. Please check your connection.');
-      }
+      
+      setErrorMessage('An error occurred while updating faculty. Please check your connection.');
+      
     } finally {
       setLoading(false);
     }
@@ -222,6 +237,9 @@ function FacultyRecord() {
         return;
     }
     
+    const confirm = window.confirm(`Are you sure you want to change the password of ${faculty.first_name} ${faculty.last_name}?`);
+    if (!confirm) return;
+
     try {
       const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_admin`, {
         method: 'POST',
@@ -235,13 +253,31 @@ function FacultyRecord() {
         }),
         
       })
+      
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleChangePassword(faculty, newPassword);
+      }
+      
+      if (response.ok) {
+        alert('Password changed successfully!');
+        setEditFormVisible(false);
+        fetchFaculty();
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to change password: ${errorData.status_message || 'Error changing password'}`);
+      }
     } catch (error) {
     
     }
   }
 
+
   const handleDeleteFaculty = async (facultyUsername) => { 
     const accessToken = localStorage.getItem('accessToken');
+    const confirmDelete = window.confirm(`Are you sure you want to delete the faculty with username ${facultyUsername}?`);
+    if (!confirmDelete) return;
+    
     try {
       const response = await fetch(`${API_BASE_URL}/delete_faculty`, {
         method: 'POST',
@@ -251,21 +287,33 @@ function FacultyRecord() {
         },
         body: JSON.stringify({ username: facultyUsername }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleDeleteFaculty(facultyUsername);
+      }
+
       if (response.ok) {
+        const data = await response.json();
+        console.log(data);
         fetchFaculty();
       } else {
         setErrorMessage('Failed to delete faculty. Please try again later.');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       setErrorMessage('An error occurred while deleting faculty. Please check your connection.');
     }
   };
 
+
+
+
   const handleDeleteRFID = async (rfid) => {
     const accessToken = localStorage.getItem('accessToken');
+    const confirmDelete = window.confirm(`Are you sure you want to delete RFID with value ${rfid}?`);
+    if (!confirmDelete) return;
+
     try {
       const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
         method: 'POST',
@@ -275,10 +323,18 @@ function FacultyRecord() {
         },
         body: JSON.stringify({ rfid }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleDeleteRFID(rfid);
+      }
+
       if (response.ok) {
         fetchFaculty();
+        alert(`RFID with value ${rfid} has been deleted successfully.`);
       } else {
-        setErrorMessage('Failed to delete RFID. Please try again later.');
+        const errorData = await response.json();
+        alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
       }
     } catch (error) {
       setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
@@ -286,37 +342,51 @@ function FacultyRecord() {
   };
 
   const handleBindRFID = async (username, rfid) => {
+    if (!username) {
+      alert('Please choose a faculty to assign the RFID.');
+      return;
+    }
+
     const accessToken = localStorage.getItem('accessToken');
-    const facultyUsername = rfidBindUser[rfid];
-    if (facultyUsername !== 'none') {
-      try {
-        const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ 
-            username: facultyUsername, 
-            rfid 
-          }),
-        });
-        if (response.ok) {
-          fetchFaculty();
-        } else {
-          setErrorMessage('Failed to bind RFID. Please try again later.');
-        }
-      } catch (error) {
-        if (error.response.status === 401) {
-          await handleTokenRefresh();
-        }
-        setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+    const confirmBind = window.confirm(`Are you sure you want to bind RFID with value ${rfid} to ${username}?`);
+    if (!confirmBind) return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ 
+          username, 
+          rfid 
+        }),
+      });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleBindRFID(username, rfid);
       }
+      
+      if (response.ok) {
+        fetchFaculty();
+        alert(`RFID with value ${rfid} has been bound to ${username} successfully.`);
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+      }
+    } catch (error) {
+      
+      setErrorMessage('An error occurred while binding RFID. Please check your connection.');
     }
   };
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
     const accessToken = localStorage.getItem('accessToken');
+    const confirmUnbind = window.confirm(`Are you sure you want to unbind RFID with value ${rfid} from ${facultyUsername}?`);
+    if (!confirmUnbind) return;
+
     try {
       const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
         method: 'POST',
@@ -329,18 +399,24 @@ function FacultyRecord() {
           rfid: rfid,
         }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleUnbindRFID(facultyUsername, rfid);
+      }
+
       if (response.ok) {
         fetchFaculty();
+        alert(`RFID with value ${rfid} has been unbound from ${facultyUsername} successfully.`);
       } else {
-        setErrorMessage('Failed to unbind RFID. Please try again later.');
+        const errorData = await response.json();
+        alert(`Failed to unbind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
     }
   };
+
 
   const handleCancelBtn = () => {
     setFirstname('');
@@ -378,7 +454,7 @@ function FacultyRecord() {
 
     const reader = new FileReader();
 
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         const data = e.target.result;
 
         // Parse the Excel file using xlsx
@@ -393,32 +469,46 @@ function FacultyRecord() {
         const payload = { faculty_list: jsonData };
 
         // Send the request to the server
-        fetch(`${API_BASE_URL}/upload_faculty`, {
+        
+        await fetchUploadFaculty(); 
+
+    };
+
+    // Read the file as an ArrayBuffer
+    reader.readAsArrayBuffer(file);
+};
+
+  const fetchUploadFaculty = async (payload) => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${accessToken}`,
             },
             body: JSON.stringify(payload),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status_message && !data.status_message.failed_entries.length) {
-                alert('File uploaded successfully!');
-            } else {
-                console.error('Errors:', data.status_message.failed_entries);
-                alert('Some errors occurred while uploading. Check console for details.');
-            }
-        })
-        .catch(error => {
-            console.error('Error uploading file:', error);
-            alert(`An error occurred: ${error.message}`);
         });
-    };
 
-    // Read the file as an ArrayBuffer
-    reader.readAsArrayBuffer(file);
-};
+        if(response.status === 401) {
+            await handleTokenRefresh();
+            return fetchUploadFaculty(payload);
+          }
+
+        const data = await response.json();
+
+        if (data.status_message && !data.status_message.failed_entries.length) {
+            alert('File uploaded successfully!');
+        } else {
+            console.error('Errors:', data.status_message.failed_entries);
+            alert('Some errors occurred while uploading. Check console for details.');
+        }
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        alert(`An error occurred: ${error.message}`);
+    }
+  }
 
   return (
     <>
@@ -580,11 +670,15 @@ function FacultyRecord() {
                   <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
                     <span>{expandedIndex === index ? '-' : '+'}</span>
                     <strong>{`${faculty.username}`}</strong>
-                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                      <button onClick={() => handleDeleteFaculty(faculty.username)}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
+                      <button onClick={(event) => {
+                        event.stopPropagation(); // Prevent toggle when deleting
+                        handleDeleteFaculty(faculty.username);
+                      }}>
                         <i className="fa-solid fa-trash-can"></i>
                       </button>
-                      <button onClick={() => {
+                      <button onClick={(event) => {
+                        event.stopPropagation(); // Prevent toggle when editing
                         handleEditClick(faculty);
                       }}>
                         <i className="fa-solid fa-pen-to-square"></i>
@@ -593,30 +687,29 @@ function FacultyRecord() {
                   </div>
                   {expandedIndex === index && (
                     <div className="faculty-details">
-                    <ul>
-                      {faculty.rfid && faculty.rfid.length > 0 ? (
-                        faculty.rfid.map((rfid, rfidIndex) => (
-                          <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
-                            <div className='rfid-unbind-label'>
-                              {rfid}
-                            </div>
-                            <div className='rfid-unbind-btn'>
-                              <button 
-                                className='unbind-btn'
-                                style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
-                              >
-                                -
-                              </button>
-                            </div>
-                          </li>
-                        ))
-                      ) : (
-                        <li className='no-fetch-msg'>No RFID allocated</li>
-                      )}
-                    </ul>
-                  </div>
-
+                      <ul>
+                        {faculty.rfid && faculty.rfid.length > 0 ? (
+                          faculty.rfid.map((rfid, rfidIndex) => (
+                            <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                              <div className='rfid-unbind-label'>
+                                {rfid}
+                              </div>
+                              <div className='rfid-unbind-btn'>
+                                <button 
+                                  className='unbind-btn'
+                                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                                  onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
+                                >
+                                  -
+                                </button>
+                              </div>
+                            </li>
+                          ))
+                        ) : (
+                          <li className='no-fetch-msg'>No RFID allocated</li>
+                        )}
+                      </ul>
+                    </div>
                   )}
                 </div>
               ))
@@ -625,6 +718,7 @@ function FacultyRecord() {
             )}
           </div>
         </div>
+
 
         <div className="rfid-list cont" style={{ display: 'flex', flexDirection: 'column' }}>
           <h3>Available RFIDs</h3>
@@ -655,7 +749,7 @@ function FacultyRecord() {
                   }
                   } // Pass the selected username and RFID
                 >
-                  Add
+                  Assign
                 </button>
                 <button 
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 

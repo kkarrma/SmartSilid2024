@@ -57,6 +57,11 @@ function RoomSchedule() {
           Authorization: `Bearer ${accessToken}`
         }
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchSchedules();
+      }
       const data = await response.json();
       setSchedules(data.schedule || []);
     } catch (error) {
@@ -70,6 +75,12 @@ function RoomSchedule() {
       const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchSections();
+      }
+
       if (response.ok) {
         const data = await response.json();
         setSections(data.sections.map(sec => sec.name));
@@ -77,9 +88,6 @@ function RoomSchedule() {
         console.error('Failed to fetch sections');
       }
     } catch (error) {
-      if(error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       console.error('Error fetching sections:', error);
     }
   };
@@ -94,12 +102,15 @@ function RoomSchedule() {
           Authorization: `Bearer ${accessToken}`
         }
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchFaculty();
+      }
+
       const data = await response.json();
       setFacultyList(data.faculties || []);
     } catch (error) {
-      if (error.response.status === 401) {  
-        await handleTokenRefresh();
-      }
       console.error('Error fetching faculty:', error);
     }
   };
@@ -152,6 +163,11 @@ function RoomSchedule() {
         }),
       });
 
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleAddSchedule();
+      }
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -159,9 +175,6 @@ function RoomSchedule() {
       fetchSchedules();
       resetForm();
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       console.error('Error adding schedule:', error);
       alert('Failed to add schedule. Please try again.');
     }
@@ -187,7 +200,7 @@ function RoomSchedule() {
   const handleEditSched = async () => {
     const accessToken = localStorage.getItem('accessToken');
     try {
-      await fetch(`${API_BASE_URL}/update_schedule`, {
+      const response = await fetch(`${API_BASE_URL}/update_schedule`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -197,19 +210,22 @@ function RoomSchedule() {
           id: editSchedule.id,
           subject: editSchedule.subject,
           section: editSchedule.section,
-          weekdays: editSchedule.weekdays, // Send the weekdays correctly
+          weekdays: newDay, // Send the new day correctly
           start_time: editSchedule.start_time,
           end_time: editSchedule.end_time,
           faculty_name: editSchedule.faculty_name
         }),
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleEditSched();
+      }
+
       fetchSchedules();
       setEditFormVisible(false);
       resetForm();
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       console.error('Error editing schedule:', error);
       alert('Failed to edit schedule. Please try again.');
     }
@@ -221,19 +237,23 @@ function RoomSchedule() {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`${API_BASE_URL}/delete_schedule`, {
+      const response = await fetch(`${API_BASE_URL}/delete_schedule`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`
         },
         body: JSON.stringify({ id: schedule.id }),
+        
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleDeleteSchedule(schedule);
+      }
+
       fetchSchedules();
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       console.error('Error deleting schedule:', error);
     }
   };

@@ -43,6 +43,11 @@ function WebFilter() {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
+      if(response.status === 401) {
+        handleTokenRefresh();
+        return fetchURLs();
+      }
+
       if (!response.ok) throw new Error('Failed to fetch URLs');
       
       const data = await response.json();
@@ -56,9 +61,6 @@ function WebFilter() {
       }
     } catch (error) {
       if (error instanceof Error) {
-        if (error.response && error.response.status === 401) {
-          await handleTokenRefresh();
-        }
         console.error('Error fetching URLs:', error.message || error);
         alert('Failed to load blocked URLs. Please try again.');
       } else {
@@ -84,6 +86,11 @@ function WebFilter() {
         body: JSON.stringify({ url: newBlockURL }),
       });
 
+      if(response.status === 401) {
+        handleTokenRefresh();
+        return handleAddURL();
+      }
+
       if (!response.ok) throw new Error('Failed to add URL');
       
       setNewBlockURL('');
@@ -91,9 +98,6 @@ function WebFilter() {
       fetchURLs(); 
     } catch (error) {
       if (error instanceof Error) {
-        if (error.response && error.response.status === 401) {
-          await handleTokenRefresh();
-        }
         console.error('Error adding URL:', error.message || error);
         alert('Failed to add URL. Please try again.');
       } else {
@@ -117,6 +121,11 @@ function WebFilter() {
         },
         body: JSON.stringify({ url }),
       });
+
+      if(response.status === 401) {
+        await handleTokenRefresh();
+        return handleDeleteURL(url);
+      }
 
       if (!response.ok) throw new Error('Failed to delete URL');
 

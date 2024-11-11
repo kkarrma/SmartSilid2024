@@ -127,6 +127,11 @@
                     }),
                 });
 
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleDeleteStudent(student);
+                }
+
         
                 if (response.ok) {
                     // Update the students state to remove the deleted student
@@ -138,9 +143,6 @@
                     alert(`Failed to delete student: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
-                if (error.response.status === 401) {
-                  await handleTokenRefresh();
-                }
                 console.error('Error deleting student:', error);
                 alert(`An error occurred: ${error.message}`);
             }
@@ -152,16 +154,20 @@
                 const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 });
+
+                if(response.status === 401){
+                    await handleTokenRefresh();
+                    return fetchSections();
+                }
+
                 if (response.ok) {
                     const data = await response.json();
                     setSections(data.sections.map(sec => sec.name));
                 } else {
                     console.error('Failed to fetch sections');
                 }
+
             } catch (error) {
-                if (error.response.status === 401) {
-                  await handleTokenRefresh();
-                }
                 console.error('Error fetching sections:', error);
             }
         };
@@ -172,6 +178,12 @@
                 const response = await fetch(`${API_BASE_URL}/get_all_students`, {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
+
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleStudentList(sectionName);
+                  }
+                
                 if (response.ok) {
                     const data = await response.json();
                     console.log(data.students);
@@ -182,9 +194,7 @@
                     console.error('Failed to fetch students');
                 }
             } catch (error) {
-                if (error.response.status === 401) {
-                  await handleTokenRefresh();
-                }
+                
                 console.error('Error fetching students:', error);
             }
         };
@@ -233,6 +243,11 @@
                         section: selectedSection
                     }),
                 });
+
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleSubmit(e);
+                  }
 
                 if (!response.ok) {
                     const text = await response.text();
@@ -293,15 +308,18 @@
                         body: JSON.stringify({ name: newSectionName.trim() }),
                     });
 
+                    if (response.status === 401) {
+                        await handleTokenRefresh();
+                        return handleAddSection();
+                      }
+
                     if (response.ok) {
                         await fetchSections(); // Fetch updated sections after adding a new section
                     } else {
                         console.error('Failed to add section');
                     }
                 } catch (error) {
-                    if (error.response.status === 401) {
-                      await handleTokenRefresh();
-                    }
+                    
                     console.error('Error adding section:', error);
                 }
                 setNewSectionName('');
@@ -349,6 +367,11 @@
                         username: newUsername
                     }),  
                 });
+
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleUpdateStudent();
+                  }
     
                 if (response.ok) {
                     const responseData = await response.json();
@@ -361,11 +384,9 @@
                 }
             } catch (error) {
                 console.error('Error updating student:', error);
-                if (error.response?.status === 401) {
-                    await handleTokenRefresh();
-                } else {
-                    setErrorMessage('An error occurred while updating student. Please check your connection.');
-                }
+                
+                setErrorMessage('An error occurred while updating student. Please check your connection.');
+                
             } finally {
                 setLoading(false);
             }
@@ -387,6 +408,11 @@
                     body: JSON.stringify({ name: sectionToRemove }),
                 });
 
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleRemoveSection(sectionToRemove);
+                  }
+
                 if (response.ok) {
                     await fetchSections(); // Fetch updated sections after removing a section
                     if (selectedSection === sectionToRemove) {
@@ -398,9 +424,7 @@
                     alert(`Failed to remove section: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
-                if (error.response.status === 401) {
-                    await handleTokenRefresh();
-                }
+                
                 console.error('Error removing section:', error);
                 alert(`An error occurred: ${error.message}`);
             }
@@ -427,7 +451,10 @@
                     }),
                 });
         
-                console.log('Response status:', response.status);
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleMoveSection(student, newSection);
+                  }
                 
                 if (response.ok) {
                     setStudents((prevStudents) =>
@@ -443,9 +470,7 @@
                 }
                 setEditFormVisible(false);
             } catch (error) {
-                if (error.response.status === 401) {
-                    await handleTokenRefresh();
-                }
+                
                 console.error('Error moving student:', error);
                 alert(`An error occurred: ${error.message}`);
             }
@@ -476,7 +501,11 @@
                 });
                 
                 const data = await response.json();
-                console.log(data);
+                
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleChangePassword(student, newPassword);
+                  }
         
                 if (response.ok) {
                     alert('Password changed successfully!');
@@ -486,13 +515,40 @@
                     alert(`Failed to change password: ${response.status} ${response.statusText}`);
                 }
             } catch (error) {
-                if (error.response.status === 401) {
-                    await handleTokenRefresh();
-                }
                 console.error('Error changing password:', error);
                 alert(`An error occurred: ${error.message}`);
             }
             setEditFormVisible(false)
+        };
+
+        const uploadStudents = async (formData) => {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch(`${API_BASE_URL}/upload_students`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: formData,
+                });
+
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return uploadStudents(formData);
+                  }
+        
+                const data = await response.json();
+        
+                if (!data.errors) {
+                    alert('File uploaded successfully!');
+                } else {
+                    console.error('Errors:', data.errors);
+                    alert('Some errors occurred while uploading.');
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                alert(`An error occurred: ${error.message}`);
+            }
         };
 
         const handleStudentFileUpload = async () => {
@@ -535,26 +591,7 @@
                 formData.append('file', file);
         
                 // Send the request to the server
-                fetch(`${API_BASE_URL}/upload_students`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: formData,
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (!data.errors) {
-                        alert('File uploaded successfully!');
-                    } else {
-                        console.error('Errors:', data.errors);
-                        alert('Some errors occurred while uploading.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error uploading file:', error);
-                    alert(`An error occurred: ${error.message}`);
-                });
+                
             };
         
             // Read the file as an ArrayBuffer

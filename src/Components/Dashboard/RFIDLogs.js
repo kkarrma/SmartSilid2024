@@ -59,17 +59,24 @@ function RFIDLogs() {
         },
         body: JSON.stringify ({ section })
       });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchSection();
+      }
+
+      const data = await response.json();
+      console.log(data);
       if (response.ok) {
         const data = await response.json();
         const fetchedSections = data.map(item => item.section);
         setAvailableSection(fetchedSections);
       } else {
         console.error('Failed to fetch sections');
+        
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       console.error('Error fetching sections:', error);
     }
   };
@@ -93,7 +100,12 @@ function RFIDLogs() {
           pagination,
         }),
       });
-  
+      
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchRFIDLogs();
+      }
+
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched logs:', data);
@@ -103,9 +115,7 @@ function RFIDLogs() {
         console.error('Failed to fetch logs');
       }
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
+      
       console.error('Error fetching logs:', error);
     }
   };  

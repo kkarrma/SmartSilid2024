@@ -29,6 +29,33 @@ function UserPage() {
   const [isChangePass, setIsChangePass] = useState(false);
   const navigate = useNavigate();
 
+  const handleTokenRefresh = async () => {
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken === null) {
+            console.log("Refresh token is missing.");
+            return navigate('/'); 
+        }
+      
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ refresh: refreshToken }), 
+        });
+          
+        if (!response.ok) {
+            console.error('Failed to refresh token. Status:', response.status);
+            return navigate('/'); 
+        }
+
+        const data = await response.json();
+        localStorage.setItem('accessToken', data.access);
+    } catch (error) {
+        console.error('Token refresh error:', error);
+    }
+  };
+
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     if (!accessToken) {
@@ -46,6 +73,11 @@ function UserPage() {
           },
           body: JSON.stringify({ id: user_id }),
         });
+
+        if(response.status === 401) {
+          await handleTokenRefresh();
+          return fetchUserData(); 
+        }
 
         if (response.ok) {
           const userData = await response.json();
@@ -108,6 +140,11 @@ function UserPage() {
         }),
       });
 
+      if(response.status === 401){
+        await handleTokenRefresh();
+        return handleUpdateFaculty();
+      }
+
       if (response.ok) {
         alert('User updated successfully!');
         const data = await response.json();
@@ -142,6 +179,11 @@ function UserPage() {
           new_password: newPassword,
         }),
       });
+
+      if(response.status === 401){
+        await handleTokenRefresh();
+        return handleChangePassword();
+      }
 
       if (response.ok) {
         alert('Password changed successfully!');
