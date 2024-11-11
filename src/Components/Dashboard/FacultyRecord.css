@@ -3,13 +3,21 @@
     margin-top: 20px;
   }
   
-  .faculty-item {
-    border: 1px solid #ccc;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
+  .faculty-list {
+    max-height: 300px;
+    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: auto;
+    
+    .faculty-item {
+      /* border: 1px solid #ccc; */
+      background-color: #f3f3f3;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
   }
-  
+
   .faculty-header {
     display: flex;
     justify-content: space-between;
@@ -18,11 +26,24 @@
   
   .faculty-details {
     padding: 10px 0 0 20px;
+    
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    /* 
+    .rfid-unbind-label {
+      position: relative;
+    }
+    
+    .rfid-unbind-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+      background-color: var(--btn);
+    } */
   }
   
-  .faculty-details ul {
-    list-style-type: none;
-    padding: 0;
-  }
 }
   

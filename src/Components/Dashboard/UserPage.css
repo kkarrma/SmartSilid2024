@@ -18,7 +18,6 @@
       justify-content: center;
       align-items: center;
 
-      /* Add a style for when editing mode is off */
       &.no-border {
         border: none;
       }
@@ -32,6 +31,11 @@
     padding: 2em 4em 2em 4em;
 
     .username-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+       
+
       h3 {
         margin: 0;
         font-size: 2em;
@@ -48,6 +52,13 @@
         &:hover {
           color: var(--sub-txt);
         }
+      }
+
+      button {
+        border: none;
+        background-color: transparent;
+        text-decoration: none;
+        padding-right: 10px;
       }
     }
 
@@ -68,8 +79,16 @@
       }
     }
 
+    .open-pass-form {
+      margin-top: 10px;
+    }
+
     .action-btn {
+      display: flex;
       margin-top: 1em;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
     }
   }
 }

@@ -46,6 +46,7 @@
         align-items: center;
         justify-content: start;
         margin-bottom: 15px;
+        gap: 5px;
 
         label {
             flex: 1;
@@ -100,19 +101,19 @@
 
 @media (max-width: 426px) {
     .subj-table {
-      display: none; /* Hide the subj-table on mobile */
+      display: none; 
     }
   
     .mobile-subj-table {
-      display: block; /* Ensure the mobile-subj-table is displayed */
+      display: block; 
       padding: 10px;
-      border: 1px solid #ddd; /* Add borders as necessary */
-      margin: 10px 0; /* Add margin for spacing */
+      border: 1px solid #ddd;
+      margin: 10px 0; 
     }
   
     .mobile-subj-table .subject-name {
       font-weight: bold;
-      margin-bottom: 10px; /* Space below subject name */
+      margin-bottom: 10px; 
     }
   
     .day-time-row,
@@ -120,24 +121,22 @@
     .action-row {
       display: flex;
       justify-content: center;
-      margin-bottom: 10px; /* Space between rows */
+      margin-bottom: 10px;
     }
   
     .day-time-row div,
     .section-faculty-row div,
     .action-row button {
-      flex: 1; /* Each element takes equal space */
-      text-align: center; /* Center the text */
+      flex: 1; 
+      text-align: center; 
     }
   
     .action-row {
-      margin-top: 20px; /* Add space above buttons */
+      margin-top: 20px;
     }
   
     .action-row button {
-      margin: 0 5px; /* Space between buttons */
+      margin: 0 5px;
     }
-  
-    /* Additional styling for smaller screens can go here */
-  }
+}
   

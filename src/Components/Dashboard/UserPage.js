@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './config';
 import './UserPage.css';
 import { useNavigate } from 'react-router-dom';
+import PasswordInput from '../LoginForm/PasswordInput';
 
 function UserPage() {
   const [data, setData] = useState({
@@ -13,7 +14,7 @@ function UserPage() {
 
   // New Inputted Credentials initialized as null
   const [newFName, setNewFName] = useState(null);
-  const [id, setId] = useState('');
+  // const [id, setId] = useState('');
   const [newLName, setNewLName] = useState(null);
   const [newMInit, setNewMInit] = useState(null);
   const [newUsername, setNewUsername] = useState(null);
@@ -22,9 +23,10 @@ function UserPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
+  
   const user_id = localStorage.getItem('id');
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangePass, setIsChangePass] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,9 +76,20 @@ function UserPage() {
 
   const handleCancelClick = () => {
     setIsEditing(false);
+    setIsChangePass(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setOldPassword('');
   };
 
-  const handleUpdateClick = async () => {
+  const handleCancelPassClick = () => {
+    setIsChangePass(false);
+    setNewPassword('');
+    setConfirmPassword('');
+    setOldPassword('');
+  };
+
+  const handleUpdateFaculty = async () => {
     try {
       const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${API_BASE_URL}/update_faculty`, {
@@ -145,6 +158,10 @@ function UserPage() {
     }
   };
 
+ const openChangePassForm = async() => {
+  setIsChangePass(true);
+ }
+
   return (
     <div className="user-page">
       <div className="user-pic">
@@ -152,11 +169,21 @@ function UserPage() {
       </div>
       <div className="user-info cont">
         <div className="username-row">
-          <h3>{data.username}</h3>
-          <i
-            className="fa-solid fa-pen edit-icon"
-            onClick={handleEditClick}
-          ></i>
+          <div className="user-L-side">
+            <h3>{data.username}</h3>
+          </div>
+          <div className="user-R-side">
+            <i
+              className="fa-solid fa-pen edit-icon"
+              onClick={handleEditClick}
+            ></i>
+            <button onClick={async() => {
+              localStorage.clear();
+              window.location.reload();
+            }}>
+              <i className="fa-solid fa-right-from-bracket logout-icon"></i>
+            </button>
+          </div>
         </div>
 
         {isEditing ? (
@@ -216,43 +243,60 @@ function UserPage() {
                 <option value="faculty">Faculty</option>
               </select>
             </div>
+            {isChangePass ? (
+              <>
+                <div className="old-pass-row user-row">
+                  <div className="user-label">Old Password</div>
+                  <PasswordInput
+                    placeholder="************"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    className="user-input"
+                  />
+                </div>
+                <div className="new-pass-row user-row">
+                  <div className="user-label">New Password</div>
+                  <PasswordInput
+                    placeholder="************"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="user-input"
+                  />
+                </div>
+                <div className="new-pass-row user-row">
+                  <div className="user-label">Confirm Password</div>
+                  <PasswordInput
+                    placeholder="************"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="user-input"
+                    />
+                  {passwordError && <div className="error-message">{passwordError}</div>}
+                </div>
+                <div className="action-btn">
+                  <button className="update-pass-button" onClick={handleChangePassword}>
+                    Update Password
+                  </button>
+                  <button className="cancel-button" onClick={handleCancelPassClick}>
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className='open-pass-form'>
+                  <button className='update-pass-button' onClick={openChangePassForm}>
+                    Change Password
+                  </button>
+                </div>
+              </>
+            )}
             <div className="action-btn">
-              <button className="update-button" onClick={handleUpdateClick}>
+              <button className="update-button" onClick={handleUpdateFaculty}>
                 Update
               </button>
               <button className="cancel-button" onClick={handleCancelClick}>
                 Cancel
-              </button>
-            </div>
-
-            <div className="change-pass-row user-row">
-              <div className="user-label">Old Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                className="user-input"
-              />
-              <div className="user-label">New Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="user-input"
-              />
-              <div className="user-label">Confirm Password</div>
-              <input
-                type="password"
-                placeholder="************"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="user-input"
-              />
-              {passwordError && <div className="error-message">{passwordError}</div>}
-              <button className="update-button" onClick={handleChangePassword}>
-                Change Password
               </button>
             </div>
           </>
@@ -276,14 +320,6 @@ function UserPage() {
             </div>
           </>
         )}
-      </div>
-      <div className="user-logout">
-        <button onClick={async() => {
-          localStorage.clear();
-          window.location.reload();
-        }}>
-          <i className="fa-solid fa-right-from-bracket logout-icon"></i>
-        </button>
       </div>
     </div>
   );

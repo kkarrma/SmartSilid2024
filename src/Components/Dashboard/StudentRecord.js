@@ -3,6 +3,7 @@
     import './StudentRecord.css';
     import { useNavigate } from 'react-router-dom';
     import * as XLSX from 'xlsx';
+    import PasswordInput from '../LoginForm/PasswordInput';
 
     function StudentRecord() {
         const type = "Student";
@@ -603,7 +604,7 @@
                     </div>
                     <div className="sections-container cont">
                         {sections.length === 0 ? (
-                            <p>No sections available</p>
+                            <p className='no-fetch-msg'>No sections available</p>
                         ) : (
                             sections.map((sec, index) => (
                                 <div key={index} className="section-item">
@@ -633,98 +634,101 @@
                         <>
                             <div className="student-form cont">
                                 {formVisible ? (
-                                    <form onSubmit={handleSubmit}>
-                                        <div className="name-div">
-                                            <div>
-                                                <label htmlFor="firstname">First Name: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="firstname"
-                                                    value={first_name}
-                                                    onChange={(e) => setFirstname(e.target.value)}
-                                                    required
+                                    <div className='student-form-inner'>
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="name-div">
+                                                <div className='user-form'>
+                                                    <label htmlFor="firstname">First Name: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="firstname"
+                                                        value={first_name}
+                                                        onChange={(e) => setFirstname(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="middlename">Middle Initial: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="middlename"
+                                                        value={middle_initial}
+                                                        onChange={(e) => setMiddlename(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="lastname">Last Name: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="lastname"
+                                                        value={last_name}
+                                                        onChange={(e) => setLastname(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label htmlFor="username">Username: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="username"
+                                                        value={username}
+                                                        onChange={(e) => setUsername(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="creds-div">
+                                                <input type="hidden" id="type" />
+                                                <div>
+                                                    <label htmlFor="section">Section: <span>*</span></label>
+                                                    <select
+                                                        id="section"
+                                                        value={section || selectedSection}
+                                                        onChange={(e) => setSection(e.target.value)}
+                                                        required
+                                                    >
+                                                        <option value=""></option>
+                                                        {sections.map((sec) => (
+                                                            <option key={sec} value={sec}>{sec}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="password-div">
+                                                <label htmlFor="password">Password: <span>*</span></label>
+                                                <PasswordInput
+                                        
+                                                    id="password"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                
                                                 />
                                             </div>
-                                            <div>
-                                                <label htmlFor="middlename">Middle Initial: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="middlename"
-                                                    value={middle_initial}
-                                                    onChange={(e) => setMiddlename(e.target.value)}
-                                                    required
+                                            <div className="password-div">
+                                                <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
+                                                <PasswordInput
+                                                
+                                                    id="confirmPassword"
+                                                    value={confirmPassword}
+                                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                                
                                                 />
                                             </div>
-                                            <div>
-                                                <label htmlFor="lastname">Last Name: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="lastname"
-                                                    value={last_name}
-                                                    onChange={(e) => setLastname(e.target.value)}
-                                                    required
-                                                />
+                                            <div className="reg-div">
+                                                <button type="submit" disabled={loading}>
+                                                    {loading ? 'Registering...' : 'Add Student'}
+                                                </button>
+                                                <button className="cancel-btn" type="button" onClick={handleCancelClick}>
+                                                    Cancel
+                                                </button>
                                             </div>
-                                            <div>
-                                                <label htmlFor="username">Username: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="username"
-                                                    value={username}
-                                                    onChange={(e) => setUsername(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="creds-div">
-                                            <input type="hidden" id="type" />
-                                            <div>
-                                                <label htmlFor="section">Section: <span>*</span></label>
-                                                <select
-                                                    id="section"
-                                                    value={section || selectedSection}
-                                                    onChange={(e) => setSection(e.target.value)}
-                                                    required
-                                                >
-                                                    <option value=""></option>
-                                                    {sections.map((sec) => (
-                                                        <option key={sec} value={sec}>{sec}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="password-div">
-                                            <label htmlFor="password">Password: <span>*</span></label>
-                                            <input
-                                                type="password"
-                                                id="password"
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="password-div">
-                                            <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
-                                            <input
-                                                type="password"
-                                                id="confirmPassword"
-                                                value={confirmPassword}
-                                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div className="reg-div">
-                                            <button type="submit" disabled={loading}>
-                                                {loading ? 'Registering...' : 'Add Student'}
-                                            </button>
-                                            <button className="cancel-btn" type="button" onClick={handleCancelClick}>
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </form>
+                                        </form>
+                                    </div>
                                 ) : (
                                     <button className="adds-btn" type="button" onClick={handleAddClick}>
-                                        <i className="fa-solid fa-plus"></i> Student
+                                        {/* <i className="fa-solid fa-plus"></i>  */}
+                                        Add Student
                                     </button>
                                 )}
                             </div>
@@ -793,8 +797,8 @@
                                         </div>
                                         <div className="password-div">
                                             <label htmlFor="password">Password: <span>*</span></label>
-                                            <input
-                                                type="password"
+                                            <PasswordInput
+                                    
                                                 id="password"
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
@@ -802,8 +806,8 @@
                                         </div>
                                         <div className="password-div">
                                             <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
-                                            <input
-                                                type="password"
+                                            <PasswordInput
+                                        
                                                 id="confirmPassword"
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -839,7 +843,7 @@
                                     <tbody>
                                         {students.length === 0 ? (
                                             <tr>
-                                                <td colSpan="5">No students found</td>
+                                                <td colSpan="6" className='no-fetch-msg'>No students found</td>
                                             </tr>
                                         ) : (
                                             students.map((student, index) => (
@@ -867,7 +871,7 @@
                             </div>
                         </>
                     ) : (
-                        <p>Please select a section</p>
+                        <p className='no-fetch-msg'>Please select a section</p>
                     )}
                 </div>
             </>

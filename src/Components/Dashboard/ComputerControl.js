@@ -317,11 +317,7 @@ function ComputerControl() {
     }
   };
 
-  const viewStream = () => {
-    // const streamDiv = document.getElementById('stream');
-    // streamDiv.innerHTML = `<iframe src="${API_BASE_URL}/stream" style="border: none;}" width="100%" height="500" frameborder="0" allowfullscreen></iframe>`;
-  };
-  const streamUrl = `${API_BASE_URL}/stream/`; // The URL part you want
+  const streamUrl = `${API_BASE_URL}/stream`; // The URL part you want
   
   useEffect(() => {
     // Make sure the link exists in the DOM before attempting to modify it
@@ -337,10 +333,11 @@ function ComputerControl() {
           <div className='stream-container cont'>
             <div className="stream-row">
               <h4>Casting Controls &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
-              <button onClick={startStream}>Start Stream</button>
-              <button onClick={stopStream}>Stop Stream</button>
-              <button onClick={viewStream}>View Stream</button>
-              <div id="stream"></div> 
+              <div className='stream-btn'>
+                <button onClick={startStream}>Start Stream</button>
+                <button onClick={stopStream}>Stop Stream</button>
+                <div id="stream"></div> 
+              </div>
             </div>
 
             <div className="view-stream-row">
@@ -354,7 +351,8 @@ function ComputerControl() {
           <div className='cont-divider'></div>
 
           <form>
-            <div className="controls-row cont">
+            <div className="controls-row cont"> 
+              <h4>Computer List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
               <select onChange={handleSelectPC} value="">
                 <option value="">Select a PC</option>
                 {pcs.map((pc) => (
@@ -393,8 +391,7 @@ function ComputerControl() {
             </div>
             
             <div className='computer-list cont'>
-
-              <div className="admin-controls">
+              <div className="checkbox-container">
                 <select onChange={handleAdminInputChange} value={adminInputValue}>
                   <option value="">Select Admin PC</option>
                   {pcs.map((pc) => (
@@ -410,99 +407,99 @@ function ComputerControl() {
                 >
                   Set Admin
                 </button>
-              </div>
-
-              <div className="checkbox-container">
-                <input
-                  type="checkbox"
-                  checked={selectAll}
-                  onChange={handleSelectAll}
-                />
-                <label>Select All</label> 
-                &nbsp;&nbsp;&nbsp;
-                <button
-                  type="button"
-                  onClick={handleClearSelection}
-                >
-                  Clear
-                </button>
+                <div>
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                  />
+                  <label>Select All</label> 
+                  &nbsp;&nbsp;&nbsp;
+                  <button
+                    type="button"
+                    onClick={handleClearSelection}
+                  >
+                    Clear
+                  </button>
+                </div>
               </div>
 
               {pcs.length === 0 ? ( 
-                <p>No PCs found</p>
+                <p className='no-fetch-msg'>No PCs found</p>
               ) : (
-                <div className="pcs-grid">
-                  {pcs.map((pc) => (
-                    <div 
-                      key={pc} 
-                      className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''} 
-                                          ${pcStates[pc]?.isAdmin ? 'isAdmin' : ''}`}
-                      onClick={() => handleCheckBoxChange(pc)} 
-                    >
-                      <div className="pc-icon">
-                        <i className="fa-solid fa-desktop"></i> 
-                      </div>
-                      <div className="checkbox-cell">
-                        <input
-                          type="checkbox"
-                          checked={pcStates[pc]?.isChecked}
-                          onChange={() => handleCheckBoxChange(pc)}
-                          className="hidden-checkbox"
-                        />
-                        <div className="pc-name">{pc}</div>
-                      </div>
-                      <div className="action">
-                        <label className="toggle-switch">
-                          <input
-                            type="checkbox"
-                            checked={pcStates[pc]?.isOn}
-                            onChange={() => handleRowTogglePC(pc)} 
-                          />
-                          <span className="slider" />
-                        </label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className='pcs-table'>
-                <table>
-                  <thead>
-                    <tr className="pcs-table-header">
-                      <th>Select</th>
-                      <th>PC Name</th>
-                      <th>Off | On</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <>
+                  <div className="pcs-grid">
                     {pcs.map((pc) => (
-                      <tr key={pc} className={`pcs-table-row ${pcStates[pc]?.isChecked ? 'checked' : ''}`}>
-                        <td>
+                      <div 
+                        key={pc} 
+                        className={`pc-item ${pcStates[pc]?.isChecked ? 'checked' : ''} 
+                                            ${pcStates[pc]?.isAdmin ? 'isAdmin' : ''}`}
+                        onClick={() => handleCheckBoxChange(pc)} 
+                      >
+                        <div className="pc-icon">
+                          <i className="fa-solid fa-desktop"></i> 
+                        </div>
+                        <div className="checkbox-cell">
                           <input
                             type="checkbox"
                             checked={pcStates[pc]?.isChecked}
-                            onChange={() => handleCheckBoxChange(pc)} 
+                            onChange={() => handleCheckBoxChange(pc)}
+                            className="hidden-checkbox"
                           />
-                        </td>
-                        <td>{pc}</td>
-                        <td>
-                          <div className="action">
-                            <label className="toggle-switch">
+                          <div className="pc-name">{pc}</div>
+                        </div>
+                        <div className="action">
+                          <label className="toggle-switch">
+                            <input
+                              type="checkbox"
+                              checked={pcStates[pc]?.isOn}
+                              onChange={() => handleRowTogglePC(pc)} 
+                            />
+                            <span className="slider" />
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='pcs-table'>
+                    <table>
+                      <thead>
+                        <tr className="pcs-table-header">
+                          <th>Select</th>
+                          <th>PC Name</th>
+                          <th>Off | On</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {pcs.map((pc) => (
+                          <tr key={pc} className={`pcs-table-row ${pcStates[pc]?.isChecked ? 'checked' : ''}`}>
+                            <td>
                               <input
                                 type="checkbox"
-                                checked={pcStates[pc]?.isOn}
-                                onChange={() => handleRowTogglePC(pc)}
+                                checked={pcStates[pc]?.isChecked}
+                                onChange={() => handleCheckBoxChange(pc)} 
                               />
-                              <span className="slider" />
-                            </label>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                            </td>
+                            <td>{pc}</td>
+                            <td>
+                              <div className="action">
+                                <label className="toggle-switch">
+                                  <input
+                                    type="checkbox"
+                                    checked={pcStates[pc]?.isOn}
+                                    onChange={() => handleRowTogglePC(pc)}
+                                  />
+                                  <span className="slider" />
+                                </label>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
 
             </div>
           </form>
