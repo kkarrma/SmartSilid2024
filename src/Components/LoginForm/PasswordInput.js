@@ -18,7 +18,7 @@ function PasswordInput({ value, onChange }) {
       <button
         type="button"
         onClick={togglePasswordVisibility}
-        className="toggle-button"
+        className="see-pass-btn"
       >
         <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
       </button>

@@ -8,7 +8,7 @@
   .stream-container {
     display: flex;
     flex-wrap: wrap; 
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
 
     .stream-row {
@@ -28,7 +28,7 @@
       display: flex;
       flex-wrap: wrap; 
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
@@ -37,6 +37,10 @@
         display: block; 
       }
     }
+  }
+
+  .controls-row {
+    margin-top: 3rem;
   }
 
   .cont-divider {
@@ -68,7 +72,7 @@
   .pcs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px; 
+    gap: 5px; 
   }
 
   .pcs-table {
@@ -108,6 +112,7 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
+    gap: 5px;
 
     &.isAdmin {
       background-color: var(--bg4);

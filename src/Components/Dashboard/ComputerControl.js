@@ -61,7 +61,8 @@ function ComputerControl() {
       const data = await response.json();
       const fetchedPCs = data.computers.map(pc => ({
         name: pc.computer_name,
-        isAdmin: pc.is_admin 
+        isAdmin: pc.is_admin, 
+        isOn: pc.status === 1 
       }));
         
       setPcs(fetchedPCs.map(pc => pc.name));
@@ -69,7 +70,7 @@ function ComputerControl() {
         const newStates = fetchedPCs.reduce((acc, pc) => ({
           ...acc,
           [pc.name]: { 
-            isOn: prevStates[pc.name]?.isOn || false, 
+            isOn: pc.isOn, //prevStates[pc.name]?.isOn || false, 
             isChecked: false, 
             isAdmin: pc.isAdmin 
           }
@@ -335,8 +336,9 @@ function ComputerControl() {
       <div className='computer-controls'>
         <div className="dash-container">
           <div className='stream-container cont'>
+            <h3 classame="cont-title">Casting Controls</h3>
             <div className="stream-row">
-              <h4>Casting Controls &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+              {/* <h4>Casting Controls &nbsp;&nbsp; | &nbsp;&nbsp; </h4> */}
               <div className='stream-btn'>
                 <button onClick={startStream}>Start Stream</button>
                 <button onClick={stopStream}>Stop Stream</button>
@@ -345,17 +347,21 @@ function ComputerControl() {
             </div>
 
             <div className="view-stream-row">
-              <h4>View Client Screens &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+              {/* <h4>View Client Screens &nbsp;&nbsp; | &nbsp;&nbsp; </h4> */}
               {/* <a href="192.168.10.112:8000/stream" target="_blank">Go to Stream Page</a> */}
-              <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">Go to Stream Page</a>
+              <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">
+                {/* Go to Stream Page */}
+                <h4>View Client Screens &nbsp;&nbsp; ≫ &nbsp;&nbsp; </h4>
+              </a>
 
             </div>
           </div>
 
-          <div className='cont-divider'></div>
+          {/* <div className='cont-divider'></div> */}
 
           <form>
             <div className="controls-row cont"> 
+            <h3 classame="cont-title">Computer Controls</h3>
               <h4>Computer List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
               <select onChange={handleSelectPC} value="">
                 <option value="">Select a PC</option>
@@ -395,6 +401,7 @@ function ComputerControl() {
             </div>
             
             <div className='computer-list cont'>
+              {/* <h3 classame="cont-title">Computer Controls</h3> */}
               <div className="checkbox-container">
                 <select onChange={handleAdminInputChange} value={adminInputValue}>
                   <option value="">Select Admin PC</option>

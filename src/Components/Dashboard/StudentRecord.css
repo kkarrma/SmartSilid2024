@@ -1,10 +1,12 @@
 .student-record {
   .section-form {
-    margin-bottom: 20px; 
+    margin-bottom: 20px;
+    padding: 20px; 
 
     .new-section-form {
-      margin-bottom: 20px; 
-      gap: 10px;
+      display: flex;
+      gap: 10px;  
+      padding: 10px;
     }
   }
 
@@ -51,19 +53,63 @@
     }
   }
 
-  .student-form {
+  .student-form,
+  .edit-form {
+    padding-top: 20px;
 
-    .student-form-inner {
-      align-items: center;
-      justify-content: space-between;
+    .student-form-inner,
+    .edit-form-inner {
+      margin: 0 auto;
+      max-width: 500px;
       text-align: center;
-      max-width: 400px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       
       .user-form {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5em 0;
+        border-bottom: 1px solid #ddd;
       }
-    }
 
+      .reg-div {
+        display: flex ;
+        margin-top: 10px;
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    } 
   }
 
+  .student-table {
+    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: auto;
+  }
+
+  @media screen and (max-width: 426px) {
+  .student-table {
+      display: flex;
+
+      .action {
+        display: flex;
+        gap: 3px;
+
+        button, i {
+          font-size: 90%;
+          min-width: 3px;
+        }
+      }
+
+    }
+  }
 }

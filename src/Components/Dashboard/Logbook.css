@@ -3,24 +3,49 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
+      text-align: center;
       gap: 10px;
-    }
 
+      .filter-cont {
+        position: relative;
+        margin-top: 10px;
+        
+        label {
+          position: absolute;
+          top: -0.5rem;
+          left: .5rem; 
+          padding: 0 10px;
+          background: var(--bg1);
+          font-weight: bold;
+          color: var(--h2-txt);
+          font-size: 90%;
+          width: fit-content;
+        }
+      }
+
+      .filter-btn {
+        display: flex;
+        gap: 10px;
+        margin-top: 9px;
+      }
+    }
     
     .log-table {
-        overflow-x: auto; 
-        margin-top: 20px; 
-        border-collapse: collapse;
-        overflow: hidden;
-        overflow-x: auto;
-        overflow-y: auto;
-        justify-content: center;
-        align-items: center;
+      border-collapse: collapse;
+      justify-content: center;
+      align-items: center;
+      
+      .log-table-cont {
+          margin-top: -10px;
+          overflow: hidden;
+          overflow-x: auto;
+          overflow-y: auto;
 
-        .action {
+          .action {
             display: flex;
             justify-content: center;
+          }
         }
     } 
   
@@ -30,6 +55,9 @@
       justify-content: center;
       text-align: center;
       gap: 4px;
+      margin-top: 20px;
+      background-color: transparent;
+
   
       .page-btn {
         padding: 5px 2px;

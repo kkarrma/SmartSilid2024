@@ -135,7 +135,9 @@ function ComputerLogs() {
     <>
       <div className='logbook'>
         <div className="filter-controls cont">
-          <div className='username-filter'>
+          <h3 classame="cont-title">Filter Controls</h3>
+          <div className='username-filter filter-cont'>
+            <label className='start-date-input'>Username: </label>
             <input
               type="text"
               placeholder="Username"
@@ -143,7 +145,8 @@ function ComputerLogs() {
               onChange={e => setUsername(e.target.value)}
             />
           </div>
-          <div className='computer-filter'>
+          <div className='computer-filter filter-cont'>
+            <label className='start-date-input'>Computer: </label>
             <select
               value={computer_name}
               onChange={e => setComputerName(e.target.value)}
@@ -154,7 +157,7 @@ function ComputerLogs() {
               ))}
             </select>
           </div>
-          <div className='start-date-filter'>
+          <div className='start-date-filter filter-cont'>
             <label className='start-date-input'>Start Date: </label>
             <input
               type="date"
@@ -162,7 +165,7 @@ function ComputerLogs() {
               onChange={e => setStartDate(e.target.value)}
             />
           </div>
-          <div className='end-date-filter'>
+          <div className='end-date-filter filter-cont'>
             <label className='end-date-input'>End Date: </label>
             <input
               type="date"
@@ -170,8 +173,12 @@ function ComputerLogs() {
               onChange={e => setEndDate(e.target.value)}
             />
           </div>
-          <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
-          <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+
+          <div className='filter-btn'>
+            <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
+            <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+          </div>
+          
           <div className='action-filter'>
             <button type="button" onClick={handleFilter}>Filter</button>
             <button type="button" onClick={handleClearFilters}>Clear</button>
@@ -179,80 +186,83 @@ function ComputerLogs() {
         </div>
 
         <div className="log-table cont">
-          <table>
-            <thead>
-              <tr>
-                <th>PC Name</th>
-                <th>Username</th>
-                <th>Log Date</th>
-                <th>Login</th>
-                <th>Logout</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
-                sortedLogs.map((log, index) => (
-                  <tr key={index}>
-                    <td className="pc-name">{log.computer_name}</td>
-                    <td className="name">
-                      <span>{log.username}</span>
-                    </td>
-                    <td className="log-date">
-                      <div className="flex-cont">
-                        <span>{log.date}</span>
-                      </div>
-                    </td>
-                    <td className="log-in">
-                      <div className="flex-cont">
-                        <span>{log.logon}</span>
-                      </div>
-                    </td>
-                    <td className="log-out">
-                      <div className="flex-cont">
-                        <span>{log.logoff}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
+          <h3 classame="cont-title">Computer List</h3>
+          <div className='log-table-cont'>
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="5" className='no-fetch-msg'>No logs available</td>
+                  <th>PC Name</th>
+                  <th>Username</th>
+                  <th>Log Date</th>
+                  <th>Login</th>
+                  <th>Logout</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
+                  sortedLogs.map((log, index) => (
+                    <tr key={index}>
+                      <td className="pc-name">{log.computer_name}</td>
+                      <td className="name">
+                        <span>{log.username}</span>
+                      </td>
+                      <td className="log-date">
+                        <div className="flex-cont">
+                          <span>{log.date}</span>
+                        </div>
+                      </td>
+                      <td className="log-in">
+                        <div className="flex-cont">
+                          <span>{log.logon}</span>
+                        </div>
+                      </td>
+                      <td className="log-out">
+                        <div className="flex-cont">
+                          <span>{log.logoff}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className='no-fetch-msg'>No logs available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="pagination-controls cont">
-          <button 
-            onClick={() => setPagination(1)} 
-            disabled={pagination === 1}
-            className='first-btn page-btn'
-          >
-            First
-          </button>
-          <button 
-            onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
-            disabled={pagination === 1}
-            className='prev-btn page-btn'
-          >
-            <i className="fa-solid fa-angle-left"></i>
-          </button>
-          <span>{pagination} of {totalPages}</span>
-          <button 
-            onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
-            disabled={pagination === totalPages}
-            className='next-btn page-btn'
-          >
-            <i className="fa-solid fa-angle-right"></i>
-          </button>
-          <button 
-            onClick={() => setPagination(totalPages)} 
-            disabled={pagination === totalPages}
-            className='last-btn page-btn'
-          >
-            Last
-          </button>
+          <div className="pagination-controls">
+            <button 
+              onClick={() => setPagination(1)} 
+              disabled={pagination === 1}
+              className='first-btn page-btn'
+            >
+              First
+            </button>
+            <button 
+              onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
+              disabled={pagination === 1}
+              className='prev-btn page-btn'
+            >
+              <i className="fa-solid fa-angle-left"></i>
+            </button>
+            <span>{pagination} of {totalPages}</span>
+            <button 
+              onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
+              disabled={pagination === totalPages}
+              className='next-btn page-btn'
+            >
+              <i className="fa-solid fa-angle-right"></i>
+            </button>
+            <button 
+              onClick={() => setPagination(totalPages)} 
+              disabled={pagination === totalPages}
+              className='last-btn page-btn'
+            >
+              Last
+            </button>
+          </div>
         </div>
       </div>
     </>

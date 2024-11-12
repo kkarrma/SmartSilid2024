@@ -141,7 +141,8 @@ function RFIDLogs() {
     <>
       <div className='logbook'>
         <div className="filter-controls cont">
-          <div className='start-date-filter'>
+          <h3 classame="cont-title">Filter Controls</h3>
+          <div className='start-date-filter filter-cont'>
             <label className='start-date-input'>Start Date: </label>
             <input
               type="date"
@@ -149,7 +150,7 @@ function RFIDLogs() {
               onChange={e => setStartDate(e.target.value)}
             />
           </div>
-          <div className='end-date-filter'>
+          <div className='end-date-filter filter-cont'>
             <label className='end-date-input'>End Date: </label>
             <input
               type="date"
@@ -157,7 +158,7 @@ function RFIDLogs() {
               onChange={e => setEndDate(e.target.value)}
             />
           </div>
-          <div className='faculty-filter'>
+          <div className='faculty-filter filter-cont'>
             <input
               type="text"
               placeholder="Faculty Name"
@@ -165,7 +166,7 @@ function RFIDLogs() {
               onChange={e => setFacultyName(e.target.value)}
             />
           </div>
-          <div className='subject-filter'>
+          <div className='subject-filter filter-cont'>
             <input
               type="text"
               placeholder="Subject"
@@ -173,7 +174,7 @@ function RFIDLogs() {
               onChange={e => setSubject(e.target.value)}
             />
           </div>
-          <div className='section-filter'>
+          <div className='section-filter filter-cont'>
             <select
               value={section}
               onChange={e => setSection(e.target.value)}
@@ -184,8 +185,12 @@ function RFIDLogs() {
               ))}
             </select>
           </div>
-          <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
-          <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+
+          <div className='filter-btn'>
+            <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
+            <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+          </div>
+          
           <div className='action-filter'>
             <button type="button" onClick={handleFilter}>Filter</button>
             <button type="button" onClick={handleClearFilters}>Clear</button>
@@ -193,67 +198,69 @@ function RFIDLogs() {
         </div>
 
         <div className="log-table cont">
-          <table>
-            <thead>
-              <tr>
-                <th>Faculty Name</th>
-                <th>Subject</th>
-                <th>Section</th>
-                <th>Log Date</th>
-                <th>Login</th>
-              </tr>
-            </thead>
-            
-            <tbody>
-              {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
-                sortedLogs.map((log, index) => (
-                  <tr key={index}>
-                    <td className="faculty-name">{log.faculty_name}</td>
-                    <td className="subject">{log.subject}</td>
-                    <td className="section">{log.section}</td>
-                    <td className="log-date">{log.date}</td>
-                    <td className="log-in">{log.start_time}</td>
-                  </tr>
-                ))
-              ) : (
+          <div className='log-table-cont'>
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6" className='no-fetch-msg'>No logs available</td>
+                  <th>Faculty Name</th>
+                  <th>Subject</th>
+                  <th>Section</th>
+                  <th>Log Date</th>
+                  <th>Login</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              
+              <tbody>
+                {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
+                  sortedLogs.map((log, index) => (
+                    <tr key={index}>
+                      <td className="faculty-name">{log.faculty_name}</td>
+                      <td className="subject">{log.subject}</td>
+                      <td className="section">{log.section}</td>
+                      <td className="log-date">{log.date}</td>
+                      <td className="log-in">{log.start_time}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className='no-fetch-msg'>No logs available</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="pagination-controls cont">
-          <button 
-            onClick={() => setPagination(1)} 
-            disabled={pagination === 1}
-            className='first-btn page-btn'
-          >
-            First
-          </button>
-          <button 
-            onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
-            disabled={pagination === 1}
-            className='prev-btn page-btn'
-          >
-            <i className="fa-solid fa-angle-left"></i>
-          </button>
-          <span>{pagination} of {totalPages}</span>
-          <button 
-            onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
-            disabled={pagination === totalPages}
-            className='next-btn page-btn'
-          >
-            <i className="fa-solid fa-angle-right"></i>
-          </button>
-          <button 
-            onClick={() => setPagination(totalPages)} 
-            disabled={pagination === totalPages}
-            className='last-btn page-btn'
-          >
-            Last
-          </button>
+          <div className="pagination-controls">
+            <button 
+              onClick={() => setPagination(1)} 
+              disabled={pagination === 1}
+              className='first-btn page-btn'
+            >
+              First
+            </button>
+            <button 
+              onClick={() => setPagination(prev => Math.max(prev - 1, 1))} 
+              disabled={pagination === 1}
+              className='prev-btn page-btn'
+            >
+              <i className="fa-solid fa-angle-left"></i>
+            </button>
+            <span>{pagination} of {totalPages}</span>
+            <button 
+              onClick={() => setPagination(prev => Math.min(prev + 1, totalPages))} 
+              disabled={pagination === totalPages}
+              className='next-btn page-btn'
+            >
+              <i className="fa-solid fa-angle-right"></i>
+            </button>
+            <button 
+              onClick={() => setPagination(totalPages)} 
+              disabled={pagination === totalPages}
+              className='last-btn page-btn'
+            >
+              Last
+            </button>
+          </div>
         </div>
       </div>
     </>

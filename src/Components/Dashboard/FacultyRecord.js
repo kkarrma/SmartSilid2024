@@ -26,6 +26,7 @@ function FacultyRecord() {
 
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [addFormVisible, setAddFormVisible] = useState(false);
+  const [changePassFormVisible, setChangePassFormVisible] = useState(false);
   const [facultyData, setFacultyData] = useState([]);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [availableRfids, setAvailableRfids] = useState([]);
@@ -428,6 +429,13 @@ function FacultyRecord() {
     setEditFormVisible(false);
     setAddFormVisible(false);
     setErrorMessage('');
+    setChangePassFormVisible(false);
+  };
+
+  const handleCloseChangePassForm = () => {
+    setChangePassFormVisible(false);
+    setPassword('');
+    setConfirmPassword('');
   };
 
   const handleToggleExpand = (index) => {
@@ -512,152 +520,220 @@ function FacultyRecord() {
 
   return (
     <>
-      <div className='faculty-record'>
+      <div className='faculty-record'>  
         <div className='add-faculty-form cont'>
-          {!addFormVisible && (
-            <div className='adding-section'>
-              <div className='adding-btn-section'>
-                <button className="add-section-btn" onClick={() => {
-                  setAddFormVisible(true);
-                  setEditFormVisible(false);
-                }}>
-                  Add Faculty
-                </button>
+          {!addFormVisible ? (
+            <>
+              <div className='adding-section'>
+                <div className='adding-btn-section'>
+                  <button className="add-section-btn" onClick={() => {
+                    setAddFormVisible(true);
+                    setEditFormVisible(false);
+                  }}>
+                    Add Faculty
+                  </button>
+                </div>
+                <div className='adding-file-section'>
+                  <input 
+                      className='file-batch-input'
+                      type='file'
+                      ref={fileInput}
+                      accept=".xlsx, .xls"
+                  />
+                  <button className="add-section-btn" onClick={handleFacultyFileUpload}>
+                      Upload
+                  </button>
+                </div>
               </div>
-              <div className='adding-file-section'>
-                <input 
-                    className='file-batch-input'
-                    type='file'
-                    ref={fileInput}
-                    accept=".xlsx, .xls"
-                />
-                <button className="add-section-btn" onClick={handleFacultyFileUpload}>
-                    Upload
-                </button>
-              </div>
-            </div>
-          )}
-
-          {addFormVisible && (
-            <form className="faculty-form">
-              <input
-                type="text"
-                placeholder="First Name"
-                value={first_name}
-                onChange={(e) => setFirstname(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Middle Initial"
-                value={middle_initial}
-                onChange={(e) => setMiddleinitial(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={last_name}
-                onChange={(e) => setLastname(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-              />
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                required
-              >
-                <option value="">Choose user type</option>
-                <option value="admin">Admin</option>
-                <option value="faculty">Faculty</option>
-              </select>
-              <PasswordInput
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <PasswordInput
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              <button type="button" onClick={handleAddFaculty} disabled={loading}>
-                {loading ? 'Adding...' : 'Add Faculty'}
-              </button>
-              <button type="button" onClick={handleCancelBtn}>Cancel</button>
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
-            </form>
+            </>
+          ) : (
+            <>
+              <h3 classame="cont-title">Faculty Entry Form</h3>
+              <form onSubmit={handleAddFaculty}>
+                <div className='faculty-form-inner'>
+                  <div className='user-form'>
+                    <label htmlFor="firstname">Last Name: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="First Name"
+                      value={first_name}
+                      onChange={(e) => setFirstname(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="mid-initial">Last Name: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="Middle Initial"
+                      value={middle_initial}
+                      onChange={(e) => setMiddleinitial(e.target.value)}
+                    />
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="lastname">Last Name: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={last_name}
+                      onChange={(e) => setLastname(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="username">Last Name: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="Username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="type">Last Name: <span>*</span></label>
+                    <select
+                      value={type}
+                      onChange={(e) => setType(e.target.value)}
+                      required
+                    >
+                      <option value="">Choose user type</option>
+                      <option value="admin">Admin</option>
+                      <option value="faculty">Faculty</option>
+                    </select>
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="password">Last Name: <span>*</span></label>
+                    <PasswordInput
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className='user-form'>
+                    <label htmlFor="conf-password">Last Name: <span>*</span></label>
+                    <PasswordInput
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className='reg-div'>
+                    <button type="button" disabled={loading}>
+                      {loading ? 'Adding...' : 'Add Faculty'}
+                    </button>
+                    <button type="button" onClick={handleCancelBtn}>Cancel</button>
+                    {errorMessage && <p className="error-message">{errorMessage}</p>}
+                  </div>
+                </div>
+              </form>
+            </>
           )}
         </div>
 
         {editFormVisible && (
           <div className="edit-faculty-form cont">
-            <form className="faculty-form">
-              <input
-                type="text"
-                placeholder="First Name"
-                value={newFName}
-                onChange={(e) => setNewFName(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Middle Initial"
-                value={newMInit}
-                onChange={(e) => setNewMInit(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Last Name"
-                value={newLName}
-                onChange={(e) => setNewLName(e.target.value)}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Username"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
-              />
-              <select
-                value={newType}
-                onChange={(e) => setNewType(e.target.value)}
-                required
-              >
-                <option value="">Choose user type</option>
-                <option value="admin">Admin</option>
-                <option value="faculty">Faculty</option>
-              </select>
-              <button type="button" onClick={handleEditFaculty} disabled={loading}>
-                {loading ? 'Updating...' : 'Update'}
-              </button>
-              <button type="button" onClick={handleCancelBtn}>Cancel</button>
-              {errorMessage && <p className="error-message">{errorMessage}</p>}
+            <div className="edit-faculty-form-inner">
+              <form onSubmit={handleEditFaculty}>
+                <div className='name-faculty-edit'>
+                  <div className="user-form">
+                    <label htmlFor="firstname">First Name: </label>
+                    <input
+                      type="text"
+                      placeholder="First Name"
+                      value={newFName}
+                      onChange={(e) => setNewFName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="user-form">
+                    <label htmlFor="mmiddlename">Middle Name: </label>
+                    <input
+                      type="text"
+                      placeholder="Middle Initial"
+                      value={newMInit}
+                      onChange={(e) => setNewMInit(e.target.value)}
+                    />
+                  </div>
+                  <div className="user-form">
+                    <label htmlFor="lastname">Last Name: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={newLName}
+                      onChange={(e) => setNewLName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="user-form">
+                    <label htmlFor="username">Useraname: <span>*</span></label>
+                    <input
+                      type="text"
+                      placeholder="Username"
+                      value={newUsername}
+                      onChange={(e) => setNewUsername(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="user-form">
+                    <label htmlFor="type">Role: <span>*</span></label>
+                    <select
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value)}
+                      required
+                      >
+                      <option value="">Choose user role</option>
+                      <option value="admin">Admin</option>
+                      <option value="faculty">Faculty</option>
+                    </select>
+                  </div>
+                  <div className="reg-div">
+                    <button type="submit" disabled={loading}>
+                      {loading ? 'Updating...' : 'Update'}
+                    </button>
+                    <button type="button" onClick={handleCancelBtn}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+                {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-              <div className="change-pass-div">
-                <label htmlFor="password">New Password: </label>
-                <PasswordInput
-                  placeholder="**********"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <label htmlFor="password">Confirm Password: </label>
-                <PasswordInput
-                  placeholder="**********"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-                <button type="button" onClick={() => handleChangePassword(selectedFaculty, password)}>
-                  Change Password
-                </button>
-              </div>
-            </form>
+                {changePassFormVisible ? (<div className="change-pass-div">
+                  <div className="user-form">
+                    <label htmlFor="password">New Password: </label>
+                    <PasswordInput
+                      placeholder="**********"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                  <div className="user-form">
+                    <label htmlFor="password">Confirm Password: </label>
+                    <PasswordInput
+                      placeholder="**********"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    </div>
+                  <div className='reg-div'>
+                    <button type="button" onClick={() => handleChangePassword(selectedFaculty, password)}>
+                      Change Password
+                    </button>
+                    <button type="button" onClick={handleCloseChangePassForm}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+                ) : (
+                  <div className='reg-div'>
+                    <button type="button" onClick={() => setChangePassFormVisible(true)}>
+                      Change Password
+                    </button>
+                  </div>
+                )}
+
+              </form>
+            </div>
           </div>
         )}
 
