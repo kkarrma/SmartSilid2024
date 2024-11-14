@@ -997,7 +997,8 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                         <td className="action">
                                                             {!formVisible && (
                                                                 <button type="button" onClick={() => handleEditStudent(student)}>
-                                                                    Edit
+                                                                    {/* Edit */}
+                                                                    <i className="fa-solid fa-pen-to-square"></i>
                                                                 </button>
                                                             )}
                                                             <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>

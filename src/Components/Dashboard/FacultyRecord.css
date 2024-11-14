@@ -1,9 +1,6 @@
 .faculty-record {
   .faculty-list {
     max-height: 300px;
-    overflow: hidden;
-    overflow-x: auto;
-    overflow-y: auto;
     
     .faculty-item {
       /* border: 1px solid #ccc; */
@@ -11,6 +8,10 @@
       margin: 10px 0;
       padding: 10px;
       border-radius: 5px;
+      max-height: 300px;
+      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: auto;
     }
   }
 
@@ -100,8 +101,7 @@
   .gen-report {
     display: flex;
     gap: 10px;
-    padding: 0 0 10px 0;
-    justify-content:right;
+    justify-content: center;
     align-items: center;
     text-align: center;
   }

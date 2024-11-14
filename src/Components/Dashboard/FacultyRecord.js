@@ -70,10 +70,9 @@ function FacultyRecord() {
 
   const fetchFaculty = async () => { 
     const accessToken = localStorage.getItem('accessToken');
-    console.log("Bading");
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid_and_computer`, {
+      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -594,7 +593,7 @@ function FacultyRecord() {
               <form onSubmit={handleAddFaculty}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
-                    <label htmlFor="firstname">First Name: <span>*</span></label>
+                    <label htmlFor="firstname">Last Name: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="First Name"
@@ -604,7 +603,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="mid-initial">Middle Initial: <span>*</span></label>
+                    <label htmlFor="mid-initial">Last Name: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Middle Initial"
@@ -623,7 +622,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="username">Username: <span>*</span></label>
+                    <label htmlFor="username">Last Name: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Username"
@@ -633,7 +632,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="type">Role: <span>*</span></label>
+                    <label htmlFor="type">Last Name: <span>*</span></label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
@@ -645,16 +644,15 @@ function FacultyRecord() {
                     </select>
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="password">Password: <span>*</span></label>
+                    <label htmlFor="password">Last Name: <span>*</span></label>
                     <PasswordInput
-                      className='password-input'  
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="conf-password">Confirm Password: <span>*</span></label>
+                    <label htmlFor="conf-password">Last Name: <span>*</span></label>
                     <PasswordInput
                       placeholder="Confirm Password"
                       value={confirmPassword}
@@ -782,65 +780,69 @@ function FacultyRecord() {
 
         <div className="faculty-list-label cont">
           <h3>Faculty List</h3>
-          <div className='gen-report'>
-            {/* <h2>Generate Student Log Reports</h2> */}
-            {/* <button onClick={handleGenerateFacultyReportExcel} disabled={loading}>
-                {loading ? "Generating..." : "Download Faculty Report (Excel)"}
-            </button> */}
-            <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
-                {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report</>}
-            </button>
-          </div>
           <div className='faculty-list'>
             {Array.isArray(facultyData) && facultyData.length > 0 ? (
-              facultyData.map((faculty, index) => (
-                <div key={index} className="faculty-item">
-                  <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                    <span>{expandedIndex === index ? '-' : '+'}</span>
-                    <strong>{`${faculty.username}`}</strong>
-                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
-                      <button onClick={(event) => {
-                        event.stopPropagation(); // Prevent toggle when deleting
-                        handleDeleteFaculty(faculty.username);
-                      }}>
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
-                      <button onClick={(event) => {
-                        event.stopPropagation(); // Prevent toggle when editing
-                        handleEditClick(faculty);
-                      }}>
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
+              <>
+                {facultyData.map((faculty, index) => (
+                  <div key={index} className="faculty-item">
+                    <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
+                      <span>{expandedIndex === index ? '-' : '+'}</span>
+                      <strong>{`${faculty.username}`}</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
+                        <button onClick={(event) => {
+                          event.stopPropagation(); // Prevent toggle when editing
+                          handleEditClick(faculty);
+                        }}>
+                          <i className="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button 
+                          className='del-btn'
+                          onClick={(event) => {
+                          event.stopPropagation(); // Prevent toggle when deleting
+                          handleDeleteFaculty(faculty.username);
+                        }}>
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      </div>
                     </div>
+                    {expandedIndex === index && (
+                      <div className="faculty-details">
+                        <ul>
+                          {faculty.rfid && faculty.rfid.length > 0 ? (
+                            faculty.rfid.map((rfid, rfidIndex) => (
+                              <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className='rfid-unbind-label'>
+                                  {rfid}
+                                </div>
+                                <div className='rfid-unbind-btn'>
+                                  <button 
+                                    className='unbind-btn'
+                                    style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                                    onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
+                                  >
+                                    -
+                                  </button>
+                                </div>
+                              </li>
+                            ))
+                          ) : (
+                            <li className='no-fetch-msg'>No RFID allocated</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                  {expandedIndex === index && (
-                    <div className="faculty-details">
-                      <ul>
-                        {faculty.rfid && faculty.rfid.length > 0 ? (
-                          faculty.rfid.map((rfid, rfidIndex) => (
-                            <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
-                              <div className='rfid-unbind-label'>
-                                {rfid}
-                              </div>
-                              <div className='rfid-unbind-btn'>
-                                <button 
-                                  className='unbind-btn'
-                                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                  onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
-                                >
-                                  -
-                                </button>
-                              </div>
-                            </li>
-                          ))
-                        ) : (
-                          <li className='no-fetch-msg'>No RFID allocated.</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
+                ))}
+                <div className='gen-report'>
+                  {/* <h2>Generate Student Log Reports</h2> */}
+                  {/* <button onClick={handleGenerateFacultyReportExcel} disabled={loading}>
+                      {loading ? "Generating..." : "Download Faculty Report (Excel)"}
+                  </button> */}
+                  <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+                      {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+                  </button>
                 </div>
-              ))
+              </>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>
             )}
@@ -880,6 +882,7 @@ function FacultyRecord() {
                   Assign
                 </button>
                 <button 
+                  className='del-btn'  
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
                   onClick={() => handleDeleteRFID(rfid)}
                 >
