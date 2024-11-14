@@ -9,7 +9,7 @@ function ComputerLogs() {
   const [totalPages, setTotalPages] = useState(1); 
   const [start_date, setStartDate] = useState('');
   const [end_date, setEndDate] = useState('');
-  const [type, setType] = useState('');
+  const [type, setType] = useState('faculty' | '');
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
   
@@ -204,22 +204,21 @@ function ComputerLogs() {
 
   return (
     <>
-      <div className='gen-report'>
-        {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
-
-        {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
-            {loading ? "Generating..." : "Download Student Report (Excel)"}
-        </button> */}
-        <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+      {/* <div className='gen-report'>
+        <button 
+          onClick={handleGenerateFacultyReportPDF} 
+          disabled={loading}
+        >
           {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
         </button>
         <button 
-        onClick={handleGenerateStudentReportPDF} 
-        disabled={loading}
-        className='pdf-btn'>
-            {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
+          onClick={handleGenerateStudentReportPDF} 
+          disabled={loading}
+          className='pdf-btn'
+        >
+          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
         </button>
-      </div>
+      </div> */}
       <div className='logbook'>
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
@@ -268,25 +267,27 @@ function ComputerLogs() {
               value={type}
               onChange={e => setType(e.target.value)}
             >
-              <option value="">Select User Type</option>
+              <option value="" >Select User Type</option>
               <option value="faculty">Faculty</option>
               <option value="student">Student</option>
             </select>
           </div>
-          <div className='section-filter filter-cont'>
-            <label for="section">Section: </label>
-            <select
-              type="text"
-              placeholder="Section"
-              value={selectedSection}
-              onChange={e => setSelectedSection(e.target.value)}
-            >
-              <option value="">Select Section</option>
-              {availableSections.map(section => (
-                <option key={section} value={section}>{section}</option>
-              ))}
-            </select>
-          </div>
+          {type === 'student' && (
+            <div className='section-filter filter-cont'>
+              <label for="section">Section: </label>
+              <select
+                type="text"
+                placeholder="Section"
+                value={selectedSection}
+                onChange={e => setSelectedSection(e.target.value)}
+              >
+                <option value="">Select Section</option>
+                {availableSections.map(sectionName => (
+                  <option key={sectionName} value={sectionName}>{sectionName}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
@@ -299,13 +300,14 @@ function ComputerLogs() {
         </div>
 
         <div className="log-table cont">
-          <h3 classame="cont-title">Computer List</h3>
+          {/* <h3 classame="cont-title">Computer List</h3> */}
           <div className='log-table-cont'>
             <table>
               <thead>
                 <tr>
                   <th>PC Name</th>
                   <th>Username</th>
+                  <th>Section</th>
                   <th>Log Date</th>
                   <th>Login</th>
                   <th>Logout</th>
@@ -315,9 +317,14 @@ function ComputerLogs() {
                 {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
                   sortedLogs.map((log, index) => (
                     <tr key={index}>
-                      <td className="pc-name">{log.computer_name}</td>
-                      <td className="name">
+                      <td className="pc-name">
+                        <span>{log.computer_name}</span>
+                      </td>
+                      <td className="username">
                         <span>{log.username}</span>
+                      </td>
+                      <td className="section">
+                        <span>{log.section}</span>
                       </td>
                       <td className="log-date">
                         <div className="flex-cont">
@@ -338,7 +345,7 @@ function ComputerLogs() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="no-fetch-msg">No logs available</td>
+                    <td colSpan="6" className="no-fetch-msg">No logs available</td>
                   </tr>
                 )}
               </tbody>
@@ -376,6 +383,31 @@ function ComputerLogs() {
             >
               Last
             </button>
+          </div>
+          
+          <div className='gen-report'>
+            {type === '' ? (
+              <button 
+                // onClick={handleGenerateReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Report"</>}
+              </button>
+            ) : type === 'faculty' ? (
+              <button 
+                onClick={handleGenerateFacultyReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+              </button>
+            ) : (
+              <button 
+                onClick={handleGenerateStudentReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Class Report"</>}
+              </button>
+            )} 
           </div>
         </div>
       </div>

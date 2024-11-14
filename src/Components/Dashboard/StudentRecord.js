@@ -1145,6 +1145,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                             )}
                             <div className='student-rec-log cont'>
                                 <h3 className='cont-title'>Student List</h3>
+                                
                                 <div className="student-table">
                                     <table>
                                         <thead>
