@@ -832,15 +832,11 @@ function FacultyRecord() {
                     )}
                   </div>
                 ))}
-                <div className='gen-report'>
-                  {/* <h2>Generate Student Log Reports</h2> */}
-                  {/* <button onClick={handleGenerateFacultyReportExcel} disabled={loading}>
-                      {loading ? "Generating..." : "Download Faculty Report (Excel)"}
-                  </button> */}
+                {/* <div className='gen-report'>
                   <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
                       {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
                   </button>
-                </div>
+                </div> */}
               </div>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>

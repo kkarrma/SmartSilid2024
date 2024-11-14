@@ -728,7 +728,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     return handleBindRFID(username, rfid);
                 }
                 if (response.ok) {
-                    handleStudentList();
+                    handleStudentList(selectedSection);
                     alert(`RFID with value ${rfid} has been bound to ${username} successfully.`);
                 } else {
                     const errorData = await response.json();
@@ -737,6 +737,38 @@ import { set } from 'rsuite/esm/internals/utils/date';
                 
             } catch (error) {
                 setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+            }
+        }; 
+        
+        const handleDeleteRFID = async (rfid) => {
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmDelete = window.confirm(`Are you sure you want to delete RFID with value ${rfid}?`);
+            if (!confirmDelete) return;
+        
+            try {
+              const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },                
+                body: JSON.stringify({ rfid }),
+                });
+        
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleDeleteRFID(rfid);
+                }
+        
+                if (response.ok) {
+                    handleStudentList(selectedSection);
+                    alert(`RFID with value ${rfid} has been deleted successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+                }
+            } catch (error) {
+              setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
             }
         };
 
@@ -769,8 +801,13 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     return handleBindPC(username, computer, section);
                 }
                 if (response.ok) {
-                    handleStudentList();
-                    alert(`Computer ${computer} has been bound to ${username} successfully.`);
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        handleStudentList(selectedSection);
+                        alert(`Computer ${computer} has been bound to ${username} successfully.`);
+                    } else {
+                        alert(`Failed to bind Computer: ${data.status_message || 'Error binding RFID'}`);
+                    }
                 } else {
                     const errorData = await response.json();
                     alert(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
@@ -780,35 +817,35 @@ import { set } from 'rsuite/esm/internals/utils/date';
             }
         };
 
-        const handleDeleteRFID = async (rfid) => {
+        const handleDeletePC = async (computer) => {
             const accessToken = localStorage.getItem('accessToken');
-            const confirmDelete = window.confirm(`Are you sure you want to delete RFID with value ${rfid}?`);
+            const confirmDelete = window.confirm(`Are you sure you want to delete Computer ${computer}?`);
             if (!confirmDelete) return;
         
             try {
-              const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
+              const response = await fetch(`${API_BASE_URL}/delete_computer`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${accessToken}`,
                 },                
-                body: JSON.stringify({ rfid }),
+                body: JSON.stringify({ computer }),
                 });
         
                 if (response.status === 401) {
                     await handleTokenRefresh();
-                    return handleDeleteRFID(rfid);
+                    return handleDeletePC(computer);
                 }
         
                 if (response.ok) {
-                    handleStudentList();
-                    alert(`RFID with value ${rfid} has been deleted successfully.`);
+                    handleStudentList(selectedSection);
+                    alert(`Computer ${computer} has been deleted successfully.`);
                 } else {
                     const errorData = await response.json();
-                    alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+                    alert(`Failed to delete Computer: ${errorData.status_message || 'Error deleting Computer'}`);
                 }
             } catch (error) {
-              setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
+              setErrorMessage('An error occurred while deleting the Computer. Please check your connection.');
             }
         };
 
@@ -1117,13 +1154,15 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                 <th>Initial</th>
                                                 <th>Surname</th>
                                                 <th>Section</th>
+                                                <th>RFID</th>
+                                                <th>Computer</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {students.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="6" className='no-fetch-msg'>No students found</td>
+                                                    <td colSpan="8" className='no-fetch-msg'>No students found</td>
                                                 </tr>
                                             ) : (
                                                 students.map((student, index) => (
@@ -1133,6 +1172,8 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                         <td className="mid-init">{student.middle_initial}</td>
                                                         <td className="last-name">{student.last_name}</td>
                                                         <td className="section">{student.section}</td>
+                                                        <td className="rfid">{student.rfid}</td>
+                                                        <td className="computer">{student.computer}</td>
                                                         <td className="action">
                                                             {!formVisible && (
                                                                 <button type="button" onClick={() => handleEditStudent(student)}>
@@ -1167,7 +1208,6 @@ import { set } from 'rsuite/esm/internals/utils/date';
                             </div>
 
                             <div className='available-list'>
-                                {/* Available RFIDs Section */}
                                 <div className='student-rfid-list cont'>
                                     <h3 className='cont-title'>Available RFIDs</h3>
                                     <div className='rfid-cont'>
@@ -1195,7 +1235,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                             ))}
                                                         </select>
                                                         <button
-                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            style={{ marginLeft: '8px' }}
                                                             onClick={() => {
                                                                 if (rfidBindUser[rfid]) {
                                                                     handleBindRFID(rfidBindUser[rfid], rfid, selectedSection);
@@ -1247,7 +1287,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                             ))}
                                                         </select>
                                                         <button
-                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            style={{ marginLeft: '8px' }}
                                                             onClick={() => {
                                                                 if (pcBindUser[pc]) {
                                                                     handleBindPC(pcBindUser[pc], pc, selectedSection);
@@ -1258,13 +1298,13 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                         >
                                                             Assign
                                                         </button>
-                                                        <button
+                                                        {/* <button
                                                             className='del-btn'
                                                             style={{ marginLeft: '8px', cursor: 'pointer' }}
-                                                            // onClick={() => handleDeletePC(pc)}
+                                                            onClick={() => handleDeletePC(pc)}
                                                         >
                                                             <i className="fa-solid fa-trash-can"></i>
-                                                        </button>
+                                                        </button> */}
                                                     </div>
                                                 ))
                                         )}
