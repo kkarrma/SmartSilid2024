@@ -621,7 +621,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='reg-div'>
-                    <button type="button" disabled={loading}>
+                    <button type="submit" disabled={loading}>
                       {loading ? 'Adding...' : 'Add Faculty'}
                     </button>
                     <button type="button" onClick={handleCancelBtn}>Cancel</button>
