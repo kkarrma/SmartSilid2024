@@ -9,10 +9,15 @@ function ComputerLogs() {
   const [totalPages, setTotalPages] = useState(1); 
   const [start_date, setStartDate] = useState('');
   const [end_date, setEndDate] = useState('');
+  const [type, setType] = useState('');
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
   const [availableComputers, setAvailableComputers] = useState([]);
+  const [selectedSection, setSelectedSection] = useState('');
+  const [sections, setSections] = useState([])
+  const [loading, setLoading] = useState(false);
   const Navigate = useNavigate();
+
 
   useEffect(() => {
     fetchComputerLogs();
@@ -87,7 +92,9 @@ function ComputerLogs() {
           end_date: formattedEndDate,
           username,
           computer_name,
-          pagination
+          pagination,
+          type: type,
+          section: selectedSection,
         })
       });
 
@@ -114,6 +121,60 @@ function ComputerLogs() {
     }
   };
 
+  const downloadFile = (url, filename) => {
+    setLoading(true);
+    const accessToken = localStorage.getItem('accessToken');
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+        .then((reponse) => {
+            if(!reponse.ok) {
+                throw new Error('Network response was not ok. Failed to generate report');
+            }
+            return reponse.blob();
+        })
+        .then((blob) => {
+            const fileUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error downloading file:', error);
+            alert(`An error occurred: ${error.message}`);
+        })
+        .finally(() => {
+            setLoading(false)
+        });
+};
+// const handleGenerateStudentReportExcel = () => {
+//     const period = document.getElementById('periodSelect').value;
+//     downloadFile(`${API_BASE_URL}student-report/excel?period=${period}`, "smartsilid_student_report.xlsx");
+// };
+// Function to generate Student Report (PDF)
+      const handleGenerateStudentReportPDF = () => {
+          const queryParams = new URLSearchParams({
+              start_date: start_date,
+              end_date: end_date,
+              section: selectedSection,
+          }).toString();
+          downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+      };
+    const handleGenerateFacultyReportPDF = () => {
+        const queryParams = new URLSearchParams({
+            start_date: start_date,
+            end_date: end_date,
+        }).toString();
+        downloadFile(`${API_BASE_URL}faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+    };
+
   const handleFilter = () => {
     setPagination(1);
     fetchComputerLogs();
@@ -126,13 +187,39 @@ function ComputerLogs() {
     setUsername('');
     setComputerName('');
     setPagination(1);
+    setType('');
+    setSections('');
+
   };
 
   // Sort logs by id in descending order
   const sortedLogs = [...logs].sort((a, b) => b.id - a.id);
 
+
   return (
     <>
+    <div className='gen-report'>
+                                    {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
+                            
+                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
+                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
+                                    </button> */}
+                                    <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+                      {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+                  </button>
+                                    <button 
+                                    onClick={handleGenerateStudentReportPDF} 
+                                    disabled={loading}
+                                    className='pdf-btn'>
+                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
+                                    </button>
+                                    <input
+                                      type="text"
+                                      placeholder="Section"
+                                      value={selectedSection}
+                                      onChange={e => setSelectedSection(e.target.value)}
+                                    />
+                                </div>
       <div className='logbook'>
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
@@ -171,6 +258,13 @@ function ComputerLogs() {
               type="date"
               value={end_date}
               onChange={e => setEndDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <input
+            type="text"
+            value={type}
+            onChange={e => setType(e.target.value)}
             />
           </div>
 
@@ -225,10 +319,11 @@ function ComputerLogs() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className='no-fetch-msg'>No logs available</td>
+                    <td colSpan="5" className="no-fetch-msg">No logs available</td>
                   </tr>
                 )}
               </tbody>
+
             </table>
           </div>
 
