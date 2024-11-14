@@ -105,7 +105,6 @@ input {
   }
 }
 
-
 /* Universal cont */
 .cont {
   position: relative;
@@ -128,6 +127,35 @@ input {
     text-shadow: 2px 1px 25px var(--h1-txt);
   }
 }
+
+/* Universal download pdf report*/
+.gen-report {
+  display: flex;
+  gap: 10px;
+  padding-top: 20px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  select {
+    border: none;
+    text-decoration: none;
+    width: fit-content;
+  }
+  
+  button {
+    background-color: transparent;
+    border: var(--btn) 2px solid;
+    color: var(--btn);
+    padding: 6px 10px;
+    transition: .3s ease-in-out;
+
+    &:hover{
+      color: var(--btn-hov);
+      border: var(--btn-hov) 2px solid;
+    }
+  }
+}  
 
 /* Universal table */
 table {

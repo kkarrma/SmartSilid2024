@@ -36,8 +36,11 @@ import { set } from 'rsuite/esm/internals/utils/date';
         const [editFormVisible, setEditFormVisible] = useState(false);
         const [moveSecFormVisible, setMoveSecFormVisible] = useState(false);
         const [changePassVisible, setChangePassVisible] = useState(false);
+        
         const fileInput = useRef(null);
         const Navigate = useNavigate();
+
+        const [errors, setErrors] = useState(null);
 
         const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
@@ -629,6 +632,53 @@ import { set } from 'rsuite/esm/internals/utils/date';
             reader.readAsArrayBuffer(file);
         };
 
+        const downloadFile = (url, filename) => {
+            setLoading(true);
+            const accessToken = localStorage.getItem('accessToken');
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            })
+                .then((reponse) => {
+                    if(!reponse.ok) {
+                        throw new Error('Network response was not ok. Failed to generate report');
+                    }
+                    return reponse.blob();
+                })
+                .then((blob) => {
+                    const fileUrl = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = fileUrl;
+                    link.setAttribute('download', filename);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error('Error downloading file:', error);
+                    alert(`An error occurred: ${error.message}`);
+                })
+                .finally(() => {
+                    setLoading(false)
+                });
+        };
+        // const handleGenerateStudentReportExcel = () => {
+        //     const period = document.getElementById('periodSelect').value;
+        //     downloadFile(`${API_BASE_URL}student-report/excel?period=${period}`, "smartsilid_student_report.xlsx");
+        // };
+        // Function to generate Student Report (PDF)
+        const handleGenerateStudentReportPDF = () => {
+            const queryParams = new URLSearchParams({
+                period: document.getElementById('periodSelect').value,
+                section: selectedSection,
+            }).toString();
+            downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+        };
+
+
         return (
             <>
                 <div className='student-record'>
@@ -918,47 +968,66 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                     </form>
                                 </div>
                             )}
-
-                            <div className="student-table cont">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Username</th>
-                                            <th>Surname</th>
-                                            <th>First Name</th>
-                                            <th>Initial</th>
-                                            <th>Section</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {students.length === 0 ? (
+                            <div className='student-rec-log cont'>
+                                <div className="student-table">
+                                    <table>
+                                        <thead>
                                             <tr>
-                                                <td colSpan="6" className='no-fetch-msg'>No students found</td>
+                                                <th>Username</th>
+                                                <th>Surname</th>
+                                                <th>First Name</th>
+                                                <th>Initial</th>
+                                                <th>Section</th>
+                                                <th>Action</th>
                                             </tr>
-                                        ) : (
-                                            students.map((student, index) => (
-                                                <tr key={index}>
-                                                    <td className="username">{student.username}</td>
-                                                    <td className="last-name">{student.last_name}</td>
-                                                    <td className="first-name">{student.first_name}</td>
-                                                    <td className="mid-init">{student.middle_initial}</td>
-                                                    <td className="section">{student.section}</td>
-                                                    <td className="action">
-                                                        {!formVisible && (
-                                                            <button type="button" onClick={() => handleEditStudent(student)}>
-                                                                Edit
-                                                            </button>
-                                                        )}
-                                                        <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>
-                                                            <i className="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </td>
+                                        </thead>
+                                        <tbody>
+                                            {students.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="6" className='no-fetch-msg'>No students found</td>
                                                 </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
+                                            ) : (
+                                                students.map((student, index) => (
+                                                    <tr key={index}>
+                                                        <td className="username">{student.username}</td>
+                                                        <td className="last-name">{student.last_name}</td>
+                                                        <td className="first-name">{student.first_name}</td>
+                                                        <td className="mid-init">{student.middle_initial}</td>
+                                                        <td className="section">{student.section}</td>
+                                                        <td className="action">
+                                                            {!formVisible && (
+                                                                <button type="button" onClick={() => handleEditStudent(student)}>
+                                                                    Edit
+                                                                </button>
+                                                            )}
+                                                            <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>
+                                                                <i className="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div className='gen-report'>
+                                    {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
+                                    <select id = "periodSelect">
+                                        <option value="daily">Daily Report</option>
+                                        <option value="weekly">Weekly Report</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
+                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
+                                    </button> */}
+                                    <button 
+                                    onClick={handleGenerateStudentReportPDF} 
+                                    disabled={loading}
+                                    className='pdf-btn'>
+                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
+                                    </button>
+                                </div>
                             </div>
                         </>
                     ) : (

@@ -35,6 +35,7 @@ function FacultyRecord() {
   const [errorMessage, setErrorMessage] = useState('');
   const fileInput = useRef(null);
   const Navigate = useNavigate();
+  
 
   useEffect(() => {
     setUsername(`${first_name}.${last_name}.${middle_initial}`);
@@ -517,6 +518,46 @@ function FacultyRecord() {
         alert(`An error occurred: ${error.message}`);
     }
   }
+  const downloadFile = (url, filename) => {
+    setLoading(true);
+    const accessToken = localStorage.getItem('accessToken');
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+        .then((reponse) => {
+            if(!reponse.ok) {
+                throw new Error('Network response was not ok. Failed to generate report');
+            }
+            return reponse.blob();
+        })
+        .then((blob) => {
+            const fileUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error downloading file:', error);
+            alert(`An error occurred: ${error.message}`);
+        })
+        .finally(() => {
+            setLoading(false)
+        });
+};
+        // Function to generate Faculty Report (Excel)
+    // const handleGenerateFacultyReportExcel = () => {
+    //     downloadFile(`${API_BASE_URL}faculty-report/excel/`, "smartsilid_faculty_report.xlsx");
+    // };
+    const handleGenerateFacultyReportPDF = () => {
+        downloadFile(`${API_BASE_URL}faculty-report/pdf/`, "smartsilid_faculty_report.pdf");
+    };
 
   return (
     <>
@@ -739,6 +780,15 @@ function FacultyRecord() {
 
         <div className="faculty-list-label cont">
           <h3>Faculty List</h3>
+          <div className='gen-report'>
+            {/* <h2>Generate Student Log Reports</h2> */}
+            {/* <button onClick={handleGenerateFacultyReportExcel} disabled={loading}>
+                {loading ? "Generating..." : "Download Faculty Report (Excel)"}
+            </button> */}
+            <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+                {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report</>}
+            </button>
+          </div>
           <div className='faculty-list'>
             {Array.isArray(facultyData) && facultyData.length > 0 ? (
               facultyData.map((faculty, index) => (
