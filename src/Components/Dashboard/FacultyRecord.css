@@ -105,5 +105,22 @@
     align-items: center;
     text-align: center;
   }
+
+  .rfid-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    rfid-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+    }
+    .rfid-name {
+      margin-right: 10px;
+      font-weight: bold;
+    }
+  }
 }
   

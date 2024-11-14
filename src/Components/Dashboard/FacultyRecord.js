@@ -850,12 +850,12 @@ function FacultyRecord() {
         </div>
 
 
-        <div className="rfid-list cont" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="rfid-list cont">
           <h3>Available RFIDs</h3>
           {availableRfids.length > 0 ? (
             availableRfids.map((rfid, index) => (
-              <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginLeft: '8px' }}>{rfid}</span>
+              <div key={index} className="rfid-item">
+                <label className='rfid-name'>{rfid}</label>
                 <select 
                   value={rfidBindUser[rfid] || 'none'} 
                   onChange={(e) => {
