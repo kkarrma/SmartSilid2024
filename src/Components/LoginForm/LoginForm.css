@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+    --bg1: #ffffff;
+    --bg2: #e0f2ff;
+    --bg3: #75bdc3;
+    --bg4: #f3c41c;
+    --bg5: #edf3f0;
+    --bg6: #75bdc3;
+    --btn: #007bff;
+    --btn-hov: #0056b3;
+    --del-btn: #e52929;
+    --del-hov: #821717;
+    --main-txt: #0c0c0c;
+    --h1-txt: #121212;
+    --h2-txt: #121212;
+    --sub-txt: #292929;
+    --txt2: #4fa5ad;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: url('../Assets/logbg.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+}
+
+.login,
+.sign-up {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+
+    .page-container {
+        width: 100%;
+        max-width: 600px;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(140, 146, 235, 0.37);
+        backdrop-filter: blur(5px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        overflow: hidden;  
+        overflow-y: auto;  
+        max-height: 35rem;  
+    
+        &::-webkit-scrollbar {
+            background-color: transparent;
+            width: 8px;  
+            border-radius: 30px;
+        }
+    
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--btn-hov);  
+            border-radius: 30px;  
+        }
+    
+        &::-webkit-scrollbar-thumb:hover {
+            background-color: var(--btn-hov);  /* Hover effect for scrollbar thumb */
+        }
+
+        .logo-cont {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+
+            .logo {
+                width: 80px;
+                height: 80px;
+                background: url('../Assets/ss_icon.png') no-repeat center center;
+                background-size: contain;
+                margin-bottom: 10px;
+            }
+
+            h2 {
+                font-weight: bold;
+                letter-spacing: 1px;
+                font-size: 2em;
+                text-align: center;
+                margin: 0;
+
+                span {
+                    color: var(--bg6);
+                }
+            }
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .log-input,
+            .password-div {
+                display: block;
+                flex-direction: column;
+                /* margin: 20px 10px; */
+                
+                label {
+                    color: #dadada;
+                    margin-bottom: 5px;
+                }
+                
+                input {
+                    width: 95%;
+                    padding: 12px;
+                    border-radius: 8px;
+                    border: 1px solid #ccc;
+                    font-size: 16px;
+                    background-color: #f7f7f7;
+
+                    &:focus {
+                        border-color: var(--btn);
+                        outline: var(--btn-hov) solid 2px;
+                        
+                    }
+                }
+            }
+
+            .password-div {
+                .password-input-container {
+                    position: relative;
+
+                    .see-pass-btn {
+                        position: absolute;
+                        right: 1%;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: none;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 16px;
+                        color: var(--btn);
+                        padding: 0;
+                        transition: 0.3s ease-in-out;
+
+                        &:focus {
+                            outline: none;
+                        }
+                        
+                        &:hover {
+                            color: var(--btn-hov);
+                        }
+                    }
+                }
+            }
+
+            .btn-div {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+                gap: 20px;
+
+                button {
+                    width: 100%;
+                    padding: 5px 20px;
+                    font-size: 16px;
+                    color: white;
+                    background-color: var(--btn);
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+
+                    &:hover {
+                        background-color: var(--btn-hov);
+                    }
+
+                    &:disabled {
+                        background-color: #ccc;
+                        cursor: not-allowed;
+                    }
+                }
+            }
+        }
+
+        .link-div {
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+
+            .link {
+                font-size: 14px;
+                color: white;
+                text-decoration: none;
+                transition: .3s ease-in-out;
+
+                &:hover {
+                    color: var(--del-btn);
+                }
+            }
+        }
+    }
+}

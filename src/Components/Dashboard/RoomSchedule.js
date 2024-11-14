@@ -539,7 +539,8 @@ function RoomSchedule() {
                               setSchedFormVisible(false);
                               console.log(schedule.faculty);
                             }}>
-                              Edit
+                              {/* Edit */}
+                              <i className="fa-solid fa-pen-to-square"></i>
                             </button>
                             <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
                               <i className="fa-solid fa-trash"></i>
@@ -579,7 +580,8 @@ function RoomSchedule() {
                     setSchedFormVisible(false);
                     console.log(schedule.faculty);
                   }}>
-                    Edit
+                    {/* Edit */}
+                    <i className="fa-solid fa-pen-to-square"></i>
                   </button>
                   <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
                     <i className="fa-solid fa-trash"></i>

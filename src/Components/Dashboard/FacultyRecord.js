@@ -35,6 +35,7 @@ function FacultyRecord() {
   const [errorMessage, setErrorMessage] = useState('');
   const fileInput = useRef(null);
   const Navigate = useNavigate();
+  
 
   useEffect(() => {
     setUsername(`${first_name}.${last_name}.${middle_initial}`);
@@ -69,10 +70,9 @@ function FacultyRecord() {
 
   const fetchFaculty = async () => { 
     const accessToken = localStorage.getItem('accessToken');
-    console.log("Bading");
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid_and_computer`, {
+      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -362,7 +362,8 @@ function FacultyRecord() {
         },
         body: JSON.stringify({ 
           username, 
-          rfid 
+          rfid,
+          type: "faculty" 
         }),
       });
 
@@ -379,7 +380,6 @@ function FacultyRecord() {
         alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
       }
     } catch (error) {
-      
       setErrorMessage('An error occurred while binding RFID. Please check your connection.');
     }
   };
@@ -518,6 +518,46 @@ function FacultyRecord() {
         alert(`An error occurred: ${error.message}`);
     }
   }
+  const downloadFile = (url, filename) => {
+    setLoading(true);
+    const accessToken = localStorage.getItem('accessToken');
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    })
+        .then((reponse) => {
+            if(!reponse.ok) {
+                throw new Error('Network response was not ok. Failed to generate report');
+            }
+            return reponse.blob();
+        })
+        .then((blob) => {
+            const fileUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = fileUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setLoading(false);
+        })
+        .catch((error) => {
+            console.error('Error downloading file:', error);
+            alert(`An error occurred: ${error.message}`);
+        })
+        .finally(() => {
+            setLoading(false)
+        });
+};
+        // Function to generate Faculty Report (Excel)
+    // const handleGenerateFacultyReportExcel = () => {
+    //     downloadFile(`${API_BASE_URL}faculty-report/excel/`, "smartsilid_faculty_report.xlsx");
+    // };
+    const handleGenerateFacultyReportPDF = () => {
+        downloadFile(`${API_BASE_URL}faculty-report/pdf/`, "smartsilid_faculty_report.pdf");
+    };
 
   return (
     <>
@@ -592,7 +632,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="type">Role: <span>*</span></label>
+                    <label htmlFor="type">User Type: <span>*</span></label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
@@ -606,7 +646,6 @@ function FacultyRecord() {
                   <div className='user-form'>
                     <label htmlFor="password">Password: <span>*</span></label>
                     <PasswordInput
-                      className='password-input'  
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -743,54 +782,62 @@ function FacultyRecord() {
           <h3>Faculty List</h3>
           <div className='faculty-list'>
             {Array.isArray(facultyData) && facultyData.length > 0 ? (
-              facultyData.map((faculty, index) => (
-                <div key={index} className="faculty-item">
-                  <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                    <span>{expandedIndex === index ? '-' : '+'}</span>
-                    <strong>{`${faculty.username}`}</strong>
-                    <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
-                      <button onClick={(event) => {
-                        event.stopPropagation(); // Prevent toggle when deleting
-                        handleDeleteFaculty(faculty.username);
-                      }}>
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
-                      <button onClick={(event) => {
-                        event.stopPropagation(); // Prevent toggle when editing
-                        handleEditClick(faculty);
-                      }}>
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
+              <div className='faculty-rows'>
+                {facultyData.map((faculty, index) => (
+                  <div key={index} className="faculty-item">
+                    <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
+                      <span>{expandedIndex === index ? '-' : '+'}</span>
+                      <strong>{`${faculty.username}`}</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
+                        <button onClick={(event) => {
+                          event.stopPropagation(); // Prevent toggle when editing
+                          handleEditClick(faculty);
+                        }}>
+                          <i className="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button 
+                          className='del-btn'
+                          onClick={(event) => {
+                          event.stopPropagation(); // Prevent toggle when deleting
+                          handleDeleteFaculty(faculty.username);
+                        }}>
+                          <i className="fa-solid fa-trash-can"></i>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  {expandedIndex === index && (
-                    <div className="faculty-details">
-                      <ul>
-                        {faculty.rfid && faculty.rfid.length > 0 ? (
-                          faculty.rfid.map((rfid, rfidIndex) => (
-                            <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
+                    {expandedIndex === index && (
+                      <div className="faculty-details">
+                        <ul>
+                          {faculty.rfid ? ( // Check if the RFID is present
+                            <li>
                               <div className='rfid-unbind-label'>
-                                {rfid}
+                                {faculty.rfid}
                               </div>
                               <div className='rfid-unbind-btn'>
                                 <button 
-                                  className='unbind-btn'
+                                  className='del-btn'
                                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                  onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
+                                  onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)} // Pass specific RFID
                                 >
-                                  -
+                                  {/* remove */}
+                                  <i class="fa-solid fa-minus"></i>
                                 </button>
                               </div>
                             </li>
-                          ))
-                        ) : (
-                          <li className='no-fetch-msg'>No RFID allocated.</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              ))
+                          ) : (
+                            <li className='no-fetch-msg'>No RFID allocated</li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {/* <div className='gen-report'>
+                  <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+                      {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
+                  </button>
+                </div> */}
+              </div>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>
             )}
@@ -798,19 +845,18 @@ function FacultyRecord() {
         </div>
 
 
-        <div className="rfid-list cont" style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className="rfid-list cont">
           <h3>Available RFIDs</h3>
           {availableRfids.length > 0 ? (
             availableRfids.map((rfid, index) => (
-              <div key={index} className="rfid-item" style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={{ marginLeft: '8px' }}>{rfid}</span>
+              <div key={index} className="rfid-item">
+                <label className='rfid-name'>{rfid}</label>
                 <select 
                   value={rfidBindUser[rfid] || 'none'} 
                   onChange={(e) => {
                     setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
                     console.log("USERNAME", rfidBindUser[rfid]);
-                  }
-                }
+                  }}
                 >
                   <option value="none">None</option>
                   {facultyData.map((faculty, facultyIndex) => (
@@ -824,12 +870,12 @@ function FacultyRecord() {
                   onClick={() => {
                     handleBindRFID(rfidBindUser[rfid], rfid)
                     console.log(rfidBindUser[rfid] + rfid)
-                  }
-                  } // Pass the selected username and RFID
+                  }} // Pass the selected username and RFID
                 >
                   Assign
                 </button>
                 <button 
+                  className='del-btn'  
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
                   onClick={() => handleDeleteRFID(rfid)}
                 >
