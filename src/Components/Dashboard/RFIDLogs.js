@@ -159,6 +159,7 @@ function RFIDLogs() {
             />
           </div>
           <div className='faculty-filter filter-cont'>
+            <label className='faculty-name'>Faculty Name: </label>
             <input
               type="text"
               placeholder="Faculty Name"
@@ -167,6 +168,7 @@ function RFIDLogs() {
             />
           </div>
           <div className='subject-filter filter-cont'>
+            <label className='faculty-name'>Subject: </label>
             <input
               type="text"
               placeholder="Subject"
@@ -175,6 +177,7 @@ function RFIDLogs() {
             />
           </div>
           <div className='section-filter filter-cont'>
+            <label className='faculty-name'>Section: </label>
             <select
               value={section}
               onChange={e => setSection(e.target.value)}
@@ -191,10 +194,10 @@ function RFIDLogs() {
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
           </div>
           
-          <div className='action-filter'>
+          {/* <div className='action-filter'>
             <button type="button" onClick={handleFilter}>Filter</button>
             <button type="button" onClick={handleClearFilters}>Clear</button>
-          </div>
+          </div> */}
         </div>
 
         <div className="log-table cont">
@@ -223,7 +226,7 @@ function RFIDLogs() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className='no-fetch-msg'>No logs available</td>
+                    <td colSpan="6" className='no-fetch-msg'>No logs available.</td>
                   </tr>
                 )}
               </tbody>

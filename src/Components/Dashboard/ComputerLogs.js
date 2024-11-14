@@ -179,10 +179,10 @@ function ComputerLogs() {
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
           </div>
           
-          <div className='action-filter'>
+          {/* <div className='action-filter'>
             <button type="button" onClick={handleFilter}>Filter</button>
             <button type="button" onClick={handleClearFilters}>Clear</button>
-          </div>
+          </div> */}
         </div>
 
         <div className="log-table cont">
