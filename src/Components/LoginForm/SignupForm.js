@@ -183,11 +183,11 @@ function SignupForm() {
             <button type="submit" disabled={loading}>
               {loading ? 'Signing up...' : 'Sign Up'}
             </button>
+            <div className="link-div">
+              <Link to="/" className="link">Cancel</Link>
+            </div>
           </div>
         </form>
-        <div className="link-div">
-          <Link to="/" className="link">Cancel</Link>
-        </div>
       </div>
     </div>
   );
