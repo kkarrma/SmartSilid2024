@@ -1,6 +1,6 @@
 .student-record {
   .section-form {
-    margin-bottom: 20px;
+    margin-bottom: 20p  x;
     padding: 20px; 
 
     .new-section-form {
@@ -14,6 +14,7 @@
     display: flex; 
     flex-wrap: wrap; 
     gap: 10px; 
+    justify-content: center;
   }
 
   .section-item {

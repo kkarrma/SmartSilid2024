@@ -360,9 +360,10 @@ function ComputerControl() {
           {/* <div className='cont-divider'></div> */}
 
           <form>
-            <div className="controls-row cont"> 
+            <div className="controls-row filter-controls cont"> 
             <h3 classame="cont-title">Computer Controls</h3>
-              <h4>Computer List &nbsp;&nbsp; | &nbsp;&nbsp; </h4>
+            {/* <div className="filter-cont"> */}
+              {/* <label for="choose-pc">Select PCs</label> */}
               <select onChange={handleSelectPC} value="">
                 <option value="">Select a PC</option>
                 {pcs.map((pc) => (
@@ -378,6 +379,7 @@ function ComputerControl() {
                   </option>
                 ))}
               </select>
+            {/* </div> */}
               <input
                 type="text"
                 value={inputValue}
@@ -436,7 +438,7 @@ function ComputerControl() {
               </div>
 
               {pcs.length === 0 ? ( 
-                <p className='no-fetch-msg'>No PCs found</p>
+                <p className='no-fetch-msg'>No PCs found.</p>
               ) : (
                 <>
                   <div className="pcs-grid">

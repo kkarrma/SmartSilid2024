@@ -10,6 +10,7 @@
     flex-wrap: wrap; 
     justify-content: space-between;
     align-items: center;
+    padding: 20px;
 
     .stream-row {
       display: flex;
@@ -39,10 +40,6 @@
     }
   }
 
-  .controls-row {
-    margin-top: 3rem;
-  }
-
   .cont-divider {
     margin: 20px 0;
     height: 3px;
@@ -52,6 +49,8 @@
   }
 
   .controls-row {
+    margin-top: 3rem;
+    padding: 20px;
     display: flex;
     flex-wrap: wrap; 
     justify-content: center;
@@ -119,7 +118,7 @@
     }
 
     &.checked {
-      background-color: var(--bg2); 
+      background-color: var(--bg6); 
     }
   }
 

@@ -1,5 +1,8 @@
 .web-filter {
-  
+
+  .urlBlock-form {
+    padding: 20px;
+  }
   .new-url-form {
     display: flex;
     flex-wrap: wrap;

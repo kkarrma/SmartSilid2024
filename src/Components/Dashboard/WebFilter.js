@@ -153,21 +153,24 @@ function WebFilter() {
       <div className='web-filter'>
         <div className="urlBlock-form cont">
           {urlFormVisible ? (
-            <div className="new-url-form">
-              <input
-                className="url-input"
-                type="text"
-                value={newBlockURL}
-                onChange={(e) => setNewBlockURL(e.target.value)}
-                placeholder="https://www.sample.com/"
-              />
-              <button className="confirm-btn" onClick={handleAddURL}>
-                Confirm
-              </button>
-              <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
-                Cancel
-              </button>
-            </div>
+            <>
+              <h3 classame="cont-title">URL Block Form</h3>
+              <div className="new-url-form">
+                <input
+                  className="url-input"
+                  type="text"
+                  value={newBlockURL}
+                  onChange={(e) => setNewBlockURL(e.target.value)}
+                  placeholder="https://www.sample.com/"
+                />
+                <button className="confirm-btn" onClick={handleAddURL}>
+                  Confirm
+                </button>
+                <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
+                  Cancel
+                </button>
+              </div>
+            </>
           ) : (
             <button className="add-url-btn" onClick={() => setUrlFormVisible(true)}>
               Add URL
@@ -176,18 +179,21 @@ function WebFilter() {
         </div>
 
         <div className="web-table cont">
-          <form className="black-list">
+          <h3 className="cont-title">Blocked URL List</h3>
+          <form className="block-list">
             <table>
               <thead>
                 <tr>
-                  <th>URL Black List</th>
+                  <th>URLs</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {blockedURLs.length === 0 ? (
                   <tr>
-                    <td colSpan="2">No blocked URLs found</td>
+                    <td colSpan="2">
+                      <p className="no-fetch-msg">No blocked URLs found.</p>
+                    </td>
                   </tr>
                 ) : (
                   blockedURLs.map((url, index) => (

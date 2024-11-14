@@ -70,9 +70,10 @@ function FacultyRecord() {
 
   const fetchFaculty = async () => { 
     const accessToken = localStorage.getItem('accessToken');
+    console.log("Bading");
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid`, {
+      const response = await fetch(`${API_BASE_URL}/get_all_faculty_and_rfid_and_computer`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -593,7 +594,7 @@ function FacultyRecord() {
               <form onSubmit={handleAddFaculty}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
-                    <label htmlFor="firstname">Last Name: <span>*</span></label>
+                    <label htmlFor="firstname">First Name: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="First Name"
@@ -603,7 +604,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="mid-initial">Last Name: <span>*</span></label>
+                    <label htmlFor="mid-initial">Middle Initial: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Middle Initial"
@@ -622,7 +623,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="username">Last Name: <span>*</span></label>
+                    <label htmlFor="username">Username: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Username"
@@ -632,7 +633,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="type">Last Name: <span>*</span></label>
+                    <label htmlFor="type">Role: <span>*</span></label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
@@ -644,15 +645,16 @@ function FacultyRecord() {
                     </select>
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="password">Last Name: <span>*</span></label>
+                    <label htmlFor="password">Password: <span>*</span></label>
                     <PasswordInput
+                      className='password-input'  
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="conf-password">Last Name: <span>*</span></label>
+                    <label htmlFor="conf-password">Confirm Password: <span>*</span></label>
                     <PasswordInput
                       placeholder="Confirm Password"
                       value={confirmPassword}
@@ -832,7 +834,7 @@ function FacultyRecord() {
                             </li>
                           ))
                         ) : (
-                          <li className='no-fetch-msg'>No RFID allocated</li>
+                          <li className='no-fetch-msg'>No RFID allocated.</li>
                         )}
                       </ul>
                     </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import ComputerControl from './ComputerControl';
-// import Casting from './Casting';
 import RoomSchedule from './RoomSchedule';
 import ComputerLogs from './ComputerLogs';
 import RFIDLogs from './RFIDLogs';
@@ -11,6 +10,7 @@ import WebFilter from './WebFilter';
 import UserPage from './UserPage';
 import { API_BASE_URL } from './config';
 import { useNavigate } from 'react-router-dom';
+import ssIcon from '../Assets/ss_icon.png';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState(() => {
@@ -137,7 +137,8 @@ function Dashboard() {
           </div>
         </div>
         <div className='mid-head'>
-          <div className="head-logo"></div>
+          <div className="ss-icon"></div>
+          <h3>Smart<span>Silid</span></h3>
         </div>
         <div className="right-head"
           onClick={() => {

@@ -726,7 +726,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     <div className="sections-container cont">
                         <h3 classame="cont-title">Section List</h3>
                         {sections.length === 0 ? (
-                            <p className='no-fetch-msg'>No sections available</p>
+                            <p className='no-fetch-msg'>No sections found.</p>
                         ) : (
                             sections.map((sec, index) => (
                                 <div key={index} className="section-item">
@@ -1031,7 +1031,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                             </div>
                         </>
                     ) : (
-                        <p className='no-fetch-msg'>Please select a section</p>
+                        <p className='no-fetch-msg'>Please select a section.</p>
                     )}
                 </div>
             </>
