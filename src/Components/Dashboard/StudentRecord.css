@@ -11,48 +11,55 @@
   }
 
   .sections-container {
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 10px; 
     justify-content: center;
-  }
+    padding: 20px;
 
-  .section-item {
-    flex: 0 1 auto; 
-    max-width: 120px;
-    position: relative;
-  }
-
-  .section-btn {
-    position: relative;
-    padding: 8px 40px;
-    transition: 0.1s ease-in-out; 
-  
-    &.selected {
-      font-size: 120%;
-      font-weight: bold;
-      padding: 8px 40px;
-    }   
-
-    .remove-btn {
-      position: absolute;
-      top: 0px;
-      right: 0px; 
-      min-width: 30px;
-      max-width: 10px;
-      color: white; 
-      background-color: var(--del-btn);
-      border-radius: 3px;
-      padding: 3px 5px;
-      border: none; 
-      cursor: pointer;
-      z-index: 10000;
+    .sections-row {
+      display: flex; 
+      overflow: hidden;
+      overflow-x: auto;
+      gap: 10px; 
+      padding: 5px; 
+    }
     
-      &hover {
-        background-color: var(--del-hov);
+    .section-item {
+      flex: 0 1 auto; 
+      max-width: 120px;
+      position: relative;
+      
+      .section-btn {
+        position: relative;
+        padding: 8px 40px;
+        transition: 0.1s ease-in-out; 
+      
+        &.selected {
+          font-size: 120%;
+          font-weight: bold;
+          padding: 8px 40px;
+        }   
+    
+        .remove-btn {
+          position: absolute;
+          top: 0px;
+          right: 0px; 
+          min-width: 30px;
+          max-width: 10px;
+          color: white; 
+          background-color: var(--del-btn);
+          border-radius: 3px;
+          padding: 3px 5px;
+          border: none; 
+          cursor: pointer;
+          z-index: 10000;
+        
+          &hover {
+            background-color: var(--del-hov);
+          }
+        }
       }
     }
   }
+
 
   .student-form,
   .edit-form {
@@ -92,7 +99,7 @@
   }
 
   .student-rec-log {
-    padding: 20px;
+    /* padding: 20px; */
 
     .student-table {
       overflow: hidden;
@@ -103,7 +110,7 @@
   }
 
   @media screen and (max-width: 426px) {
-  .student-table {
+    .student-table {
       display: flex;
 
       .action {
@@ -115,15 +122,41 @@
           min-width: 3px;
         }
       }
-
     }
   }
-  .element {
-    scrollbar-width: none;  /* For Firefox */
-    -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+
+  .available-list {
+    display: flex;
+    width: 100%;
+    
+    .student-rfid-list {
+      width: 50%;
+      margin: 0 10px 0 0;
+    }
+    .student-pc-list {
+      width: 50%;
+      margin: 0 0 0 10px;
+    }
   }
 
-  .element::-webkit-scrollbar { 
-    display: none;  /* For Chrome, Safari, and Opera */
+  .available-list {
+    button {
+      padding: 10px 5px;
+    }
+
+    .rfid-cont,
+    .pc-cont{
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      overflow-y: auto;
+      max-height: 200px;
+      gap: 10px;
+
+      label {
+        margin-right: 8px;
+        font-weight: bold;
+      }
+    }
   }
 }

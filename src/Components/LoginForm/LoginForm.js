@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './LoginForm.modules.css';
+import './LoginForm.css';
 import { API_BASE_URL } from '../Dashboard/config';
-import PasswordInput from './PasswordInput';
 
 function LoginForm() {
-  const [username, setUser] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -34,7 +34,6 @@ function LoginForm() {
       });
 
       if (!response.ok) {
-        // Handle non-JSON responses
         const text = await response.text();
         console.error('Response text:', text);
         alert(`Login failed: ${response.status} ${response.statusText}`);
@@ -42,15 +41,13 @@ function LoginForm() {
       }
 
       const data = await response.json();
-      console.log(data);
       if (data.access && data.refresh) {
-        // Store tokens in local storage
         localStorage.setItem('accessToken', data.access);
         localStorage.setItem('refreshToken', data.refresh);
         localStorage.setItem('id', data.user_id);
         localStorage.setItem('type', data.type);
         alert('Login successful!');
-        navigate('/dashboard'); // Redirect to the dashboard or home page
+        navigate('/dashboard');
       } else {
         alert('Login failed: No access token received');
       }
@@ -63,39 +60,57 @@ function LoginForm() {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    <div className='login'>
+    <div className="login">
       <div className="page-container">
-        <div className='logo'></div>
-        <h2>SmartSilid</h2>
+        <div className="logo-cont">
+          <div className="logo"></div>
+          <h2>Smart<span>Silid</span></h2>
+        </div>
         <form onSubmit={handleSubmit}>
-          <div className="username-div">
+          <div className="username-div log-input">
             <label htmlFor="username">Username:</label>
             <input
               type="text"
               id="username"
+              className="username-input"
               value={username}
-              onChange={(e) => setUser(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
-          <div className="password-div">
+          <div className="password-div log-input">
             <label htmlFor="password">Password:</label>
-            <PasswordInput
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="password-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                className="pass-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="see-pass-btn"
+              >
+                <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+              </button>
+            </div>
           </div>
           <div className="btn-div">
             <button type="submit" disabled={loading}>
               {loading ? 'Logging in...' : 'Login'}
             </button>
-            <Link to="/signup" className='link'>Set up Admin →</Link>
           </div>
         </form>
-        <div className="links">
-          <Link to="/forgot-password" className='link'>Forgot Password?</Link>
+        <div className="link-div">
+          <Link to="/signup" className="link">Set up Admin →</Link>
         </div>
       </div>
     </div>

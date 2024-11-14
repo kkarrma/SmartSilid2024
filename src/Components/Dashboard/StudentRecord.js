@@ -23,6 +23,12 @@ import { set } from 'rsuite/esm/internals/utils/date';
         const [newUsername, setNewUsername] = useState('');
         const [newType, setNewType] = useState('');
 
+        // Bind RFID and PC per Student
+        const [availableRfids, setAvailableRfids] = useState([]);
+        const [rfidBindUser, setRfidBindUser] = useState({});
+        const [availablePcs, setAvailablePcs] = useState([]);
+        const [pcBindUser, setPcBindUser] = useState({});
+
         const [section, setSection] = useState('');
         const [loading, setLoading] = useState(false);
         const [errorMessage, setErrorMessage] = useState('');
@@ -176,31 +182,46 @@ import { set } from 'rsuite/esm/internals/utils/date';
 
         const handleStudentList = async (sectionName) => {
             const accessToken = localStorage.getItem('accessToken');
+            
+            console.log("Before handleStudentList, availablePcs:", availablePcs);
             try {
                 const response = await fetch(`${API_BASE_URL}/get_all_students`, {
                     headers: { Authorization: `Bearer ${accessToken}` }
                 });
-
+        
                 if (response.status === 401) {
                     await handleTokenRefresh();
                     return handleStudentList(sectionName);
-                  }
-                
+                }
+        
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data.students);
+                    console.log(data);
+        
+                    // Filter students by section
                     const filteredStudents = data.students.filter(student => student.section === sectionName);
                     const formattedStudents = filteredStudents.map(formatStudentName);
                     setStudents(sortStudents(formattedStudents));
+        
+                    // Map RFID data
+                    const availableRfids = data.rfid.map(rfidEntry => rfidEntry.rfid);
+                    setAvailableRfids(availableRfids);
+        
+                    // Map computer data for the specific section
+                    const selectedSectionComputers = data.computer
+                        .filter(sectionObj => Object.keys(sectionObj)[0] === sectionName)
+                        .flatMap(sectionObj => Object.values(sectionObj)[0].map(comp => comp.computer));
+                    setAvailablePcs(selectedSectionComputers);
+        
                 } else {
                     console.error('Failed to fetch students');
                 }
+                console.log("After handleStudentList, availablePcs:", availablePcs);
             } catch (error) {
-                
                 console.error('Error fetching students:', error);
             }
         };
-
+        
         useEffect(() => {
             fetchSections();
         }, []);
@@ -324,7 +345,6 @@ import { set } from 'rsuite/esm/internals/utils/date';
             setConfirmPassword('');
         };
         
-
         const handleAddSection = async () => {
             const accessToken = localStorage.getItem('accessToken');
             if (newSectionName.trim()) {
@@ -641,29 +661,29 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     Authorization: `Bearer ${accessToken}`,
                 },
             })
-                .then((reponse) => {
-                    if(!reponse.ok) {
-                        throw new Error('Network response was not ok. Failed to generate report');
-                    }
-                    return reponse.blob();
-                })
-                .then((blob) => {
-                    const fileUrl = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = fileUrl;
-                    link.setAttribute('download', filename);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    setLoading(false);
-                })
-                .catch((error) => {
-                    console.error('Error downloading file:', error);
-                    alert(`An error occurred: ${error.message}`);
-                })
-                .finally(() => {
-                    setLoading(false)
-                });
+            .then((reponse) => {
+                if(!reponse.ok) {
+                    throw new Error('Network response was not ok. Failed to generate report');
+                }
+                return reponse.blob();
+            })
+            .then((blob) => {
+                const fileUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = fileUrl;
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error downloading file:', error);
+                alert(`An error occurred: ${error.message}`);
+            })
+            .finally(() => {
+                setLoading(false)
+            });
         };
         // const handleGenerateStudentReportExcel = () => {
         //     const period = document.getElementById('periodSelect').value;
@@ -678,6 +698,119 @@ import { set } from 'rsuite/esm/internals/utils/date';
             downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
         };
 
+        const handleBindRFID = async (username, rfid, section) => {
+            if (!username) {
+                alert('Please choose a faculty to assign the RFID.');
+                return;
+            }
+        
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmBind = window.confirm(`Are you sure you want to bind RFID with value ${rfid} to ${username}?`);
+            if (!confirmBind) return;
+        
+            try {
+                const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        rfid,
+                        section: selectedSection,
+                        type: "student" 
+                    }),
+                });
+        
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleBindRFID(username, rfid);
+                }
+                if (response.ok) {
+                    handleStudentList();
+                    alert(`RFID with value ${rfid} has been bound to ${username} successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+                }
+                
+            } catch (error) {
+                setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+            }
+        };
+
+        const handleBindPC = async (username, computer, section) => {
+            if (!username) {
+                alert('Please choose a faculty to assign the RFID.');
+                return;
+            }
+        
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmBind = window.confirm(`Are you sure you want to bind Computer ${computer} to ${username}?`);
+            if (!confirmBind) return;
+        
+            try {
+                const response = await fetch(`${API_BASE_URL}/bind_computer`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        computer,
+                        section 
+                    }),
+                });
+        
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleBindPC(username, computer, section);
+                }
+                if (response.ok) {
+                    handleStudentList();
+                    alert(`Computer ${computer} has been bound to ${username} successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
+                }
+            } catch (error) {
+                setErrorMessage('An error occurred while binding the Computer. Please check your connection.');
+            }
+        };
+
+        const handleDeleteRFID = async (rfid) => {
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmDelete = window.confirm(`Are you sure you want to delete RFID with value ${rfid}?`);
+            if (!confirmDelete) return;
+        
+            try {
+              const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${accessToken}`,
+                },                
+                body: JSON.stringify({ rfid }),
+                });
+        
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleDeleteRFID(rfid);
+                }
+        
+                if (response.ok) {
+                    handleStudentList();
+                    alert(`RFID with value ${rfid} has been deleted successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+                }
+            } catch (error) {
+              setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
+            }
+        };
 
         return (
             <>
@@ -728,27 +861,29 @@ import { set } from 'rsuite/esm/internals/utils/date';
                         {sections.length === 0 ? (
                             <p className='no-fetch-msg'>No sections found.</p>
                         ) : (
-                            sections.map((sec, index) => (
-                                <div key={index} className="section-item">
-                                    <button
-                                        className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
-                                        onClick={() => handleSectionClick(sec)}
-                                    >
-                                        {sec}
-                                        {selectedSection === sec && (
-                                            <button
-                                                className="remove-btn"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemoveSection(sec);
-                                                }}
-                                            >
-                                                <b>–</b>
-                                            </button>
-                                        )}
-                                    </button>
-                                </div>
-                            ))
+                            <div className='sections-row'>
+                                {sections.map((sec, index) => (
+                                    <div key={index} className="section-item">
+                                        <button
+                                            className={`section-btn ${selectedSection === sec ? 'selected' : ''}`}
+                                            onClick={() => handleSectionClick(sec)}
+                                        >
+                                            {sec}
+                                            {selectedSection === sec && (
+                                                <button
+                                                    className="remove-btn"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveSection(sec);
+                                                    }}
+                                                >
+                                                    <b>–</b>
+                                                </button>
+                                            )}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
 
@@ -756,88 +891,91 @@ import { set } from 'rsuite/esm/internals/utils/date';
                         <>
                             <div className="student-form cont">
                                 {formVisible ? (
-                                    <div className='student-form-inner'>
-                                        <form onSubmit={handleSubmit}>
-                                            <div className='user-form'>
-                                                <label htmlFor="firstname">First Name: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="firstname"
-                                                    value={first_name}
-                                                    onChange={(e) => setFirstname(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className='user-form'>
-                                                <label htmlFor="middlename">Middle Initial: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="middlename"
-                                                    value={middle_initial}
-                                                    onChange={(e) => setMiddlename(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className='user-form'>
-                                                <label htmlFor="lastname">Last Name: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="lastname"
-                                                    value={last_name}
-                                                    onChange={(e) => setLastname(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className='user-form'>
-                                                <label htmlFor="username">Username: <span>*</span></label>
-                                                <input
-                                                    type="text"
-                                                    id="username"
-                                                    value={username}
-                                                    onChange={(e) => setUsername(e.target.value)}
-                                                    required
-                                                />
-                                            </div>
-                                            <div className=" user-form">    
-                                                <label htmlFor="section">Section: <span>*</span></label>
-                                                <select
-                                                    id="section"
-                                                    value={section || selectedSection}
-                                                    onChange={(e) => setSection(e.target.value)}
-                                                    required
-                                                >
-                                                    <option value=""></option>
-                                                    {sections.map((sec) => (
-                                                        <option key={sec} value={sec}>{sec}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div className="user-form password-div">
-                                                <label htmlFor="password">Password: <span>*</span></label>
-                                                <PasswordInput
-                                                    id="password"
-                                                    value={password}
-                                                    onChange={(e) => setPassword(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="user-form password-div">
-                                                <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
-                                                <PasswordInput
-                                                    id="confirmPassword"
-                                                    value={confirmPassword}
-                                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="reg-div">
-                                                <button type="submit" disabled={loading}>
-                                                    {loading ? 'Adding...' : 'Add Student'}
-                                                </button>
-                                                <button className="cancel-btn" type="button" onClick={handleCancelClick}>
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                    <>
+                                        <h3 className='cont-title'>Student Entry Form</h3>
+                                        <div className='student-form-inner'>
+                                            <form onSubmit={handleSubmit}>
+                                                <div className='user-form'>
+                                                    <label htmlFor="firstname">First Name: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="firstname"
+                                                        value={first_name}
+                                                        onChange={(e) => setFirstname(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className='user-form'>
+                                                    <label htmlFor="middlename">Middle Initial: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="middlename"
+                                                        value={middle_initial}
+                                                        onChange={(e) => setMiddlename(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className='user-form'>
+                                                    <label htmlFor="lastname">Last Name: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="lastname"
+                                                        value={last_name}
+                                                        onChange={(e) => setLastname(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className='user-form'>
+                                                    <label htmlFor="username">Username: <span>*</span></label>
+                                                    <input
+                                                        type="text"
+                                                        id="username"
+                                                        value={username}
+                                                        onChange={(e) => setUsername(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className=" user-form">    
+                                                    <label htmlFor="section">Section: <span>*</span></label>
+                                                    <select
+                                                        id="section"
+                                                        value={section || selectedSection}
+                                                        onChange={(e) => setSection(e.target.value)}
+                                                        required
+                                                    >
+                                                        <option value=""></option>
+                                                        {sections.map((sec) => (
+                                                            <option key={sec} value={sec}>{sec}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div className="user-form password-div">
+                                                    <label htmlFor="password">Password: <span>*</span></label>
+                                                    <PasswordInput
+                                                        id="password"
+                                                        value={password}
+                                                        onChange={(e) => setPassword(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="user-form password-div">
+                                                    <label htmlFor="confirmPassword">Confirm Password: <span>*</span></label>
+                                                    <PasswordInput
+                                                        id="confirmPassword"
+                                                        value={confirmPassword}
+                                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="reg-div">
+                                                    <button type="submit" disabled={loading}>
+                                                        {loading ? 'Adding...' : 'Add Student'}
+                                                    </button>
+                                                    <button className="cancel-btn" type="button" onClick={handleCancelClick}>
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className='add-btn-div'>
                                         <button className="adds-btn" type="button" onClick={handleAddClick}>
@@ -969,14 +1107,15 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                 </div>
                             )}
                             <div className='student-rec-log cont'>
+                                <h3 className='cont-title'>Student List</h3>
                                 <div className="student-table">
                                     <table>
                                         <thead>
                                             <tr>
                                                 <th>Username</th>
-                                                <th>Surname</th>
                                                 <th>First Name</th>
                                                 <th>Initial</th>
+                                                <th>Surname</th>
                                                 <th>Section</th>
                                                 <th>Action</th>
                                             </tr>
@@ -990,9 +1129,9 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                 students.map((student, index) => (
                                                     <tr key={index}>
                                                         <td className="username">{student.username}</td>
-                                                        <td className="last-name">{student.last_name}</td>
                                                         <td className="first-name">{student.first_name}</td>
                                                         <td className="mid-init">{student.middle_initial}</td>
+                                                        <td className="last-name">{student.last_name}</td>
                                                         <td className="section">{student.section}</td>
                                                         <td className="action">
                                                             {!formVisible && (
@@ -1012,28 +1151,131 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                     </table>
                                 </div>
                                 
-                                <div className='gen-report'>
-                                    {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
+                                {/* <div className='gen-report'>
                                     <select id = "periodSelect">
                                         <option value="daily">Daily Report</option>
                                         <option value="weekly">Weekly Report</option>
                                         <option value="monthly">Monthly</option>
                                     </select>
-                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
-                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
-                                    </button> */}
                                     <button 
                                     onClick={handleGenerateStudentReportPDF} 
                                     disabled={loading}
                                     className='pdf-btn'>
                                         {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
                                     </button>
+                                </div> */}
+                            </div>
+
+                            <div className='available-list'>
+                                {/* Available RFIDs Section */}
+                                <div className='student-rfid-list cont'>
+                                    <h3 className='cont-title'>Available RFIDs</h3>
+                                    <div className='rfid-cont'>
+                                        {availableRfids.length === 0 ? (
+                                            <p className='no-fetch-msg'>No available RFIDs.</p>
+                                        ) : (
+                                            <>
+                                                {availableRfids
+                                                .filter((rfid) => !Object.values(rfidBindUser).includes(rfid)) 
+                                                .map((rfid, index) => (
+                                                    <div key={index} className='rfid-item'>
+                                                        <label className='rfid-name'>{rfid}</label>
+                                                        <select
+                                                            value={rfidBindUser[rfid] || ''}
+                                                            onChange={(e) => {
+                                                                const updatedUsername = e.target.value;
+                                                                setRfidBindUser({ ...rfidBindUser, [rfid]: updatedUsername });
+                                                            }}
+                                                        >
+                                                            <option value="">None</option>
+                                                            {students.map((student) => (
+                                                                <option key={student.username} value={student.username}>
+                                                                    {student.username}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <button
+                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            onClick={() => {
+                                                                if (rfidBindUser[rfid]) {
+                                                                    handleBindRFID(rfidBindUser[rfid], rfid, selectedSection);
+                                                                } else {
+                                                                    alert('Please select a username before assigning.');
+                                                                }
+                                                            }}
+                                                        >
+                                                            Assign
+                                                        </button>
+                                                        <button
+                                                            className='del-btn'
+                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            onClick={() => handleDeleteRFID(rfid)}
+                                                        >
+                                                            <i className="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Available PCs Section */}
+                                <div className='student-pc-list cont'>
+                                    <h3 className='cont-title'>Available PCs</h3>
+                                    <div className='pc-cont'>
+                                        {availablePcs.length === 0 ? (
+                                            <p className='no-fetch-msg'>No available PCs.</p>
+                                        ) : (
+                                            availablePcs
+                                                .filter((pc) => !Object.values(pcBindUser).includes(pc))
+                                                .map((pc, index) => (
+                                                    <div key={index} className='pc-item'>
+                                                        <label className='pc-name'>{pc}</label>
+                                                        <select
+                                                            value={pcBindUser[pc] || ''}
+                                                            onChange={(e) => {
+                                                                const updatedUsername = e.target.value;
+                                                                setPcBindUser({ ...pcBindUser, [pc]: updatedUsername });
+                                                            }}
+                                                        >
+                                                            <option value="">None</option>
+                                                            {students.map((student) => (
+                                                                <option key={student.username} value={student.username}>
+                                                                    {student.username}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <button
+                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            onClick={() => {
+                                                                if (pcBindUser[pc]) {
+                                                                    handleBindPC(pcBindUser[pc], pc, selectedSection);
+                                                                } else {
+                                                                    alert('Please select a username before assigning.');
+                                                                }
+                                                            }}
+                                                        >
+                                                            Assign
+                                                        </button>
+                                                        <button
+                                                            className='del-btn'
+                                                            style={{ marginLeft: '8px', cursor: 'pointer' }}
+                                                            // onClick={() => handleDeletePC(pc)}
+                                                        >
+                                                            <i className="fa-solid fa-trash-can"></i>
+                                                        </button>
+                                                    </div>
+                                                ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </>
                     ) : (
                         <p className='no-fetch-msg'>Please select a section.</p>
                     )}
+
                 </div>
             </>
         );

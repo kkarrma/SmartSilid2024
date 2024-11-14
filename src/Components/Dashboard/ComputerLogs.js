@@ -12,7 +12,10 @@ function ComputerLogs() {
   const [type, setType] = useState('');
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
+  
   const [availableComputers, setAvailableComputers] = useState([]);
+  const [availableSections, setAvailableSections] = useState([]);
+
   const [selectedSection, setSelectedSection] = useState('');
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false);
@@ -108,6 +111,9 @@ function ComputerLogs() {
       console.log('Pagination length:', data.pagination_length); // Log the pagination_length
       setLogs(Array.isArray(data.logs) ? data.logs : []);
       setTotalPages(data.pagination_length); // Set totalPages based on the API response
+      
+      const fetchedSections = data.computers.map(section => section.name);
+      setAvailableSections(fetchedSections);
 
       // if (response.ok) {
       //   
@@ -198,28 +204,22 @@ function ComputerLogs() {
 
   return (
     <>
-    <div className='gen-report'>
-                                    {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
-                            
-                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
-                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
-                                    </button> */}
-                                    <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
-                      {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
-                  </button>
-                                    <button 
-                                    onClick={handleGenerateStudentReportPDF} 
-                                    disabled={loading}
-                                    className='pdf-btn'>
-                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
-                                    </button>
-                                    <input
-                                      type="text"
-                                      placeholder="Section"
-                                      value={selectedSection}
-                                      onChange={e => setSelectedSection(e.target.value)}
-                                    />
-                                </div>
+      <div className='gen-report'>
+        {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
+
+        {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
+            {loading ? "Generating..." : "Download Student Report (Excel)"}
+        </button> */}
+        <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
+          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+        </button>
+        <button 
+        onClick={handleGenerateStudentReportPDF} 
+        disabled={loading}
+        className='pdf-btn'>
+            {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
+        </button>
+      </div>
       <div className='logbook'>
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
@@ -260,14 +260,33 @@ function ComputerLogs() {
               onChange={e => setEndDate(e.target.value)}
             />
           </div>
-          <div>
-            <input
-            type="text"
-            value={type}
-            onChange={e => setType(e.target.value)}
-            />
+          <div className='type-filter filter-cont'>
+            <label for="section">User Type: </label>
+            <select
+              type="text"
+              placeholder='User Type'
+              value={type}
+              onChange={e => setType(e.target.value)}
+            >
+              <option value="">Select User Type</option>
+              <option value="faculty">Faculty</option>
+              <option value="student">Student</option>
+            </select>
           </div>
-
+          <div className='section-filter filter-cont'>
+            <label for="section">Section: </label>
+            <select
+              type="text"
+              placeholder="Section"
+              value={selectedSection}
+              onChange={e => setSelectedSection(e.target.value)}
+            >
+              <option value="">Select Section</option>
+              {availableSections.map(section => (
+                <option key={section} value={section}>{section}</option>
+              ))}
+            </select>
+          </div>
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>

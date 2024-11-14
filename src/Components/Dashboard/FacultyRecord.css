@@ -1,32 +1,48 @@
 .faculty-record {
-  .faculty-list {
-    max-height: 300px;
+  .faculty-rows {
+    border-radius: 5px;
+    max-height: 400px;
+    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: auto;
     
     .faculty-item {
       /* border: 1px solid #ccc; */
       background-color: #f3f3f3;
       margin: 10px 0;
       padding: 10px;
-      border-radius: 5px;
-      max-height: 300px;
       overflow: hidden;
       overflow-x: auto;
       overflow-y: auto;
+      text-align: center;
+      align-items: center;
     }
   }
 
   .faculty-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     cursor: pointer;
   }
   
   .faculty-details {
-    padding: 10px 0 0 20px;
+    padding: 0 5px;
+    display: flex;
     
     ul {
+      display: flex;
+      flex-direction: column;
+      align-items: start;
       list-style-type: none;
       padding: 0;
+      width: fit-content;
+      
+      li {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
     }
   }
 

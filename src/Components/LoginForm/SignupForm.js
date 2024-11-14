@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LoginForm.modules.css';
+import { useNavigate, Link } from 'react-router-dom';
+import './LoginForm.css';
+// import './SignForm.css';
 import { API_BASE_URL } from '../Dashboard/config';
 
 function SignupForm() {
@@ -12,6 +13,8 @@ function SignupForm() {
   const [last_name, setLastname] = useState('');
   const [OU, setOU] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   // Function to get the CSRF token from a meta tag
@@ -22,25 +25,25 @@ function SignupForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!username || !password || !confirmPassword || !first_name || !last_name) {
       alert('Please fill in all required fields');
       return;
     }
-  
+
     if (password !== confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
-      const response = await fetch(`${API_BASE_URL}/sign_up_admin`, { // Update URL as needed
+      const response = await fetch(`${API_BASE_URL}/sign_up_admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken()  // Include the CSRF token
+          'X-CSRFToken': getCSRFToken(), // Include the CSRF token
         },
         body: JSON.stringify({
           username,
@@ -51,25 +54,23 @@ function SignupForm() {
           type: 'admin',
         }),
       });
-  
+
       if (!response.ok) {
-        // Handle non-JSON responses
         const text = await response.text();
         console.error('Response text:', text);
         alert(`Signup failed: ${response.status} ${response.statusText}`);
         return;
       }
-  
-      // Use data.then to handle the JSON response
+
       const data = await response.json();
       console.log(`TYPE: `, data);
       if (data.status_message) {
-        alert(data.status_message); // Display the status_message from the response
+        alert(data.status_message);
       } else {
-        alert('Signup successful'); // Fallback message if status_message is not present   
+        alert('Signup successful');
       }
       navigate('/');
-  
+
     } catch (error) {
       console.error('Error:', error);
       alert(`An error occurred: ${error.message}`);
@@ -77,18 +78,29 @@ function SignupForm() {
       setLoading(false);
     }
   };
-  
+
   const goHome = () => {
     navigate('/');
   };
-  
+
+  // Function to toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   return (
-    <div className="page-container">
-      <div className='logo'></div>
-      <h2>SmartSilid</h2>
-      <form onSubmit={handleSubmit}>
-        <div class="name-div">
-          <div>
+    <div className="sign-up">
+      <div className="page-container">
+        <div className="logo-cont">
+          <div className="logo"></div>
+          <h2>Smart<span>Silid</span></h2>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <div className=' log-input'>
             <label htmlFor="firstname">First Name:</label>
             <input
               type="text"
@@ -98,7 +110,7 @@ function SignupForm() {
               required
             />
           </div>
-          <div>
+          <div className=' log-input'>
             <label htmlFor="middlename">Middle Initial:</label>
             <input
               type="text"
@@ -106,8 +118,8 @@ function SignupForm() {
               value={middle_initial}
               onChange={(e) => setMiddlename(e.target.value)}
             />
-          </div>  
-          <div>
+          </div>
+          <div className=' log-input'>
             <label htmlFor="lastname">Last Name:</label>
             <input
               type="text"
@@ -116,47 +128,67 @@ function SignupForm() {
               onChange={(e) => setLastname(e.target.value)}
               required
             />
-          </div>  
-        </div>
-        <div class="creds-div">
-          <div>
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
           </div>
+          <div className="creds-div log-input">
+            <div>
+              <label htmlFor="username">Username:</label>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          <div className="password-div">
+            <label htmlFor="password">Password:</label>
+            <div className="password-input-container">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="see-pass-btn"
+                onClick={togglePasswordVisibility}
+              >
+                <i className={`fa ${showPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+              </button>
+            </div>
+          </div>
+          <div className="password-div">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <div className="password-input-container">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="see-pass-btn"
+                onClick={toggleConfirmPasswordVisibility}
+              >
+                <i className={`fa ${showConfirmPassword ? 'fa-eye' : 'fa-eye-slash'}`}></i>
+              </button>
+            </div>
+          </div>
+          <div className="btn-div">
+            <button type="submit" disabled={loading}>
+              {loading ? 'Signing up...' : 'Sign Up'}
+            </button>
+          </div>
+        </form>
+        <div className="link-div">
+          <Link to="/" className="link">Cancel</Link>
         </div>
-        <div class="password-div">
-          <label htmlFor="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div class='password-div'>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-        <button type="button" onClick={goHome}>
-          Cancel
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
