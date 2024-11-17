@@ -995,8 +995,8 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                         ref={fileInput}
                                         accept=".xlsx, .xls"
                                     />
-                                    <button className="add-section-btn" onClick={handleStudentFileUpload}>
-                                        Upload
+                                    <button className="add-section-btn" onClick={handleStudentFileUpload} disabled={loading}>
+                                    {loading ? 'Uploading..' : 'Upload'}
                                     </button>
                                 </div>
                             </div>
@@ -1323,20 +1323,6 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                             )}
                                         </tbody>
                                     </table>
-                                </div>
-                                
-                                <div className='gen-report'>
-                                    <select id = "periodSelect">
-                                        <option value="daily">Daily Report</option>
-                                        <option value="weekly">Weekly Report</option>
-                                        <option value="monthly">Monthly</option>
-                                    </select>
-                                    <button 
-                                    onClick={handleGenerateStudentReportPDF} 
-                                    disabled={loading}
-                                    className='pdf-btn'>
-                                        {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
-                                    </button>
                                 </div>
                             </div>
 

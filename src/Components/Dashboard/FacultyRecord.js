@@ -577,8 +577,8 @@ function FacultyRecord() {
                       ref={fileInput}
                       accept=".xlsx, .xls"
                   />
-                  <button className="add-section-btn" onClick={handleFacultyFileUpload}>
-                      Upload
+                  <button className="add-section-btn" onClick={handleFacultyFileUpload} disabled={loading}>
+                      {loading ? 'Uploading..' : 'Upload'}
                   </button>
                 </div>
               </div>
@@ -782,23 +782,29 @@ function FacultyRecord() {
                 {facultyData.map((faculty, index) => (
                   <div key={index} className="faculty-item">
                     <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                      <span>{expandedIndex === index ? '-' : '+'}</span>
+                      <span>{expandedIndex === index ? '-' : '+'} &nbsp;</span>
                       <strong>{`${faculty.username}`}</strong>
                       <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
-                        <button onClick={(event) => {
-                          event.stopPropagation(); // Prevent toggle when editing
-                          handleEditClick(faculty);
-                        }}>
-                          <i className="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button 
-                          className='del-btn'
-                          onClick={(event) => {
-                          event.stopPropagation(); // Prevent toggle when deleting
-                          handleDeleteFaculty(faculty.username);
-                        }}>
-                          <i className="fa-solid fa-trash-can"></i>
-                        </button>
+                        {localStorage.getItem('id') !== faculty.id.toString() ? (
+                          <div>
+                            <button onClick={(event) => {
+                              event.stopPropagation(); // Prevent toggle when editing
+                              handleEditClick(faculty);
+                            }}>
+                              <i className="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button 
+                              className='del-btn'
+                              onClick={(event) => {
+                              event.stopPropagation(); // Prevent toggle when deleting
+                              handleDeleteFaculty(faculty.username);
+                            }}>
+                              <i className="fa-solid fa-trash-can"></i>
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ padding: '17px'}}></div>
+                        )}
                       </div>
                     </div>
                     {expandedIndex === index && (
@@ -816,7 +822,7 @@ function FacultyRecord() {
                                   onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)} // Pass specific RFID
                                 >
                                   {/* remove */}
-                                  <i class="fa-solid fa-minus"></i>
+                                  <i className="fa-solid fa-minus"></i>
                                 </button>
                               </div>
                             </li>
@@ -828,11 +834,6 @@ function FacultyRecord() {
                     )}
                   </div>
                 ))}
-                <div className='gen-report'>
-                  <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
-                      {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
-                  </button>
-                </div>
               </div>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>

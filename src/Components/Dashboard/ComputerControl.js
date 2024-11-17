@@ -232,10 +232,10 @@ function ComputerControl() {
   const handleSetComputerAdmin = async () => {
     const accessToken = localStorage.getItem('accessToken');
 
-    if (!adminInputValue) {
-      console.error('No PC selected to set as admin.');
-      return;
-    }
+    // if (!adminInputValue) {
+    //   console.error('No PC selected to set as admin.');
+    //   return;
+    // }
   
     try {
       const response = await fetch(`${API_BASE_URL}/set_computer_admin`, {
@@ -244,7 +244,9 @@ function ComputerControl() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`, 
         },
-        body: JSON.stringify({ computer_name: adminInputValue }),
+        body: JSON.stringify({ 
+          computer_name: adminInputValue
+        }),
       });
 
       if (response.status === 401) {
@@ -255,14 +257,13 @@ function ComputerControl() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Failed to make the computer admin:', errorData.status);
-        alert(`Error: ${errorData.status}`);
+        alert(`Error: ${errorData.status_message}`);
       } else {
         const successData = await response.json();
-        alert(successData.status);
+        alert(successData.status_message);
         setAdminStatus(adminInputValue, true);
+        fetchComputers();
       }
-      
-      window.location.reload();
     } catch (error) {
       
       console.error('Failed to make the computer admin:', error);
@@ -331,6 +332,7 @@ function ComputerControl() {
       streamLink.href = `${streamUrl}`;
     }
   }, [streamUrl]);
+  
   return (
     <>
       <div className='computer-controls'>
@@ -338,7 +340,6 @@ function ComputerControl() {
           <div className='stream-container cont'>
             <h3 classame="cont-title">Casting Controls</h3>
             <div className="stream-row">
-              {/* <h4>Casting Controls &nbsp;&nbsp; | &nbsp;&nbsp; </h4> */}
               <div className='stream-btn'>
                 <button onClick={startStream}>Start Stream</button>
                 <button onClick={stopStream}>Stop Stream</button>
@@ -347,10 +348,7 @@ function ComputerControl() {
             </div>
 
             <div className="view-stream-row">
-              {/* <h4>View Client Screens &nbsp;&nbsp; | &nbsp;&nbsp; </h4> */}
-              {/* <a href="192.168.10.112:8000/stream" target="_blank">Go to Stream Page</a> */}
               <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">
-                {/* Go to Stream Page */}
                 <h4>View Client Screens &nbsp;&nbsp; ≫ &nbsp;&nbsp; </h4>
               </a>
 
@@ -361,64 +359,60 @@ function ComputerControl() {
 
           <form>
             <div className="controls-row filter-controls cont"> 
-            <h3 classame="cont-title">Computer Controls</h3>
-            {/* <div className="filter-cont"> */}
-              {/* <label for="choose-pc">Select PCs</label> */}
-              <select onChange={handleSelectPC} value="">
-                <option value="">Select a PC</option>
+              <h3 classame="cont-title">Computer Controls</h3>
+              <select onChange={handleAdminInputChange} value={adminInputValue}>
+                <option value="">Select Admin PC</option>
                 {pcs.map((pc) => (
-                  <option
-                    key={pc}
-                    value={pc}
-                    style={{
-                      color: pcStates[pc]?.isOn ? 'var(--bg6)' : 'black',
-                      fontWeight: pcStates[pc]?.isOn ? 'bold' : 'lighter'
-                    }}
-                  >
+                  <option key={pc} value={pc}>
                     {pc}
                   </option>
                 ))}
               </select>
-            {/* </div> */}
-              <input
-                type="text"
-                value={inputValue}
-                onChange={handleInputChange}
-                placeholder="Selected PCs"
-              />
               <button
                 type="button"
-                onClick={() => handleToggleSelectedPCs(true)}
-                disabled={selectedPCs.length === 0} 
+                onClick={handleSetComputerAdmin}
+                // disabled={!adminInputValue}  
               >
-                Turn On
-              </button>
-              <button
-                type="button"
-                onClick={() => handleToggleSelectedPCs(false)}
-                disabled={selectedPCs.length === 0} 
-              >
-                Turn Off
+                Set Admin
               </button>
             </div>
             
             <div className='computer-list cont'>
-              {/* <h3 classame="cont-title">Computer Controls</h3> */}
               <div className="checkbox-container">
-                <select onChange={handleAdminInputChange} value={adminInputValue}>
-                  <option value="">Select Admin PC</option>
+                <select onChange={handleSelectPC} value="">
+                  <option value="">Select a PC</option>
                   {pcs.map((pc) => (
-                    <option key={pc} value={pc}>
+                    <option
+                      key={pc}
+                      value={pc}
+                      style={{
+                        color: pcStates[pc]?.isOn ? 'var(--bg6)' : 'black',
+                        fontWeight: pcStates[pc]?.isOn ? 'bold' : 'lighter'
+                      }}
+                    >
                       {pc}
                     </option>
                   ))}
                 </select>
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={handleInputChange}
+                  placeholder="Selected PCs"
+                />
                 <button
                   type="button"
-                  onClick={handleSetComputerAdmin}
-                  disabled={!adminInputValue}
+                  onClick={() => handleToggleSelectedPCs(true)}
+                  disabled={selectedPCs.length === 0} 
                 >
-                  Set Admin
+                  Turn On
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleToggleSelectedPCs(false)}
+                  disabled={selectedPCs.length === 0} 
+                >
+                  Turn Off
                 </button>
                 <div>
                   <input
