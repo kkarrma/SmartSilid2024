@@ -238,8 +238,6 @@ function RoomSchedule() {
       };
       
       alert(data.status_message + "\n Error Messages: \n" + formatted_error_message(data.error_message));
-        
-      
 
       fetchSchedules();
       setEditFormVisible(false);

@@ -231,11 +231,6 @@ function ComputerControl() {
 
   const handleSetComputerAdmin = async () => {
     const accessToken = localStorage.getItem('accessToken');
-
-    // if (!adminInputValue) {
-    //   console.error('No PC selected to set as admin.');
-    //   return;
-    // }
   
     try {
       const response = await fetch(`${API_BASE_URL}/set_computer_admin`, {

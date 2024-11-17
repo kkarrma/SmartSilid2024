@@ -1,0 +1,88 @@
+.class-schedule {
+  
+  .schedule-row {
+    padding: 20px;
+
+    .schedule-items {
+      display: block;
+      gap: 10px;
+      
+      .sched-info-cont {
+        max-height: 400px;
+        
+        .sched-info-rows {
+          display: grid;
+          text-align: center;
+          grid-template-columns: repeat(5, 1fr); 
+          background-color: #f3f3f3;
+          align-items: center;
+          padding: 10px;
+          margin: 10px 0;
+          transition: .3s ease-in-out;
+          flex-wrap: wrap;
+
+          &:hover {
+            background-color: #dadada;
+          }
+          
+          .sched-div-btn {
+            cursor: pointer;
+            gap: 10px; 
+          }
+
+          .sched-subj {
+            border-radius: 0 5em 5em 0 ;
+            padding: .5em 2em;
+            /* background-color: var(--bg6); */
+            text-align: left;
+            /* color: var(--bg1); */
+            font-weight: bold;
+          }
+
+          .sched-day {
+            span {
+              border-radius: 50px;
+              color: var(--bg1);
+              background-color: var(--bg3);
+              font-weight: bold;
+              max-width: fit-content;
+              padding: .5em 2em;
+            }
+          }
+
+          .sched-time {
+            display: inline-block;
+            padding: .5em 2em;
+            border-radius: 50px;
+            background: var(--btn); 
+            color: white;
+            text-align: center;
+          }
+
+          .sched-sec,
+          .sched-fac {
+            display: flex;  
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .sched-info {
+            position: relative; 
+            padding: 10px; 
+            font-size: 14px;
+            max-width: fit-content;
+          }
+          
+          .sched-info span {
+            position: absolute; 
+            top: 0;
+            left: 0;
+            color: var(--sub-txt);
+            font-size: 8px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -4,13 +4,13 @@ import ComputerControl from './ComputerControl';
 import RoomSchedule from './RoomSchedule';
 import ComputerLogs from './ComputerLogs';
 import RFIDLogs from './RFIDLogs';
+import ClassSchedules from './ClassSchedules';
 import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
 import WebFilter from './WebFilter';
 import UserPage from './UserPage';
 import { API_BASE_URL } from './config';
 import { useNavigate } from 'react-router-dom';
-import ssIcon from '../Assets/ss_icon.png';
 
 function Dashboard() {
   const [selectedMenu, setSelectedMenu] = useState(() => {
@@ -20,7 +20,7 @@ function Dashboard() {
   const [isUserRecordOpen, setIsUserRecordOpen] = useState(false);
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
-  const [userName, setUserName] = useState(false);
+  const [userName] = useState(false);
   const [userType, setUserType] = useState(''); 
   const Navigate = useNavigate();
   
@@ -104,6 +104,8 @@ function Dashboard() {
         return <ComputerLogs />;
       case 'RFID Logs':
         return <RFIDLogs />;
+      case 'Class Schedules':
+        return <ClassSchedules />;
       case 'Student Record':
         return <StudentRecord />;
       case 'Faculty Record':
@@ -121,8 +123,8 @@ function Dashboard() {
     switch (selectedMenu) {
       // case 'Room Schedule':
       //   return <div>Room Schedule Sidebar Content</div>;
-      case 'RFID Record':
-        return <div>RFID Record Sidebar Content</div>;
+      // case 'RFID Record':
+      //   return <div>RFID Record Sidebar Content</div>;
       default:
         return null;
     }
@@ -175,12 +177,12 @@ function Dashboard() {
           {userType == 'admin' && (
             <>
               <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
-              onClick={() => {
-                setSelectedMenu('Room Schedule');
-                closeAllDrops();
-              }}>
-              {/* <i className="fa-solid fa-calendar-days"></i> */}
-              Room Schedule
+                onClick={() => {
+                  setSelectedMenu('Room Schedule');
+                  closeAllDrops();
+                }}>
+                {/* <i className="fa-solid fa-calendar-days"></i> */}
+                Room Schedule
               </div>
               <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
                 {/* <i className="fa-solid fa-book-open"></i> */}
@@ -200,6 +202,12 @@ function Dashboard() {
                     &nbsp;&nbsp;
                     {/* <i className="fa-regular fa-credit-card"></i>  */}
                     RFID Logs
+                  </div>
+                  <div className={`menu-panel dash ${selectedMenu === 'Class Schedules' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('Class Schedules')}>
+                    &nbsp;&nbsp;
+                    {/* <i className="fa-regular fa-credit-card"></i>  */}
+                    Class Schedules
                   </div>
                 </div>
               )}
