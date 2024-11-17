@@ -512,7 +512,6 @@ function FacultyRecord() {
 
       reader.readAsArrayBuffer(file);
   };
-
   
   const downloadFile = (url, filename) => {
     setLoading(true);

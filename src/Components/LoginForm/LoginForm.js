@@ -36,7 +36,11 @@ function LoginForm() {
       if (!response.ok) {
         const text = await response.text();
         console.error('Response text:', text);
-        alert(`Login failed: ${response.status} ${response.statusText}`);
+        if (response.status === 401) {
+          alert('Login failed: Incorrect password');
+        } else {
+          alert(`Login failed: ${response.status} ${response.statusText}`);
+        }
         return;
       }
 
@@ -49,7 +53,7 @@ function LoginForm() {
         alert('Login successful!');
         navigate('/dashboard');
       } else {
-        alert('Login failed: No access token received');
+        alert(`Login failed: ${data.detail}`);
       }
 
     } catch (error) {

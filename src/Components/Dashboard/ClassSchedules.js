@@ -7,6 +7,10 @@ function ClassSchedules() {
   const Navigate = useNavigate('');
   const [id, setId] = useState('');
   const [schedules, setSchedules] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState(null); // Change to `null` for clarity
+  const [dates, setDates] = useState([]);
+  const [selecteDate, setSelectedDate] = useState('');
+  const [breadcrumb, setBreadcrumb] = useState('');
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -58,8 +62,33 @@ function ClassSchedules() {
     }
   };
 
+  const fetchAttendance = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_attendance_info`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchSchedules();
+      }
+
+      const data = await response.json();
+      setSchedules(data.schedule || []);
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+    }
+  };
+
   useEffect(() => {
     fetchSchedules();
+    fetchAttendance();
   }, []);
 
   const weekdayMap = {
@@ -80,51 +109,90 @@ function ClassSchedules() {
     return `${formattedHours}:${minutes} ${suffix}`;
   };
 
+  const handleSelectSchedule = (schedule) => {
+    setSelectedSchedule(schedule);
+    setBreadcrumb(schedule.subject);
+  };
+
+  const handleSelectDate = (date) => {
+    setSelectedDate(date.weekdays);
+  };
+
+  const handleBreadcrumbClick = () => {
+    setSelectedSchedule(null);
+  };
+
   const formatDay = (dayString) => {
     const days = dayString.split('');
     return days.map(day => weekdayMap[day]).join(', ');
   };
-  
+
   return (
     <div className='class-schedule'>
       <div className='schedule-row cont'>
-        <h3 className='cont-title'>Schedule List</h3>
-        <div className='schedule-items'>
-          {Array.isArray(schedules) && schedules.length > 0 ? (
-            schedules.map((schedule, index) => (
-              <div key={index} className="sched-info-cont">
-                <div className='sched-info-rows'>
-                  <div className='sched-subj sched-div-btn'>
-                    {schedule.subject}
-                  </div>
-                  <div className='sched-day sched-div-btn'>
-                    <span>{formatDay(schedule.weekdays)}</span>
-                  </div>
-                  <div className='sched-time sched-div-btn'>
-                    {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
-                  </div>
-                  <div className='sched-sec sched-div-btn'>
-                    <div className='sched-info'>
-                      <span>Section:</span> {schedule.section}
-                    </div>
-                  </div>
-                  <div className='sched-fac sched-div-btn'>
-                    <div className='sched-info'>
-                      <span>Faculty:</span> {schedule.faculty}
+        <div onClick={handleBreadcrumbClick} className='breadcrumb'>
+          <h3 className='cont-title' style={{ cursor: 'pointer' }}>Schedule List</h3>
+        </div>
+        {selectedSchedule ? (
+          <div className='date-items'>
+            {Array.isArray(dates) && dates.length > 0 ? (
+              dates.map((date, index) => (
+                <div 
+                  key={index} 
+                  className="date-select-cont" 
+                  onClick={() => handleSelectDate(schedule.date)}
+                >
+                  <div className='date-select-rows date-div-btn'>
+                    <div className='date-select'>
+                      {formatDay(schedule.date)}
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className='no-fetch-msg'>No schedules found.</p>
-          )}
-        </div>
+              ))
+            ) : (
+              <p className='no-fetch-msg'>No dates were found.</p>
+            )}
+          </div>
+        ) : (
+          <div className='schedule-items'>
+            {Array.isArray(schedules) && schedules.length > 0 ? (
+              schedules.map((schedule, index) => (
+                <div 
+                  key={index} 
+                  className="sched-info-cont" 
+                  onClick={() => handleSelectSchedule(schedule)}
+                >
+                  <div className='sched-info-rows sched-div-btn'>
+                    <div className='sched-subj'>
+                      {schedule.subject}
+                    </div>
+                    <div className='sched-day'>
+                      <span>{formatDay(schedule.weekdays)}</span>
+                    </div>
+                    <div className='sched-time'>
+                      {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
+                    </div>
+                    <div className='sched-sec'>
+                      <div className='sched-info'>
+                        <span>Section:</span> {schedule.section}
+                      </div>
+                    </div>
+                    <div className='sched-fac'>
+                      <div className='sched-info'>
+                        <span>Faculty:</span> {schedule.faculty}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className='no-fetch-msg'>No schedules found.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
-
-
 }
 
 export default ClassSchedules;
