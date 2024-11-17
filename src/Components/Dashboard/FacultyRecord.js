@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './FacultyRecord.css';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -362,7 +362,8 @@ function FacultyRecord() {
         },
         body: JSON.stringify({ 
           username, 
-          rfid 
+          rfid,
+          type: "faculty" 
         }),
       });
 
@@ -379,7 +380,6 @@ function FacultyRecord() {
         alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
       }
     } catch (error) {
-      
       setErrorMessage('An error occurred while binding RFID. Please check your connection.');
     }
   };
@@ -461,6 +461,7 @@ function FacultyRecord() {
         return;
     }
 
+    // Read the Excel file and convert it to JSON
     const reader = new FileReader();
 
     reader.onload = async (e) => {
@@ -468,56 +469,51 @@ function FacultyRecord() {
 
         // Parse the Excel file using xlsx
         const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
+        const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
         const sheet = workbook.Sheets[sheetName];
 
         // Convert sheet to JSON
         const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        // Prepare the request payload
-        const payload = { faculty_list: jsonData };
+        console.log('Excel File Data:', jsonData);
 
-        // Send the request to the server
-        
-        await fetchUploadFaculty(); 
+        const formData = new FormData();
+        formData.append('faculty_list', JSON.stringify(jsonData)); // Send the data as JSON
 
-    };
+        try {
+            const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',  // Ensure content type is application/json
+                },
+                body: JSON.stringify({ faculty_list: jsonData }), // Send data as JSON in the body
+            });
 
-    // Read the file as an ArrayBuffer
-    reader.readAsArrayBuffer(file);
-};
+            if (response.status === 401) {
+                await handleTokenRefresh();
+                return handleFacultyFileUpload();
+            }
 
-  const fetchUploadFaculty = async (payload) => {
-    const accessToken = localStorage.getItem('accessToken');
+            const data = await response.json();
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(payload),
-        });
-
-        if(response.status === 401) {
-            await handleTokenRefresh();
-            return fetchUploadFaculty(payload);
-          }
-
-        const data = await response.json();
-
-        if (data.status_message && !data.status_message.failed_entries.length) {
-            alert('File uploaded successfully!');
-        } else {
-            console.error('Errors:', data.status_message.failed_entries);
-            alert('Some errors occurred while uploading. Check console for details.');
+            if (!data.errors) {
+                alert('File uploaded successfully!');
+                fetchFaculty();
+            } else {
+                console.error('Errors:', data.errors);
+                alert('Some errors occurred while uploading.');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert(`An error occurred: ${error.message}`);
         }
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        alert(`An error occurred: ${error.message}`);
-    }
-  }
+      };
+
+      reader.readAsArrayBuffer(file);
+  };
+
+  
   const downloadFile = (url, filename) => {
     setLoading(true);
     const accessToken = localStorage.getItem('accessToken');
@@ -593,7 +589,7 @@ function FacultyRecord() {
               <form onSubmit={handleAddFaculty}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
-                    <label htmlFor="firstname">Last Name: <span>*</span></label>
+                    <label htmlFor="firstname">First Name: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="First Name"
@@ -603,7 +599,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="mid-initial">Last Name: <span>*</span></label>
+                    <label htmlFor="mid-initial">Middle Initial: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Middle Initial"
@@ -622,7 +618,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="username">Last Name: <span>*</span></label>
+                    <label htmlFor="username">Username: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Username"
@@ -632,7 +628,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="type">Last Name: <span>*</span></label>
+                    <label htmlFor="type">User Type: <span>*</span></label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value)}
@@ -644,7 +640,7 @@ function FacultyRecord() {
                     </select>
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="password">Last Name: <span>*</span></label>
+                    <label htmlFor="password">Password: <span>*</span></label>
                     <PasswordInput
                       placeholder="Password"
                       value={password}
@@ -652,7 +648,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='user-form'>
-                    <label htmlFor="conf-password">Last Name: <span>*</span></label>
+                    <label htmlFor="conf-password">Confirm Password: <span>*</span></label>
                     <PasswordInput
                       placeholder="Confirm Password"
                       value={confirmPassword}
@@ -660,7 +656,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className='reg-div'>
-                    <button type="button" disabled={loading}>
+                    <button type="submit" disabled={loading}>
                       {loading ? 'Adding...' : 'Add Faculty'}
                     </button>
                     <button type="button" onClick={handleCancelBtn}>Cancel</button>
@@ -782,7 +778,7 @@ function FacultyRecord() {
           <h3>Faculty List</h3>
           <div className='faculty-list'>
             {Array.isArray(facultyData) && facultyData.length > 0 ? (
-              <>
+              <div className='faculty-rows'>
                 {facultyData.map((faculty, index) => (
                   <div key={index} className="faculty-item">
                     <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
@@ -808,23 +804,22 @@ function FacultyRecord() {
                     {expandedIndex === index && (
                       <div className="faculty-details">
                         <ul>
-                          {faculty.rfid && faculty.rfid.length > 0 ? (
-                            faculty.rfid.map((rfid, rfidIndex) => (
-                              <li key={rfidIndex} style={{ display: 'flex', alignItems: 'center' }}>
-                                <div className='rfid-unbind-label'>
-                                  {rfid}
-                                </div>
-                                <div className='rfid-unbind-btn'>
-                                  <button 
-                                    className='unbind-btn'
-                                    style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                    onClick={() => handleUnbindRFID(faculty.username, rfid)} // Pass specific RFID
-                                  >
-                                    -
-                                  </button>
-                                </div>
-                              </li>
-                            ))
+                          {faculty.rfid ? ( // Check if the RFID is present
+                            <li>
+                              <div className='rfid-unbind-label'>
+                                {faculty.rfid}
+                              </div>
+                              <div className='rfid-unbind-btn'>
+                                <button 
+                                  className='del-btn'
+                                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                                  onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)} // Pass specific RFID
+                                >
+                                  {/* remove */}
+                                  <i class="fa-solid fa-minus"></i>
+                                </button>
+                              </div>
+                            </li>
                           ) : (
                             <li className='no-fetch-msg'>No RFID allocated</li>
                           )}
@@ -834,15 +829,11 @@ function FacultyRecord() {
                   </div>
                 ))}
                 <div className='gen-report'>
-                  {/* <h2>Generate Student Log Reports</h2> */}
-                  {/* <button onClick={handleGenerateFacultyReportExcel} disabled={loading}>
-                      {loading ? "Generating..." : "Download Faculty Report (Excel)"}
-                  </button> */}
                   <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
-                      {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+                      {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
                   </button>
                 </div>
-              </>
+              </div>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>
             )}
@@ -861,8 +852,7 @@ function FacultyRecord() {
                   onChange={(e) => {
                     setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
                     console.log("USERNAME", rfidBindUser[rfid]);
-                  }
-                }
+                  }}
                 >
                   <option value="none">None</option>
                   {facultyData.map((faculty, facultyIndex) => (
@@ -876,8 +866,7 @@ function FacultyRecord() {
                   onClick={() => {
                     handleBindRFID(rfidBindUser[rfid], rfid)
                     console.log(rfidBindUser[rfid] + rfid)
-                  }
-                  } // Pass the selected username and RFID
+                  }} // Pass the selected username and RFID
                 >
                   Assign
                 </button>

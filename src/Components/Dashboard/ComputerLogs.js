@@ -9,10 +9,13 @@ function ComputerLogs() {
   const [totalPages, setTotalPages] = useState(1); 
   const [start_date, setStartDate] = useState('');
   const [end_date, setEndDate] = useState('');
-  const [type, setType] = useState('');
+  const [type, setType] = useState('faculty,student');
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
+  
   const [availableComputers, setAvailableComputers] = useState([]);
+  const [availableSections, setAvailableSections] = useState([]);
+
   const [selectedSection, setSelectedSection] = useState('');
   const [sections, setSections] = useState([])
   const [loading, setLoading] = useState(false);
@@ -93,7 +96,7 @@ function ComputerLogs() {
           username,
           computer_name,
           pagination,
-          type: type,
+          type,
           section: selectedSection,
         })
       });
@@ -108,6 +111,9 @@ function ComputerLogs() {
       console.log('Pagination length:', data.pagination_length); // Log the pagination_length
       setLogs(Array.isArray(data.logs) ? data.logs : []);
       setTotalPages(data.pagination_length); // Set totalPages based on the API response
+      
+      const fetchedSections = data.computers.map(section => section.name);
+      setAvailableSections(fetchedSections);
 
       // if (response.ok) {
       //   
@@ -125,55 +131,61 @@ function ComputerLogs() {
     setLoading(true);
     const accessToken = localStorage.getItem('accessToken');
     fetch(url, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
+      method: 'GET',
+      headers: {
+          Authorization: `Bearer ${accessToken}`,
+      },
     })
-        .then((reponse) => {
-            if(!reponse.ok) {
-                throw new Error('Network response was not ok. Failed to generate report');
-            }
-            return reponse.blob();
-        })
-        .then((blob) => {
-            const fileUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = fileUrl;
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setLoading(false);
-        })
-        .catch((error) => {
-            console.error('Error downloading file:', error);
-            alert(`An error occurred: ${error.message}`);
-        })
-        .finally(() => {
-            setLoading(false)
-        });
-};
-// const handleGenerateStudentReportExcel = () => {
-//     const period = document.getElementById('periodSelect').value;
-//     downloadFile(`${API_BASE_URL}student-report/excel?period=${period}`, "smartsilid_student_report.xlsx");
-// };
-// Function to generate Student Report (PDF)
-      const handleGenerateStudentReportPDF = () => {
-          const queryParams = new URLSearchParams({
-              start_date: start_date,
-              end_date: end_date,
-              section: selectedSection,
-          }).toString();
-          downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
-      };
-    const handleGenerateFacultyReportPDF = () => {
-        const queryParams = new URLSearchParams({
-            start_date: start_date,
-            end_date: end_date,
-        }).toString();
-        downloadFile(`${API_BASE_URL}faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
-    };
+    .then((reponse) => {
+      if(!reponse.ok) {
+          throw new Error('Network response was not ok. Failed to generate report');
+      }
+      return reponse.blob();
+    })
+    .then((blob) => {
+      const fileUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error('Error downloading file:', error);
+      alert(`An error occurred: ${error.message}`);
+    })
+    .finally(() => {
+      setLoading(false)
+    });
+  };
+
+  // const handleGenerateReportPDF = () => {
+  //   const queryParams = new URLSearchParams({
+  //     start_date: start_date,
+  //     end_date: end_date,
+  //     section: selectedSection,
+  //   }).toString();
+  //   downloadFile(`${API_BASE_URL}all-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+  // };
+
+  const handleGenerateStudentReportPDF = () => {
+    const queryParams = new URLSearchParams({
+      start_date: start_date,
+      end_date: end_date,
+      section: selectedSection,
+    }).toString();
+    downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+  };
+
+  const handleGenerateFacultyReportPDF = () => {
+    const queryParams = new URLSearchParams({
+      start_date: start_date,
+      end_date: end_date,
+    }).toString();
+    downloadFile(`${API_BASE_URL}faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+  };
 
   const handleFilter = () => {
     setPagination(1);
@@ -198,28 +210,21 @@ function ComputerLogs() {
 
   return (
     <>
-    <div className='gen-report'>
-                                    {/* <h3 className='cont-title'>Generate Student Log Reports</h3> */}
-                            
-                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
-                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
-                                    </button> */}
-                                    <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
-                      {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
-                  </button>
-                                    <button 
-                                    onClick={handleGenerateStudentReportPDF} 
-                                    disabled={loading}
-                                    className='pdf-btn'>
-                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
-                                    </button>
-                                    <input
-                                      type="text"
-                                      placeholder="Section"
-                                      value={selectedSection}
-                                      onChange={e => setSelectedSection(e.target.value)}
-                                    />
-                                </div>
+      {/* <div className='gen-report'>
+        <button 
+          onClick={handleGenerateFacultyReportPDF} 
+          disabled={loading}
+        >
+          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
+        </button>
+        <button 
+          onClick={handleGenerateStudentReportPDF} 
+          disabled={loading}
+          className='pdf-btn'
+        >
+          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
+        </button>
+      </div> */}
       <div className='logbook'>
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
@@ -260,14 +265,35 @@ function ComputerLogs() {
               onChange={e => setEndDate(e.target.value)}
             />
           </div>
-          <div>
-            <input
-            type="text"
-            value={type}
-            onChange={e => setType(e.target.value)}
-            />
+          <div className='type-filter filter-cont'>
+            <label for="section">User Type: </label>
+            <select
+              type="text"
+              placeholder='User Type'
+              value={type}
+              onChange={e => setType(e.target.value)}
+            >
+              <option value="" >Select User Type</option>
+              <option value="faculty">Faculty</option>
+              <option value="student">Student</option>
+            </select>
           </div>
-
+          {type === 'student' && (
+            <div className='section-filter filter-cont'>
+              <label for="section">Section: </label>
+              <select
+                type="text"
+                placeholder="Section"
+                value={selectedSection}
+                onChange={e => setSelectedSection(e.target.value)}
+              >
+                <option value="">Select Section</option>
+                {availableSections.map(sectionName => (
+                  <option key={sectionName} value={sectionName}>{sectionName}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
@@ -280,13 +306,14 @@ function ComputerLogs() {
         </div>
 
         <div className="log-table cont">
-          <h3 classame="cont-title">Computer List</h3>
+          {/* <h3 classame="cont-title">Computer List</h3> */}
           <div className='log-table-cont'>
             <table>
               <thead>
                 <tr>
                   <th>PC Name</th>
                   <th>Username</th>
+                  <th>Section</th>
                   <th>Log Date</th>
                   <th>Login</th>
                   <th>Logout</th>
@@ -296,9 +323,14 @@ function ComputerLogs() {
                 {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
                   sortedLogs.map((log, index) => (
                     <tr key={index}>
-                      <td className="pc-name">{log.computer_name}</td>
-                      <td className="name">
+                      <td className="pc-name">
+                        <span>{log.computer_name}</span>
+                      </td>
+                      <td className="username">
                         <span>{log.username}</span>
+                      </td>
+                      <td className="section">
+                        <span>{log.section}</span>
                       </td>
                       <td className="log-date">
                         <div className="flex-cont">
@@ -319,7 +351,7 @@ function ComputerLogs() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="no-fetch-msg">No logs available</td>
+                    <td colSpan="6" className="no-fetch-msg">No logs available</td>
                   </tr>
                 )}
               </tbody>
@@ -357,6 +389,31 @@ function ComputerLogs() {
             >
               Last
             </button>
+          </div>
+          
+          <div className='gen-report'>
+            {type === '' ? (
+              <button 
+                // onClick={handleGenerateReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Report"</>}
+              </button>
+            ) : type === 'faculty' ? (
+              <button 
+                onClick={handleGenerateFacultyReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
+              </button>
+            ) : (
+              <button 
+                onClick={handleGenerateStudentReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Class Report"</>}
+              </button>
+            )} 
           </div>
         </div>
       </div>

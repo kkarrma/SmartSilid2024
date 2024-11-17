@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './Logbook.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -92,7 +92,7 @@ function RFIDLogs() {
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          faculty_name: facultyName,
+          username: facultyName,
           subject,
           section,
           start_date: formattedStartDate,
@@ -205,7 +205,7 @@ function RFIDLogs() {
             <table>
               <thead>
                 <tr>
-                  <th>Faculty Name</th>
+                  <th>Username</th>
                   <th>Subject</th>
                   <th>Section</th>
                   <th>Log Date</th>
@@ -217,7 +217,7 @@ function RFIDLogs() {
                 {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
                   sortedLogs.map((log, index) => (
                     <tr key={index}>
-                      <td className="faculty-name">{log.faculty_name}</td>
+                      <td className="faculty-name">{log.username}</td>
                       <td className="subject">{log.subject}</td>
                       <td className="section">{log.section}</td>
                       <td className="log-date">{log.date}</td>

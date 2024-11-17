@@ -177,7 +177,7 @@ input {
   display: flex;
   gap: 10px;
   padding-top: 20px;
-  justify-content: center;
+  justify-content: right;
   align-items: center;
   text-align: center;
 
