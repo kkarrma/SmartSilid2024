@@ -25,6 +25,7 @@ function ComputerLogs() {
   useEffect(() => {
     fetchComputerLogs();
     fetchComputers();
+    fetchSections();
   }, [pagination]);
   
   const handleTokenRefresh = async () => {
@@ -111,19 +112,32 @@ function ComputerLogs() {
       console.log('Pagination length:', data.pagination_length); // Log the pagination_length
       setLogs(Array.isArray(data.logs) ? data.logs : []);
       setTotalPages(data.pagination_length); // Set totalPages based on the API response
-      
-      const fetchedSections = data.computers.map(section => section.name);
-      setAvailableSections(fetchedSections);
 
-      // if (response.ok) {
-      //   
-      // } else {
-      //   console.error('Failed to fetch logs');
-      //   console.log(response.status); 
-      // }
     } catch (error) {
-      
       console.error('Error fetching logs:', error);
+    }
+  };
+
+  const fetchSections = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return fetchSections();
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        setSections(data.sections.map(sec => sec.name));
+      } else {
+        console.error('Failed to fetch sections');
+      }
+    } catch (error) {
+      console.error('Error fetching sections:', error);
     }
   };
 
@@ -161,22 +175,13 @@ function ComputerLogs() {
     });
   };
 
-  // const handleGenerateReportPDF = () => {
-  //   const queryParams = new URLSearchParams({
-  //     start_date: start_date,
-  //     end_date: end_date,
-  //     section: selectedSection,
-  //   }).toString();
-  //   downloadFile(`${API_BASE_URL}all-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
-  // };
-
   const handleGenerateStudentReportPDF = () => {
     const queryParams = new URLSearchParams({
       start_date: start_date,
       end_date: end_date,
       section: selectedSection,
     }).toString();
-    downloadFile(`${API_BASE_URL}student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+    downloadFile(`${API_BASE_URL}/student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
   };
 
   const handleGenerateFacultyReportPDF = () => {
@@ -184,7 +189,7 @@ function ComputerLogs() {
       start_date: start_date,
       end_date: end_date,
     }).toString();
-    downloadFile(`${API_BASE_URL}faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+    downloadFile(`${API_BASE_URL}/faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
   };
 
   const handleFilter = () => {
@@ -200,13 +205,11 @@ function ComputerLogs() {
     setComputerName('');
     setPagination(1);
     setType('');
-    setSections('');
-
+    // setSections('');
   };
 
   // Sort logs by id in descending order
   const sortedLogs = [...logs].sort((a, b) => b.id - a.id);
-
 
   return (
     <>
@@ -288,8 +291,8 @@ function ComputerLogs() {
                 onChange={e => setSelectedSection(e.target.value)}
               >
                 <option value="">Select Section</option>
-                {availableSections.map(sectionName => (
-                  <option key={sectionName} value={sectionName}>{sectionName}</option>
+                {sections.map(section => (
+                  <option key={section} value={section}>{section}</option>
                 ))}
               </select>
             </div>
@@ -308,55 +311,56 @@ function ComputerLogs() {
         <div className="log-table cont">
           {/* <h3 classame="cont-title">Computer List</h3> */}
           <div className='log-table-cont'>
-            <table>
-              <thead>
-                <tr>
-                  <th>PC Name</th>
-                  <th>Username</th>
-                  <th>Section</th>
-                  <th>Log Date</th>
-                  <th>Login</th>
-                  <th>Logout</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
-                  sortedLogs.map((log, index) => (
-                    <tr key={index}>
-                      <td className="pc-name">
-                        <span>{log.computer_name}</span>
-                      </td>
-                      <td className="username">
-                        <span>{log.username}</span>
-                      </td>
-                      <td className="section">
-                        <span>{log.section}</span>
-                      </td>
-                      <td className="log-date">
-                        <div className="flex-cont">
-                          <span>{log.date}</span>
-                        </div>
-                      </td>
-                      <td className="log-in">
-                        <div className="flex-cont">
-                          <span>{log.logon}</span>
-                        </div>
-                      </td>
-                      <td className="log-out">
-                        <div className="flex-cont">
-                          <span>{log.logoff}</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" className="no-fetch-msg">No logs available</td>
+          <table>
+            <thead>
+              <tr>
+                <th>PC Name</th>
+                <th>Username</th>
+                <th>Section</th>
+                <th>Log Date</th>
+                <th>Login</th>
+                <th>Logout</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(sortedLogs) && sortedLogs.length > 0 ? (
+                sortedLogs.map((log, index) => (
+                  <tr key={index}>
+                    <td className="pc-name">
+                      <span>{log.computer_name}</span>
+                    </td>
+                    <td className="username">
+                      <span>{log.username}</span>
+                    </td>
+                    <td className="section">
+                      <span>
+                        {log.section ? log.section : 'Faculty'}
+                      </span>
+                    </td>
+                    <td className="log-date">
+                      <div className="flex-cont">
+                        <span>{log.date ? log.date : 'N/A'}</span>
+                      </div>
+                    </td>
+                    <td className="log-in">
+                      <div className="flex-cont">
+                        <span>{log.logon ? log.logon : 'N/A'}</span>
+                      </div>
+                    </td>
+                    <td className="log-out">
+                      <div className="flex-cont">
+                        <span>{log.logoff ? log.logoff : 'N/A'}</span>
+                      </div>
+                    </td>
                   </tr>
-                )}
-              </tbody>
-
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="no-fetch-msg">No logs available</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
           </div>
 
           <div className="pagination-controls">
@@ -392,12 +396,12 @@ function ComputerLogs() {
           </div>
           
           <div className='gen-report'>
-            {type === '' ? (
+            {type === 'student' ? (
               <button 
-                // onClick={handleGenerateReportPDF} 
+                onClick={handleGenerateStudentReportPDF} 
                 disabled={loading}
               >
-                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Report"</>}
+                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Class Report"</>}
               </button>
             ) : type === 'faculty' ? (
               <button 
@@ -407,12 +411,7 @@ function ComputerLogs() {
                 {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
               </button>
             ) : (
-              <button 
-                onClick={handleGenerateStudentReportPDF} 
-                disabled={loading}
-              >
-                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Class Report"</>}
-              </button>
+              <></>
             )} 
           </div>
         </div>
