@@ -683,9 +683,6 @@ import { set } from 'rsuite/esm/internals/utils/date';
         };
         
 
-<<<<<<< HEAD
-        
-=======
         const downloadFile = (url, filename) => {
             setLoading(true);
             const accessToken = localStorage.getItem('accessToken');
@@ -960,7 +957,6 @@ import { set } from 'rsuite/esm/internals/utils/date';
               setErrorMessage('An error occurred while deleting the Computer. Please check your connection.');
             }
         };
->>>>>>> 6321d1e3339779df7f06bc8b60bb8875fa224b90
 
         return (
             <>
@@ -1335,24 +1331,12 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                         <option value="weekly">Weekly Report</option>
                                         <option value="monthly">Monthly</option>
                                     </select>
-<<<<<<< HEAD
-                                    {/* <button onClick={handleGenerateStudentReportExcel} disabled={loading}>
-                                        {loading ? "Generating..." : "Download Student Report (Excel)"}
-                                    </button> */}
-                                    {/* <button 
-                                    onClick={handleGenerateStudentReportPDF} 
-                                    disabled={loading}
-                                    className='pdf-btn'>
-                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
-                                    </button> */}
-=======
                                     <button 
                                     onClick={handleGenerateStudentReportPDF} 
                                     disabled={loading}
                                     className='pdf-btn'>
                                         {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
                                     </button>
->>>>>>> 6321d1e3339779df7f06bc8b60bb8875fa224b90
                                 </div>
                             </div>
 
