@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './FacultyRecord.css';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -461,6 +461,7 @@ function FacultyRecord() {
         return;
     }
 
+    // Read the Excel file and convert it to JSON
     const reader = new FileReader();
 
     reader.onload = async (e) => {
@@ -468,56 +469,51 @@ function FacultyRecord() {
 
         // Parse the Excel file using xlsx
         const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
+        const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
         const sheet = workbook.Sheets[sheetName];
 
         // Convert sheet to JSON
         const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        // Prepare the request payload
-        const payload = { faculty_list: jsonData };
+        console.log('Excel File Data:', jsonData);
 
-        // Send the request to the server
-        
-        await fetchUploadFaculty(); 
+        const formData = new FormData();
+        formData.append('faculty_list', JSON.stringify(jsonData)); // Send the data as JSON
 
-    };
+        try {
+            const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',  // Ensure content type is application/json
+                },
+                body: JSON.stringify({ faculty_list: jsonData }), // Send data as JSON in the body
+            });
 
-    // Read the file as an ArrayBuffer
-    reader.readAsArrayBuffer(file);
-};
+            if (response.status === 401) {
+                await handleTokenRefresh();
+                return handleFacultyFileUpload();
+            }
 
-  const fetchUploadFaculty = async (payload) => {
-    const accessToken = localStorage.getItem('accessToken');
+            const data = await response.json();
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify(payload),
-        });
-
-        if(response.status === 401) {
-            await handleTokenRefresh();
-            return fetchUploadFaculty(payload);
-          }
-
-        const data = await response.json();
-
-        if (data.status_message && !data.status_message.failed_entries.length) {
-            alert('File uploaded successfully!');
-        } else {
-            console.error('Errors:', data.status_message.failed_entries);
-            alert('Some errors occurred while uploading. Check console for details.');
+            if (!data.errors) {
+                alert('File uploaded successfully!');
+                fetchFaculty();
+            } else {
+                console.error('Errors:', data.errors);
+                alert('Some errors occurred while uploading.');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert(`An error occurred: ${error.message}`);
         }
-    } catch (error) {
-        console.error('Error uploading file:', error);
-        alert(`An error occurred: ${error.message}`);
-    }
-  }
+      };
+
+      reader.readAsArrayBuffer(file);
+  };
+
+  
   const downloadFile = (url, filename) => {
     setLoading(true);
     const accessToken = localStorage.getItem('accessToken');
@@ -832,11 +828,11 @@ function FacultyRecord() {
                     )}
                   </div>
                 ))}
-                {/* <div className='gen-report'>
+                <div className='gen-report'>
                   <button onClick={handleGenerateFacultyReportPDF} disabled={loading}>
                       {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
                   </button>
-                </div> */}
+                </div>
               </div>
             ) : (
               <p className='no-fetch-msg'>No faculty records found.</p>

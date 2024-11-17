@@ -1,5 +1,5 @@
     import React, { useState, useEffect, useRef } from 'react';
-    import { API_BASE_URL } from './config';
+    import { API_BASE_URL } from './BASE_URL';
     import './StudentRecord.css';
     import { useNavigate } from 'react-router-dom';
     import * as XLSX from 'xlsx';
@@ -575,40 +575,9 @@ import { set } from 'rsuite/esm/internals/utils/date';
             setEditFormVisible(false);
         };
 
-        const uploadStudents = async (formData) => {
-            const accessToken = localStorage.getItem('accessToken');
-            try {
-                const response = await fetch(`${API_BASE_URL}/upload_students`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                    body: formData,
-                });
-
-                if (response.status === 401) {
-                    await handleTokenRefresh();
-                    return uploadStudents(formData);
-                  }
-        
-                const data = await response.json();
-        
-                if (!data.errors) {
-                    alert('File uploaded successfully!');
-                } else {
-                    console.error('Errors:', data.errors);
-                    alert('Some errors occurred while uploading.');
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                alert(`An error occurred: ${error.message}`);
-            }
-        };
-
         const handleStudentFileUpload = async () => {
             const accessToken = localStorage.getItem('accessToken');
         
-            // Check if a file is selected
             if (!fileInput.current || !fileInput.current.files[0]) {
                 alert('Please select an Excel file to upload');
                 return;
@@ -617,40 +586,102 @@ import { set } from 'rsuite/esm/internals/utils/date';
             const file = fileInput.current.files[0];
             const fileType = file.name.split('.').pop().toLowerCase();
         
-            // Validate file type
             if (fileType !== 'xlsx' && fileType !== 'xls') {
                 alert('Please upload a valid Excel file (.xlsx or .xls)');
                 return;
             }
         
-            // Read the Excel file and convert it to JSON
             const reader = new FileReader();
-            
-            reader.onload = (e) => {
+        
+            reader.onload = async (e) => {
                 const data = e.target.result;
-                
+        
                 // Parse the Excel file using xlsx
                 const workbook = XLSX.read(data, { type: 'array' });
                 const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
                 const sheet = workbook.Sheets[sheetName];
-                
+        
                 // Convert sheet to JSON
                 const jsonData = XLSX.utils.sheet_to_json(sheet);
         
-                // Log the JSON data
                 console.log('Excel File Data:', jsonData);
         
-                // Proceed with file upload
-                const formData = new FormData();
-                formData.append('file', file);
+                // Validate each row for required attributes
+                const requiredFields = ['Username', 'Firstname', 'Lastname', 'Password']; // Add fields as necessary
+                const invalidEntries = [];
+                const validEntries = jsonData.filter((row, index) => {
+                    const missingFields = requiredFields.filter((field) => !row[field]);
+                    if (missingFields.length > 0) {
+                        invalidEntries.push({
+                            row: index + 1,
+                            missingFields,
+                        });
+                        return false; // Exclude invalid rows
+                    }
+                    return true;
+                });
         
-                // Send the request to the server
-                
+                // Notify the user about invalid entries
+                if (invalidEntries.length > 0) {
+                    const errorDetails = invalidEntries
+                        .map(
+                            (entry) =>
+                                `Row ${entry.row}: Missing fields - ${entry.missingFields.join(', ')}`
+                        )
+                        .join('\n');
+                    alert(`The following rows have missing fields and will not be uploaded:\n${errorDetails}`);
+                }
+        
+                // Check if there are valid entries to upload
+                if (validEntries.length === 0) {
+                    alert('No valid data to upload.');
+                    return;
+                }
+        
+                // Prepare a new Excel file with only valid data
+                const newWorkbook = XLSX.utils.book_new();
+                const newSheet = XLSX.utils.json_to_sheet(validEntries);
+                XLSX.utils.book_append_sheet(newWorkbook, newSheet, 'ValidData');
+        
+                const updatedFile = new Blob([XLSX.write(newWorkbook, { type: 'array', bookType: 'xlsx' })], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                });
+        
+                const formData = new FormData();
+                formData.append('file', updatedFile, file.name);
+        
+                try {
+                    const response = await fetch(`${API_BASE_URL}/upload_students`, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                        body: formData,
+                    });
+        
+                    if (response.status === 401) {
+                        await handleTokenRefresh();
+                        return handleStudentFileUpload();
+                    }
+        
+                    const data = await response.json();
+        
+                    if (data.errors && data.errors.length > 0) {
+                        console.error('Errors:', data.errors);
+                        alert('Some errors occurred while uploading:\n' + data.errors.join('\n'));
+                    } else {
+                        alert('File uploaded successfully!');
+                        handleStudentList(selectedSection);
+                    }
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    alert(`An error occurred: ${error.message}`);
+                }
             };
         
-            // Read the file as an ArrayBuffer
             reader.readAsArrayBuffer(file);
         };
+        
 
         const downloadFile = (url, filename) => {
             setLoading(true);
@@ -727,6 +758,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     await handleTokenRefresh();
                     return handleBindRFID(username, rfid);
                 }
+
                 if (response.ok) {
                     handleStudentList(selectedSection);
                     alert(`RFID with value ${rfid} has been bound to ${username} successfully.`);
@@ -734,9 +766,50 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     const errorData = await response.json();
                     alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
                 }
-                
             } catch (error) {
                 setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+            }
+        }; 
+        
+        const handleUnbindRFID = async (username, rfid, section) => {
+            if (!username) {
+                alert('Please choose a faculty to assign the RFID.');
+                return;
+            }
+        
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmUnbind = window.confirm(`Are you sure you want to unbind RFID with value ${rfid} to ${username}?`);
+            if (!confirmUnbind) return;
+        
+            try {
+                const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        username: '', 
+                        rfid: rfid,
+                        section: selectedSection,
+                        type: "student" 
+                    }),
+                });
+        
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleBindRFID(username, rfid);
+                }
+                if (response.ok) {
+                    handleStudentList(selectedSection);
+                    alert(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
+                }
+                
+            } catch (error) {
+                setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
             }
         }; 
         
@@ -761,8 +834,8 @@ import { set } from 'rsuite/esm/internals/utils/date';
                 }
         
                 if (response.ok) {
-                    handleStudentList(selectedSection);
                     alert(`RFID with value ${rfid} has been deleted successfully.`);
+                    handleStudentList(selectedSection);
                 } else {
                     const errorData = await response.json();
                     alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
@@ -792,28 +865,64 @@ import { set } from 'rsuite/esm/internals/utils/date';
                     body: JSON.stringify({ 
                         username, 
                         computer,
-                        section 
+                        section: selectedSection
                     }),
                 });
         
                 if (response.status === 401) {
                     await handleTokenRefresh();
-                    return handleBindPC(username, computer, section);
+                    return handleBindPC(username, computer);
                 }
+
                 if (response.ok) {
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        handleStudentList(selectedSection);
-                        alert(`Computer ${computer} has been bound to ${username} successfully.`);
-                    } else {
-                        alert(`Failed to bind Computer: ${data.status_message || 'Error binding RFID'}`);
-                    }
+                    handleStudentList(selectedSection);
+                    alert(`Computer ${computer} has been unbound to ${username} successfully.`);
                 } else {
                     const errorData = await response.json();
                     alert(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
                 }
             } catch (error) {
                 setErrorMessage('An error occurred while binding the Computer. Please check your connection.');
+            }
+        };
+
+        const handleUnbindPC = async (username, computer, section) => {
+            if (!username) {
+                alert('Please choose a faculty to assign the RFID.');
+                return;
+            }
+
+            const accessToken = localStorage.getItem('accessToken');
+            const confirmUnbind = window.confirm(`Are you sure you want to unbind Computer ${computer} from ${username}?`);
+            if (!confirmUnbind) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/bind_computer`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        username: '',
+                        computer: computer,
+                        section: selectedSection
+                    }),
+                });
+
+                if (response.status === 401) {
+                    await handleTokenRefresh();
+                    return handleUnbindPC(username, computer);
+                }
+                if (response.ok) {
+                    handleStudentList(selectedSection);
+                    alert(`Computer ${computer} has been unbound from ${username} successfully.`);
+                } else {
+                    const errorData = await response.json();
+                    alert(`Failed to unbind Computer: ${errorData.status_message || 'Error unbinding computer'}`);
+                }
+            } catch (error) {
+                setErrorMessage('An error occurred while unbinding the Computer. Please check your connection.');
             }
         };
 
@@ -838,8 +947,8 @@ import { set } from 'rsuite/esm/internals/utils/date';
                 }
         
                 if (response.ok) {
-                    handleStudentList(selectedSection);
                     alert(`Computer ${computer} has been deleted successfully.`);
+                    handleStudentList(selectedSection);
                 } else {
                     const errorData = await response.json();
                     alert(`Failed to delete Computer: ${errorData.status_message || 'Error deleting Computer'}`);
@@ -1139,6 +1248,29 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                     </button>
                                                 </>
                                             )}
+
+                                            {selectedStudent?.rfid !== null ? (
+                                                <button type="button" onClick={() => {
+                                                    handleUnbindRFID(selectedStudent.username, selectedStudent.rfid);
+                                                    setSelectedStudent({...selectedStudent, rfid: null});
+                                                }}>
+                                                    Unbind RFID
+                                                </button>
+                                            ) : (
+                                                <></>
+                                            )}
+
+                                            {selectedStudent?.computer !== null ? (
+                                                <button type="button" onClick={() => {
+                                                    handleUnbindPC(selectedStudent.username, selectedStudent.computer);
+                                                    setSelectedStudent({...selectedStudent, computer: null});
+                                                }}>
+                                                    Unbind Computer
+                                                </button>
+                                            ) : (
+                                                <></>
+                                            )}
+
                                         </div>
                                     </form>
                                 </div>
@@ -1183,7 +1315,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                                                 </button>
                                                             )}
                                                             <button type="button" className="del-btn" onClick={() => handleDeleteStudent(student)}>
-                                                                <i className="fa-solid fa-trash"></i>
+                                                                <i className="fa-solid fa-trash-can"></i>
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -1193,7 +1325,7 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                     </table>
                                 </div>
                                 
-                                {/* <div className='gen-report'>
+                                <div className='gen-report'>
                                     <select id = "periodSelect">
                                         <option value="daily">Daily Report</option>
                                         <option value="weekly">Weekly Report</option>
@@ -1203,9 +1335,9 @@ import { set } from 'rsuite/esm/internals/utils/date';
                                     onClick={handleGenerateStudentReportPDF} 
                                     disabled={loading}
                                     className='pdf-btn'>
-                                        {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
+                                        {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Section {selectedSection} Report</>}
                                     </button>
-                                </div> */}
+                                </div>
                             </div>
 
                             <div className='available-list'>

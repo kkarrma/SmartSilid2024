@@ -110,7 +110,7 @@ function LoginForm() {
           </div>
         </form>
         <div className="link-div">
-          <Link to="/signup" className="link">Set up Admin →</Link>
+          <Link to="/signup" className="link sign">Set up Admin →</Link>
         </div>
       </div>
     </div>

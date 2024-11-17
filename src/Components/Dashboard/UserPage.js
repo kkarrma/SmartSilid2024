@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './UserPage.css';
 import { useNavigate } from 'react-router-dom';
 import PasswordInput from '../LoginForm/PasswordInput';

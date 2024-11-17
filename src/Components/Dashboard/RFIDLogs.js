@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './Logbook.css';
 import { useNavigate } from 'react-router-dom';
 

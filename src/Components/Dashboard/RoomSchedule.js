@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import './RoomSchedule.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -543,7 +543,7 @@ function RoomSchedule() {
                               <i className="fa-solid fa-pen-to-square"></i>
                             </button>
                             <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
-                              <i className="fa-solid fa-trash"></i>
+                            <i className="fa-solid fa-trash-can"></i>
                             </button>
                           </td>
                         </tr>
@@ -584,7 +584,7 @@ function RoomSchedule() {
                     <i className="fa-solid fa-pen-to-square"></i>
                   </button>
                   <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
-                    <i className="fa-solid fa-trash"></i>
+                    <i className="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
               </div>

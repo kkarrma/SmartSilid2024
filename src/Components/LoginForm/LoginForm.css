@@ -193,6 +193,10 @@ body {
                     color: var(--del-btn);
                 }
             }
+            
+            .sign:hover {
+                color: var(--btn);
+            }
         }
     }
 }
