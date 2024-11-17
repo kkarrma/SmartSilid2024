@@ -9,7 +9,7 @@ function ComputerLogs() {
   const [totalPages, setTotalPages] = useState(1); 
   const [start_date, setStartDate] = useState('');
   const [end_date, setEndDate] = useState('');
-  const [type, setType] = useState('faculty,student');
+  const [type, setType] = useState('');
   const [username, setUsername] = useState('');
   const [computer_name, setComputerName] = useState('');
   
@@ -190,6 +190,14 @@ function ComputerLogs() {
       end_date: end_date,
     }).toString();
     downloadFile(`${API_BASE_URL}/faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+  };
+
+  const handleGenerateCombinedReportPDF = () => {
+    const queryParams = new URLSearchParams({
+      start_date: start_date,
+      end_date: end_date,
+    }).toString();
+    downloadFile(`${API_BASE_URL}/combined-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
   };
 
   const handleFilter = () => {
@@ -410,8 +418,15 @@ function ComputerLogs() {
               >
                 {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
               </button>
-            ) : (
-              <></>
+            ) : type === '' ? (
+              <button 
+                onClick={handleGenerateCombinedReportPDF} 
+                disabled={loading}
+              >
+                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download All Computer Report"</>}
+              </button>
+            ):(
+              <>  </>
             )} 
           </div>
         </div>
