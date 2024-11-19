@@ -5,7 +5,7 @@
 
     .schedule-items {
       display: block;
-      gap: 10px;
+      gap: 15px;
       
       .sched-info-cont {
         max-height: 400px;
@@ -20,14 +20,10 @@
           margin: 10px 0;
           transition: .3s ease-in-out;
           flex-wrap: wrap;
+          cursor: pointer;
 
           &:hover {
             background-color: #dadada;
-          }
-          
-          .sched-div-btn {
-            cursor: pointer;
-            gap: 10px; 
           }
 
           .sched-subj {
@@ -51,12 +47,14 @@
           }
 
           .sched-time {
-            display: inline-block;
-            padding: .5em 2em;
-            border-radius: 50px;
-            background: var(--btn); 
-            color: white;
-            text-align: center;
+            span {
+              display: inline-block;
+              border-radius: 50px;
+              background: var(--btn); 
+              color: white;
+              max-width: fit-content;
+              padding: .5em 2em;
+            }
           }
 
           .sched-sec,
@@ -72,14 +70,63 @@
             padding: 10px; 
             font-size: 14px;
             max-width: fit-content;
+            
+            span {
+              position: absolute; 
+              top: 0;
+              left: 0;
+              color: var(--sub-txt);
+              font-size: 8px;
+            }
           }
-          
-          .sched-info span {
-            position: absolute; 
-            top: 0;
-            left: 0;
-            color: var(--sub-txt);
-            font-size: 8px;
+        }
+      }
+    }
+
+    .date-items {
+      display: block;
+      gap: 10px;
+
+      .back-sched-div { 
+        display: flex;
+        margin: 10px 0 20px 0;
+      }
+
+      .date-select-cont {
+        max-height: 400px;
+        overflow: hidden;
+        overflow-y: auto;
+        overflow-x: auto;
+        
+        .date-select-rows {
+          display: grid;
+          grid-template-columns: repeat(8, 1fr); 
+          text-align: center;
+          flex-wrap: wrap;
+          margin: 10px 0;
+
+          .date-select  {
+
+            span {
+              cursor: pointer;
+              background-color: var(--btn);
+              color: var(--bg1);
+              border-radius: 5px;
+              align-items: center;
+              padding: 10px;
+              transition: .3s ease-in-out;
+              max-width: fit-content;
+            
+              &:hover {
+                background-color: var(--btn-hov);
+              }
+            
+              &.selected {
+                background-color: var(--btn-hov);
+                font-weight: bold;
+                font-size: 110%;
+              }
+            }
           }
         }
       }

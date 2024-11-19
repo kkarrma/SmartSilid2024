@@ -25,6 +25,28 @@
       gap: 10px;
     }
 
+    .stream-token {
+      position: relative; 
+      padding: 10px; 
+      font-size: 14px;
+      max-width: fit-content;
+      text-align: center;
+      color: var(--btn);
+      font-size: 200%;
+      font-weight: bold;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      
+      span {
+        font-weight: normal;
+        position: absolute; 
+        top: 0;
+        left: 0;
+        right: 0;
+        color: var(--sub-txt);
+        font-size: 8px;
+      }
+    }
+
     .view-stream-row {
       display: flex;
       flex-wrap: wrap; 

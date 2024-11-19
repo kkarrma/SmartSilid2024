@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.css';
-import { API_BASE_URL } from '../Dashboard/config';
+import { API_BASE_URL } from '../Dashboard/BASE_URL';
 
 function LoginForm() {
   const [username, setUsername] = useState('');

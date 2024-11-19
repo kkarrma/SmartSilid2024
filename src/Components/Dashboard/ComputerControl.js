@@ -1,3 +1,4 @@
+/*************  ✨ Codeium Command 🌟  *************/
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './ComputerControl.css';
@@ -10,18 +11,20 @@ function ComputerControl() {
   const [selectedPCs, setSelectedPCs] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [adminInputValue, setAdminInputValue] = useState('');
+  const [streamToken, setStreamToken] = useState(''); 
+  const [isStreaming, setIsStreaming] = useState(false);
   const Navigate = useNavigate();
-
+  
   useEffect(() => {
     fetchComputers();
   }, []);
-
+  
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
-
+    
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
-        return Navigate('/'); 
+      console.log("Refresh token is missing.");
+      return Navigate('/'); 
       }
       
       try {
@@ -287,7 +290,15 @@ function ComputerControl() {
   
       if (response.ok) {
         const result = await response.text();
-        alert(result); // Show a message to the user that streaming has started
+        alert(result); 
+        
+        const tokenMatch = result.match(/"token":\s*"([^"]+)"/);
+        if (tokenMatch) {
+          setStreamToken(tokenMatch[1]); 
+          setIsStreaming(true);
+        } else {
+          alert("Token not found in the response.");
+        }
       } else {
         alert("Failed to start streaming.");
       }
@@ -308,7 +319,10 @@ function ComputerControl() {
   
       if (response.ok) {
         const result = await response.text();
-        alert(result); // Show a message to the user that streaming has stopped
+        alert(result); 
+        
+        setStreamToken('');
+        setIsStreaming(false);
       } else {
         alert("Failed to stop streaming.");
       }
@@ -324,29 +338,35 @@ function ComputerControl() {
     // Make sure the link exists in the DOM before attempting to modify it
     const streamLink = document.getElementById('stream-link');
     if (streamLink) {
+      streamLink.href = `${streamUrl}?token=${streamToken}`;
       streamLink.href = `${streamUrl}`;
     }
-  }, [streamUrl]);
-  
+  }, [streamUrl, streamToken]);
+
   return (
     <>
       <div className='computer-controls'>
         <div className="dash-container">
           <div className='stream-container cont'>
-            <h3 classame="cont-title">Casting Controls</h3>
+            <h3 className="cont-title">Casting Controls</h3>
             <div className="stream-row">
               <div className='stream-btn'>
-                <button onClick={startStream}>Start Stream</button>
-                <button onClick={stopStream}>Stop Stream</button>
+                <button onClick={() => startStream()}>Start Stream</button>
+                <button onClick={() => stopStream()}>Stop Stream</button>
                 <div id="stream"></div> 
               </div>
             </div>
+
+            {isStreaming && (
+              <div className="stream-token">
+                <span>STREAM TOKEN:</span>{streamToken}
+              </div>
+            )}
 
             <div className="view-stream-row">
               <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">
                 <h4>View Client Screens &nbsp;&nbsp; ≫ &nbsp;&nbsp; </h4>
               </a>
-
             </div>
           </div>
 

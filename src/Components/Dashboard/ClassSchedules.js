@@ -12,6 +12,7 @@ function ClassSchedules() {
   const [selectedDate, setSelectedDate] = useState('');
   const [attendanceData, setAttendanceData] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState('');
+  const [isSelected, setIsSelected] = useState(false);
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -123,12 +124,20 @@ function ClassSchedules() {
 
   const handleSelectDate = (date) => {
     setSelectedDate(date);
+    setIsSelected(!isSelected);
     if (selectedSchedule) {
       fetchAttendance(date, selectedSchedule.id);
     }
   };
 
-  const handleBreadcrumbClick = () => {
+  const handleToggleDate = (date) => {
+    setIsSelected(!isSelected);
+    if (selectedSchedule) {
+      fetchAttendance(date, selectedSchedule.id);
+    }
+  }
+
+  const goBackSchedSelect = () => {
     setSelectedSchedule(null);
   };
 
@@ -140,21 +149,26 @@ function ClassSchedules() {
   return (
     <div className='class-schedule'>
       <div className='schedule-row cont'>
-        <div onClick={handleBreadcrumbClick} className='breadcrumb'>
-          <h3 className='cont-title' style={{ cursor: 'pointer' }}>Schedule List</h3>
-        </div>
+        <h3 className='cont-title'>Schedule List</h3>
         {selectedSchedule ? (
           <div className='date-items'>
+            <div className='back-sched-div'>
+              <i style={{ cursor: 'pointer' }} onClick={goBackSchedSelect} className="fa fa-angle-left"> Go Back</i>
+            </div>
             {Array.isArray(dates) && dates.length > 0 ? (
               dates.map((date, index) => (
                 <div 
                   key={index} 
-                  className="date-select-cont" 
-                  onClick={() => handleSelectDate(date)}
+                  className='date-select-cont'
                 >
-                  <div className='date-select-rows date-div-btn'>
+                  <div className='date-select-rows'>
                     <div className='date-select'>
-                      {date}
+                      <span 
+                        onClick={() => handleSelectDate(date)} 
+                        className={isSelected ? 'selected' : ''}
+                      >
+                        {date}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -162,7 +176,7 @@ function ClassSchedules() {
             ) : (
               <p className='no-fetch-msg'>No dates were found.</p>
             )}
-            {attendanceData && selectedDate && (
+            {isSelected && attendanceData && selectedDate && (
               <div className="attendance-table">
                 <h4>Attendance for {selectedDate}</h4>
                 <table>
@@ -204,7 +218,7 @@ function ClassSchedules() {
                       <span>{formatDay(schedule.weekdays)}</span>
                     </div>
                     <div className='sched-time'>
-                      {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
+                      <span>{formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}</span>
                     </div>
                     <div className='sched-sec'>
                       <div className='sched-info'>
@@ -230,3 +244,4 @@ function ClassSchedules() {
 }
 
 export default ClassSchedules;
+
