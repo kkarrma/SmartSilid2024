@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import ComputerControl from './ComputerControl';
-import RoomSchedule from './RoomSchedule';
+import ClassSchedules from './ClassSchedules';
 import ComputerLogs from './ComputerLogs';
 import RFIDLogs from './RFIDLogs';
-import ClassSchedules from './ClassSchedules';
+import Attendance from './Attendance';
 import StudentRecord from './StudentRecord';
 import FacultyRecord from './FacultyRecord';
 import WebFilter from './WebFilter';
 import UserPage from './UserPage';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
@@ -98,14 +98,14 @@ function Dashboard() {
         return <ComputerControl />;
       // case 'Casting':
       //   return <Casting />;
-      case 'Room Schedule':
-        return <RoomSchedule />;
+      case 'Class Schedules':
+        return <ClassSchedules />;
       case 'Computer Logs':
         return <ComputerLogs />;
       case 'RFID Logs':
         return <RFIDLogs />;
-      case 'Class Schedules':
-        return <ClassSchedules />;
+      case 'Attendance':
+        return <Attendance />;
       case 'Student Record':
         return <StudentRecord />;
       case 'Faculty Record':
@@ -176,13 +176,13 @@ function Dashboard() {
 
           {userType == 'admin' && (
             <>
-              <div className={`menu-panel dash ${selectedMenu === 'Room Schedule' ? 'selected' : ''}`} 
+              <div className={`menu-panel dash ${selectedMenu === 'Class Schedules' ? 'selected' : ''}`} 
                 onClick={() => {
-                  setSelectedMenu('Room Schedule');
+                  setSelectedMenu('Class Schedules');
                   closeAllDrops();
                 }}>
                 {/* <i className="fa-solid fa-calendar-days"></i> */}
-                Room Schedule
+                Class Schedules
               </div>
               <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
                 {/* <i className="fa-solid fa-book-open"></i> */}
@@ -203,11 +203,11 @@ function Dashboard() {
                     {/* <i className="fa-regular fa-credit-card"></i>  */}
                     RFID Logs
                   </div>
-                  <div className={`menu-panel dash ${selectedMenu === 'Class Schedules' ? 'selected' : ''}`} 
-                    onClick={() => setSelectedMenu('Class Schedules')}>
+                  <div className={`menu-panel dash ${selectedMenu === 'Attendance' ? 'selected' : ''}`} 
+                    onClick={() => setSelectedMenu('Attendance')}>
                     &nbsp;&nbsp;
                     {/* <i className="fa-regular fa-credit-card"></i>  */}
-                    Class Schedules
+                    Attendance
                   </div>
                 </div>
               )}

@@ -159,15 +159,15 @@ function RFIDLogs() {
             />
           </div>
           <div className='faculty-filter filter-cont'>
-            <label className='faculty-name'>Faculty Name: </label>
+            <label className='faculty-name'>Username: </label>
             <input
               type="text"
-              placeholder="Faculty Name"
+              placeholder="Username"
               value={facultyName}
               onChange={e => setFacultyName(e.target.value)}
             />
           </div>
-          <div className='subject-filter filter-cont'>
+          {/* <div className='subject-filter filter-cont'>
             <label className='faculty-name'>Subject: </label>
             <input
               type="text"
@@ -187,7 +187,7 @@ function RFIDLogs() {
                 <option key={section} value={section}>{section}</option>
               ))}
             </select>
-          </div>
+          </div> */}
 
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
@@ -206,8 +206,8 @@ function RFIDLogs() {
               <thead>
                 <tr>
                   <th>Username</th>
-                  <th>Subject</th>
-                  <th>Section</th>
+                  {/* <th>Subject</th>
+                  <th>Section</th> */}
                   <th>Log Date</th>
                   <th>Login</th>
                 </tr>
@@ -218,8 +218,8 @@ function RFIDLogs() {
                   sortedLogs.map((log, index) => (
                     <tr key={index}>
                       <td className="faculty-name">{log.username}</td>
-                      <td className="subject">{log.subject}</td>
-                      <td className="section">{log.section}</td>
+                      {/* <td className="subject">{log.subject}</td>
+                      <td className="section">{log.section}</td> */}
                       <td className="log-date">{log.date}</td>
                       <td className="log-in">{log.start_time}</td>
                     </tr>

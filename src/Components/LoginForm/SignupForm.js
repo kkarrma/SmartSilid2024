@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.css';
 // import './SignForm.css';
-import { API_BASE_URL } from '../Dashboard/config';
+import { API_BASE_URL } from '../Dashboard/BASE_URL';
 
 function SignupForm() {
   const [username, setUsername] = useState('');
@@ -11,7 +11,7 @@ function SignupForm() {
   const [first_name, setFirstname] = useState('');
   const [middle_initial, setMiddlename] = useState('');
   const [last_name, setLastname] = useState('');
-  const [OU, setOU] = useState('');
+  // const [OU, setOU] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -79,9 +79,9 @@ function SignupForm() {
     }
   };
 
-  const goHome = () => {
-    navigate('/');
-  };
+  // const goHome = () => {
+  //   navigate('/');
+  // };
 
   // Function to toggle password visibility
   const togglePasswordVisibility = () => {

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 // import videojs from 'video.js'; 
 // import 'video.js/dist/video-js.css'; 
 import './Casting.css';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from './BASE_URL';
 import { useNavigate } from 'react-router-dom';
 
 function Casting() {
