@@ -124,6 +124,24 @@
         }
       }
     }
+
+    .available-list {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      
+      .student-rfid-list {
+        width: fit-content;
+        margin: 0 10px 0 0;
+      }
+      .student-pc-list {
+        width: 100%;
+        margin: 0 0 0 10px;
+      }
+    }
   }
 
   .available-list {
@@ -131,11 +149,11 @@
     width: 100%;
     
     .student-rfid-list {
-      width: 50%;
+      width: 100%;
       margin: 0 10px 0 0;
     }
     .student-pc-list {
-      width: 50%;
+      width: 100%;
       margin: 0 0 0 10px;
     }
   }
@@ -159,5 +177,12 @@
         font-weight: bold;
       }
     }
+  }
+  .cont-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
   }
 }

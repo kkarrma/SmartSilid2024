@@ -8,6 +8,15 @@ function WebFilter() {
   const [newBlockURL, setNewBlockURL] = useState('');
   const [urlFormVisible, setUrlFormVisible] = useState(false);
   const Navigate = useNavigate();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');

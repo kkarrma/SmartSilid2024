@@ -36,6 +36,14 @@ function FacultyRecord() {
   const fileInput = useRef(null);
   const Navigate = useNavigate();
   
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
   useEffect(() => {
     setUsername(`${first_name}.${last_name}.${middle_initial}`);

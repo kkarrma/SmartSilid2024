@@ -28,6 +28,15 @@ function UserPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isChangePass, setIsChangePass] = useState(false);
   const navigate = useNavigate();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './ComputerControl.css';
 import { useNavigate } from 'react-router-dom';
+import AlertModal from './AlertModal';
 
 function ComputerControl() {
   const [pcs, setPcs] = useState([]);
@@ -14,6 +15,16 @@ function ComputerControl() {
   const [streamToken, setStreamToken] = useState(''); 
   const [isStreaming, setIsStreaming] = useState(false);
   const Navigate = useNavigate();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
   
   useEffect(() => {
     fetchComputers();
@@ -102,8 +113,8 @@ function ComputerControl() {
       if (response.status === 401) {
         await handleTokenRefresh();
         return shutdownPC(pcList); 
-        
       }
+
     } catch (error) {
       
       console.error('Failed to shutdown computers:', error);
@@ -131,6 +142,35 @@ function ComputerControl() {
       console.error('Failed to wake computers:', error);
     }
   };
+
+  const handleDeleteSelectedPCs = async (pcList) => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/delete_computers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', 
+          Authorization: `Bearer ${accessToken}`, 
+        },
+        body: JSON.stringify({ computers: pcList }),
+      });
+
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleDeleteSelectedPCs(pcList);
+      }
+
+      if (response.ok) {
+        fetchComputers();
+        setSelectedPCs([]);
+      }
+    } catch (error) {
+      
+      console.error('Failed to wake computers:', error);
+    }
+  };
+
+  
 
   const handleCheckBoxChange = (pc) => {
     const isChecked = !pcStates[pc].isChecked;
@@ -233,6 +273,7 @@ function ComputerControl() {
   };
 
   const handleSetComputerAdmin = async () => {
+    showAlertModal(`Are you sure you want to asign this ${adminInputValue} as Admin PC?`, async () => {
     const accessToken = localStorage.getItem('accessToken');
   
     try {
@@ -266,6 +307,7 @@ function ComputerControl() {
       
       console.error('Failed to make the computer admin:', error);
     }
+  });
   };
 
   const setAdminStatus = (computerName, status) => {
@@ -280,32 +322,39 @@ function ComputerControl() {
   };
 
   const startStream = async () => {
+    const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/stream/start/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Authorization: `Bearer ${accessToken}`, 
         },
       });
   
       if (response.ok) {
         const result = await response.text();
-        alert(result); 
+        console.log(result); 
         
         const tokenMatch = result.match(/"token":\s*"([^"]+)"/);
+        localStorage.setItem('streamToken', tokenMatch[1]);
+        setStreamToken(localStorage.getItem('streamToken'));
+        console.log(streamToken); 
+        
         if (tokenMatch) {
-          setStreamToken(tokenMatch[1]); 
           setIsStreaming(true);
         } else {
-          alert("Token not found in the response.");
+          console.log("Token not found in the response.");
         }
       } else {
-        alert("Failed to start streaming.");
+        console.log("Failed to start streaming.");
       }
     } catch (error) {
       console.error("Error starting stream:", error);
-      alert("Error starting stream. Please try again.");
+      console.log("Error starting stream. Please try again.");
     }
+
+    setIsModalOpen(false);
   };
 
   const stopStream = async () => {
@@ -319,17 +368,20 @@ function ComputerControl() {
   
       if (response.ok) {
         const result = await response.text();
-        alert(result); 
+        console.log(result); 
         
         setStreamToken('');
+        localStorage.removeItem('streamToken'); 
         setIsStreaming(false);
       } else {
-        alert("Failed to stop streaming.");
+        console.log("Failed to stop streaming.");
       }
     } catch (error) {
       console.error("Error stopping stream:", error);
-      alert("Error stopping stream. Please try again.");
+      console.log("Error stopping stream. Please try again.");
     }
+
+    setIsModalOpen(false);
   };
 
   const streamUrl = `${API_BASE_URL}/stream`; // The URL part you want
@@ -351,13 +403,12 @@ function ComputerControl() {
             <h3 className="cont-title">Casting Controls</h3>
             <div className="stream-row">
               <div className='stream-btn'>
-                <button onClick={() => startStream()}>Start Stream</button>
-                <button onClick={() => stopStream()}>Stop Stream</button>
+                <button onClick={() => showAlertModal('Are you sure you want to start a stream?', () => startStream())}>Start Stream</button>
+                <button onClick={() => showAlertModal('Are you sure you want to stop the stream?', () => stopStream())}>Stop Stream</button>
                 <div id="stream"></div> 
               </div>
             </div>
-
-            {isStreaming && (
+            {streamToken !== null && streamToken !== '' && (
               <div className="stream-token">
                 <span>STREAM TOKEN:</span>{streamToken}
               </div>
@@ -428,6 +479,14 @@ function ComputerControl() {
                   disabled={selectedPCs.length === 0} 
                 >
                   Turn Off
+                </button>
+                <button
+                  className='del-btn'
+                  type="button"
+                  onClick={() => handleDeleteSelectedPCs(selectedPCs)}
+                  disabled={selectedPCs.length === 0} 
+                >
+                  Remove
                 </button>
                 <div>
                   <input
@@ -527,6 +586,14 @@ function ComputerControl() {
           </form>
         </div>
       </div>
+      
+
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </>
   );
 }

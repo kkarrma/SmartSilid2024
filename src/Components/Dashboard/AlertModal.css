@@ -1,0 +1,58 @@
+/* AlertModal.scss */
+
+.alert-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  
+    .alert-modal {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+  
+      .alert-modal-content {
+        p {
+          font-size: 16px;
+          margin-bottom: 20px;
+        }
+  
+        .alert-modal-actions {
+          display: flex;
+          justify-content: space-between;
+  
+          .alert-modal-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+  
+            &:hover {
+              opacity: 0.8;
+            }
+  
+            &.cancel-button {
+              background-color: #f0f0f0;
+              color: #333;
+            }
+  
+            &.confirm-button {
+              background-color: #4CAF50;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+  }
+  

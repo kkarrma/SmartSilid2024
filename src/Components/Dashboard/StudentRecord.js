@@ -45,6 +45,15 @@ import { set } from 'rsuite/esm/internals/utils/date';
         
         const fileInput = useRef(null);
         const Navigate = useNavigate();
+        
+        const [isModalOpen, setIsModalOpen] = useState(false);
+        const [modalMessage, setModalMessage] = useState('');
+        const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+        const showAlertModal = (message, onConfirm) => {
+            setModalMessage(message);
+            setModalConfirmCallback(() => onConfirm);
+            setIsModalOpen(true); 
+        };
 
         const [errors, setErrors] = useState(null);
 
@@ -886,6 +895,66 @@ import { set } from 'rsuite/esm/internals/utils/date';
             }
         };
 
+        const handleAutoPCBind = async (selectedSection) => {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch(`${API_BASE_URL}/assign_all_computers`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        section_name: selectedSection
+                    }),
+                });            
+
+                if (response.status === 401) {    
+                    await handleTokenRefresh();
+                    return handleAutoPCBind();
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("DATA ALL BIND PC", data);
+                    handleStudentList(selectedSection);
+                    console.log(`All computer has been bounded alphabetically successfully.`);
+                    fetchSections();
+                } 
+            } catch (error) {
+                console.log('An error occurred while binding all Computer. Please check your connection.');
+            }
+        };
+
+        const handleAutoPCUnbind = async (selectedSection) => {
+            const accessToken = localStorage.getItem('accessToken');
+            try {
+                const response = await fetch(`${API_BASE_URL}/unassign_all_computers`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({ 
+                        section_name: selectedSection
+                    }),
+                });            
+
+                if (response.status === 401) {    
+                    await handleTokenRefresh();
+                    return handleAutoPCUnbind();
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("DATA ALL UNBIND PC", data);
+                    handleStudentList(selectedSection);
+                    console.log(`All computer has been unbounded successfully.`);
+                    fetchSections();
+                } 
+            } catch (error) {
+                console.log('An error occurred while unbinding all Computer. Please check your connection.');
+            }
+        };
+
         const handleUnbindPC = async (username, computer, section) => {
             if (!username) {
                 alert('Please choose a faculty to assign the RFID.');
@@ -1381,7 +1450,11 @@ import { set } from 'rsuite/esm/internals/utils/date';
 
                                 {/* Available PCs Section */}
                                 <div className='student-pc-list cont'>
-                                    <h3 className='cont-title'>Available PCs</h3>
+                                    <h3 className='cont-title'>
+                                        <p>Available PCs</p>
+                                        <button onClick={() => handleAutoPCBind(selectedSection)}>Bind All</button>
+                                        <button onClick={() => handleAutoPCUnbind(selectedSection)}>Unbind All</button>
+                                    </h3>
                                     <div className='pc-cont'>
                                         {availablePcs.length === 0 ? (
                                             <p className='no-fetch-msg'>No available PCs.</p>

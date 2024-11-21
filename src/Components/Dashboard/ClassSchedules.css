@@ -1,4 +1,20 @@
 .class-schedule {
+  .no-active-sem {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+  }
+  .add-sem-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+  }
+
     .sched-table {
         overflow-x: auto;
         overflow-y: hidden;
@@ -94,6 +110,11 @@
         justify-content: center;
     }
   }      
+
+  .end-sem-btn {
+    display: flex;
+    justify-content: flex-end;
+  }
 }
 
 @media (min-width: 426px) {

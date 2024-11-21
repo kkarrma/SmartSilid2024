@@ -70,6 +70,13 @@ button {
     border: 2px solid var(--del-hov);
     background-color: transparent;
   }
+  
+  &:disabled {
+    background-color: transparent;
+    color: var(--del-hov); 
+    border: 2px solid var(--del-hov); 
+    cursor: not-allowed; 
+  }
 }
 
 /* Universal input */

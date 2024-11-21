@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './ClassSchedules.css';
 import { useNavigate } from 'react-router-dom';
+import { on } from 'rsuite/esm/DOMHelper';
 import AlertModal from './AlertModal';
 
 function RoomSchedule() {
@@ -18,21 +19,12 @@ function RoomSchedule() {
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [editSchedule, setEditSchedule] = useState(null);
   const [facultyList, setFacultyList] = useState([]);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [semester, setSemester] = useState(false);
   const [addSemesterFormVisible, setAddSemesterFormVisible] = useState(false);
   const [isSemesterActive, setIsSemesterActive] = useState(false);
 
   const Navigate = useNavigate();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
-  const showAlertModal = (message, onConfirm) => {
-    setModalMessage(message);
-    setModalConfirmCallback(() => onConfirm);
-    setIsModalOpen(true); 
-  };
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -90,32 +82,46 @@ function RoomSchedule() {
     }
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+
+  // Generalized function to trigger modal
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm); // Save the callback for confirmation
+    setIsModalOpen(true);  // Open the modal
+  };
+
   const handleStartSemester = async (semester) => {
     showAlertModal(`Are you sure you want to start the semester: ${semester}?`, async () => {
       const accessToken = localStorage.getItem('accessToken');
+  
       try {
         const response = await fetch(`${API_BASE_URL}/start_semester`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}` 
           },
           body: JSON.stringify({ semester_name: semester })  
         });
-
+  
         if (response.status === 401) {
           await handleTokenRefresh();
-          return handleStartSemester(semester);
+          return handleStartSemester(semester); 
         }
-        
-        if (response.ok)  {
+  
+        if (response.ok) {
           fetchSchedules();
-          setAddSemesterFormVisible(false);
+          setAddSemesterFormVisible(false); 
           setSemester(semester); 
+        } else {
+          console.error('Failed to start semester');
         }
-
+  
       } catch (error) {
-        console.error('Error fetching schedules:', error);
+        console.error('Error starting semester:', error);
       } finally {
         setIsModalOpen(false);
       }
@@ -123,8 +129,8 @@ function RoomSchedule() {
   };
 
   const handleEndSemester = async () => {
-    showAlertModal(`Are you sure you want to end the semester: ${semester}?`, async () => {
-
+    // Show the alert modal for ending the semester
+    // showAlertModal('Are you sure you want to end the current semester?', async () => {
       const accessToken = localStorage.getItem('accessToken');
 
       try {
@@ -132,16 +138,16 @@ function RoomSchedule() {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
+            Authorization: `Bearer ${accessToken}` 
           },
         });
 
         if (response.status === 401) {
           await handleTokenRefresh();
-          return handleEndSemester();
+          return handleEndSemester();  
         }
-        
-        if (response.ok)  {
+
+        if (response.ok) {
           fetchSchedules();
           setAddSemesterFormVisible(false);
         }
@@ -149,7 +155,13 @@ function RoomSchedule() {
       } catch (error) {
         console.error('Error fetching schedules:', error);
       }
-    });
+    // });
+  };
+
+  const cancelAction = () => {
+    setAddSemesterFormVisible(false); 
+    setSemester('');
+    setIsModalOpen(false);
   };
 
   const fetchSections = async () => {
@@ -367,37 +379,41 @@ function RoomSchedule() {
           <div className='no-active-sem cont'>
 
             {addSemesterFormVisible ? (
-              <div className='filter-controls'>
-                <form className='add-sem-form filter-cont' 
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    handleStartSemester(semester)
-                  }}> 
-                  <div className='user-form'>
-                    <label>Semester Name: </label>
-                    <input
-                      type="text"
-                      onChange={(e) => setSemester(e.target.value)}
-                      placeholder="1st Sem (A.Y. 2021-2022)"
-                      required
-                    />
-                  </div>
-                  {/* <button type="button" onClick={() => handleStartSemester(semester)}>Start</button> */}
-                  <button type="submit">Start</button>
-                  <button type="cancel" onClick={() => {
-                    setAddSemesterFormVisible(false);
-                    setSemester('');
-                  }}>
-                    Cancel
-                  </button>
-                </form>
-                <AlertModal
-                  message={modalMessage}
-                  onConfirm={modalConfirmCallback} 
-                  onCancel={() => setIsModalOpen(false)}
-                  isOpen={isModalOpen}
-                />
-              </div>
+               <div className="filter-controls">
+               {/* <form className="add-sem-form filter-cont"> */}
+               <form className="add-sem-form filter-cont" onSubmit={() => handleStartSemester(semester)}>
+                 <div className="user-form">
+                   <label>Semester Name: </label>
+                   <input
+                     type="text"
+                     onChange={(e) => setSemester(e.target.value)}
+                     placeholder="1st Sem (A.Y. 2021-2022)"
+                     required
+                   />
+                 </div>
+         
+                 {/* <button type="button" onClick={() => handleStartSemester(semester)}> */}
+                 <button type="submit">
+                   Start Semester
+                 </button>
+                 <button 
+                   type="button"
+                   onClick={() => {
+                     setSemester('');
+                     setAddSemesterFormVisible(false);
+                   }}
+                 >
+                   Cancel
+                 </button>
+               </form>
+               <AlertModal
+                 message={modalMessage}
+                 onConfirm={modalConfirmCallback} 
+                 onCancel={cancelAction}
+                 isOpen={isModalOpen}
+               />
+               
+             </div>
             ) : (
               <>
                 <p className='no-fetch-msg'>No active semester</p>
@@ -728,7 +744,7 @@ function RoomSchedule() {
               <AlertModal
                 message={modalMessage}
                 onConfirm={modalConfirmCallback} 
-                onCancel={() => setIsModalOpen(false)}
+                onCancel={cancelAction}
                 isOpen={isModalOpen}
               />
             </div>

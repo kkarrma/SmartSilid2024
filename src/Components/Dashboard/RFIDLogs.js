@@ -15,6 +15,15 @@ function RFIDLogs() {
   const [section, setSection] = useState('');
   const [availableSections, setAvailableSection] = useState([]);
   const Navigate = useNavigate();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
   useEffect(() => {
     fetchRFIDLogs();
@@ -52,12 +61,10 @@ function RFIDLogs() {
     const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/get_all_sections`, {
-        method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`    
         },
-        body: JSON.stringify ({ section })
       });
 
       if (response.status === 401) {
@@ -77,7 +84,7 @@ function RFIDLogs() {
       }
     } catch (error) {
       
-      console.error('Error fetching sections:', error);
+      console.log('Error fetching sections:', error);
     }
   };
 

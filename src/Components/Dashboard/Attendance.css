@@ -29,10 +29,8 @@
           .sched-subj {
             border-radius: 0 5em 5em 0 ;
             padding: .5em 2em;
-            /* background-color: var(--bg6); */
             text-align: left;
-            /* color: var(--bg1); */
-            font-weight: bold;
+            /* font-weight: bold; */
           }
 
           .sched-day {
@@ -131,5 +129,11 @@
         }
       }
     }
+  }
+  
+  .view-past-sem-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }

@@ -17,9 +17,18 @@ function ComputerLogs() {
   const [availableSections, setAvailableSections] = useState([]);
 
   const [selectedSection, setSelectedSection] = useState('');
-  const [sections, setSections] = useState([])
+  const [sections, setSections] = useState('')
   const [loading, setLoading] = useState(false);
   const Navigate = useNavigate();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
 
   useEffect(() => {
@@ -94,7 +103,7 @@ function ComputerLogs() {
         body: JSON.stringify({
           start_date: formattedStartDate,
           end_date: formattedEndDate,
-          username,
+          fullname: username, 
           computer_name,
           pagination,
           type,
@@ -132,7 +141,7 @@ function ComputerLogs() {
 
       if (response.ok) {
         const data = await response.json();
-        setSections(data.sections.map(sec => sec.name));
+        setAvailableSections(data.sections.map(sec => sec.name));
       } else {
         console.error('Failed to fetch sections');
       }
@@ -213,7 +222,7 @@ function ComputerLogs() {
     setComputerName('');
     setPagination(1);
     setType('');
-    // setSections('');
+    setSelectedSection('');
   };
 
   // Sort logs by id in descending order
@@ -299,7 +308,7 @@ function ComputerLogs() {
                 onChange={e => setSelectedSection(e.target.value)}
               >
                 <option value="">Select Section</option>
-                {sections.map(section => (
+                {availableSections.map(section => (
                   <option key={section} value={section}>{section}</option>
                 ))}
               </select>
