@@ -1,4 +1,5 @@
 .student-record {
+  
   .section-form {
     margin-bottom: 20p  x;
     padding: 20px; 
@@ -109,8 +110,23 @@
       max-height: 200px;
     }
   }
+  @media screen and (max-width: 1025px) {
+    .available-list {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+  }
 
   @media screen and (max-width: 426px) {
+    button,
+    select {
+      font-size: 90%;
+      padding: 5px;
+    }
+
     .student-table {
       display: flex;
 
@@ -134,12 +150,12 @@
       text-align: center;
       
       .student-rfid-list {
-        width: fit-content;
-        margin: 0 10px 0 0;
+        margin: 0 0 30px 0;
+
       }
+
       .student-pc-list {
-        width: 100%;
-        margin: 0 0 0 10px;
+        margin: 0;
       }
     }
   }
@@ -147,14 +163,38 @@
   .available-list {
     display: flex;
     width: 100%;
+    gap: 10px;
+    justify-content: center;
     
     .student-rfid-list {
-      width: 100%;
-      margin: 0 10px 0 0;
+      width: 90%;
     }
     .student-pc-list {
-      width: 100%;
-      margin: 0 0 0 10px;
+      width: 90%;
+
+      h3 {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: justify;
+        gap: 10px;
+        
+        .bind-opt-cont {
+          display: flex;
+          gap: 5px;
+          
+          a {
+            border: var(--btn) 1px solid;
+            border-radius: 5px;
+            padding: 0 10px;
+
+            &:hover {
+              border-color: var(--btn-hov);
+              color: var(--btn-hov);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -165,7 +205,11 @@
 
     .rfid-cont,
     .pc-cont{
-      display: flex;
+      display: grid;
+      /* grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); */
+      text-align: center;
+      align-items: center;
+      flex-wrap: wrap;
       flex-direction: column;
       overflow: hidden;
       overflow-y: auto;
@@ -176,13 +220,28 @@
         margin-right: 8px;
         font-weight: bold;
       }
+      
+      button {
+        margin-left: 8px;
+      }
     }
+    
   }
+
   .cont-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
+
+    .bind-btn-opt {
+      color: var(--btn);
+      transition: .3s ease-in-out;
+    
+      &:hover {
+        color: var(--btn-hov);
+      }
+    }
   }
 }

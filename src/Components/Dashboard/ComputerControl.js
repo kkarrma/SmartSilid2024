@@ -119,6 +119,8 @@ function ComputerControl() {
       
       console.error('Failed to shutdown computers:', error);
     }
+
+    setIsModalOpen(false);
   };
 
   const wakenPC = async (pcList) => {
@@ -138,9 +140,10 @@ function ComputerControl() {
         return wakenPC(pcList);
       }
     } catch (error) {
-      
       console.error('Failed to wake computers:', error);
     }
+
+    setIsModalOpen(false);
   };
 
   const handleDeleteSelectedPCs = async (pcList) => {
@@ -168,6 +171,8 @@ function ComputerControl() {
       
       console.error('Failed to wake computers:', error);
     }
+
+    setIsModalOpen(false);
   };
 
   
@@ -242,6 +247,8 @@ function ComputerControl() {
     } else {
       shutdownPC(selectedPCs);
     }
+
+    setIsModalOpen(false);
   };
 
   const handleRowTogglePC = (pc) => {
@@ -273,7 +280,6 @@ function ComputerControl() {
   };
 
   const handleSetComputerAdmin = async () => {
-    showAlertModal(`Are you sure you want to asign this ${adminInputValue} as Admin PC?`, async () => {
     const accessToken = localStorage.getItem('accessToken');
   
     try {
@@ -296,18 +302,20 @@ function ComputerControl() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Failed to make the computer admin:', errorData.status);
-        alert(`Error: ${errorData.status_message}`);
+        console.error(`Error: ${errorData.status_message}`);
       } else {
         const successData = await response.json();
-        alert(successData.status_message);
+        console.log(successData.status_message);
         setAdminStatus(adminInputValue, true);
         fetchComputers();
       }
     } catch (error) {
       
       console.error('Failed to make the computer admin:', error);
+      fetchComputers();
     }
-  });
+
+    setIsModalOpen(false);
   };
 
   const setAdminStatus = (computerName, status) => {
@@ -434,9 +442,8 @@ function ComputerControl() {
                   </option>
                 ))}
               </select>
-              <button
-                type="button"
-                onClick={handleSetComputerAdmin}
+              <button type="button" onClick={() => showAlertModal('Are you sure you want to asign this computer as Admin PC?', () => handleSetComputerAdmin())}
+              
                 // disabled={!adminInputValue}  
               >
                 Set Admin
@@ -468,14 +475,14 @@ function ComputerControl() {
                 />
                 <button
                   type="button"
-                  onClick={() => handleToggleSelectedPCs(true)}
+                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', () => handleToggleSelectedPCs(true))}
                   disabled={selectedPCs.length === 0} 
                 >
                   Turn On
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleToggleSelectedPCs(false)}
+                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', () => handleToggleSelectedPCs(false))}
                   disabled={selectedPCs.length === 0} 
                 >
                   Turn Off
@@ -483,7 +490,7 @@ function ComputerControl() {
                 <button
                   className='del-btn'
                   type="button"
-                  onClick={() => handleDeleteSelectedPCs(selectedPCs)}
+                  onClick={() => showAlertModal('Are you sure you want to remove the selected PCs?', () => handleDeleteSelectedPCs(selectedPCs))}
                   disabled={selectedPCs.length === 0} 
                 >
                   Remove
@@ -534,7 +541,7 @@ function ComputerControl() {
                             <input
                               type="checkbox"
                               checked={pcStates[pc]?.isOn}
-                              onChange={() => handleRowTogglePC(pc)} 
+                              onChange={() => showAlertModal(`Are you sure you want to turn ${pcStates[pc]?.isOn ? 'off' : 'on'} ${pc}?`, () => handleRowTogglePC(pc))} 
                             />
                             <span className="slider" />
                           </label>

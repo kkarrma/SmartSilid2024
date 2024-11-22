@@ -16,6 +16,7 @@
   --h2-txt: #121212;
   --sub-txt: #292929;
   --txt2: #4fa5ad;
+  --alert-bg: rgba(0, 0, 0, 0.5);
 }
 
 body {
@@ -41,7 +42,7 @@ button {
   flex: 1 1 auto;
   min-width: 70px;
   max-width: fit-content;
-  padding: 8px 15px;
+  padding: 5px 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
   background-color: var(--btn);
@@ -82,7 +83,7 @@ button {
 /* Universal input */
 select,
 input {
-  padding: 10px;
+  padding: 6px 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
   align-items: center;
@@ -133,6 +134,7 @@ input {
   padding: 35px 15px 25px 15px;
 
   h3 {
+    display: flex;
     position: absolute;
     top: -1.6rem;
     left: 1.5rem; 
@@ -141,7 +143,6 @@ input {
     font-weight: bold;
     color: var(--h2-txt);
     font-size: 120%;
-    /* text-shadow: 2px 1px 25px var(--h1-txt); */
     text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
   }
 }
@@ -517,7 +518,7 @@ a {
 /* Desktop and larger screens (keep panels side by side) */
 @media (min-width: 769px) {
   body {
-    font-size: 80%;
+    font-size: 70%;
   }
   .dashboard-panels-wrapper {
     display: flex;

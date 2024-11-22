@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './Logbook.css';
 import { useNavigate } from 'react-router-dom';
+import AlertModal from './AlertModal';
 
 function ComputerLogs() {
   const [logs, setLogs] = useState([]);
@@ -29,7 +30,6 @@ function ComputerLogs() {
     setModalConfirmCallback(() => onConfirm);
     setIsModalOpen(true); 
   };
-
 
   useEffect(() => {
     fetchComputerLogs();
@@ -177,11 +177,13 @@ function ComputerLogs() {
     })
     .catch((error) => {
       console.error('Error downloading file:', error);
-      alert(`An error occurred: ${error.message}`);
+      showAlertModal(`${error.message}`, () => setIsModalOpen(false));
     })
     .finally(() => {
       setLoading(false)
     });
+    
+    setIsModalOpen(false);
   };
 
   const handleGenerateStudentReportPDF = () => {
@@ -418,21 +420,21 @@ function ComputerLogs() {
                 onClick={handleGenerateStudentReportPDF} 
                 disabled={loading}
               >
-                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Class Report"</>}
+                <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Class Report"</>}
               </button>
             ) : type === 'faculty' ? (
               <button 
                 onClick={handleGenerateFacultyReportPDF} 
                 disabled={loading}
               >
-                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download Faculty Report"</>}
+                <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Faculty Report</>}
               </button>
             ) : type === '' ? (
               <button 
                 onClick={handleGenerateCombinedReportPDF} 
                 disabled={loading}
               >
-                {loading ? "Generating..." : <><i className="fa-solid fa-print"></i> Download All Computer Report"</>}
+                <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download All Computer Report</>}
               </button>
             ):(
               <>  </>
@@ -440,6 +442,12 @@ function ComputerLogs() {
           </div>
         </div>
       </div>
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </>
   );
 }

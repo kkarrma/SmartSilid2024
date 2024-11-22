@@ -18,7 +18,6 @@ function RoomSchedule() {
   const [editFormVisible, setEditFormVisible] = useState(false);
   const [editSchedule, setEditSchedule] = useState(null);
   const [facultyList, setFacultyList] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [semester, setSemester] = useState(false);
   const [addSemesterFormVisible, setAddSemesterFormVisible] = useState(false);
   const [isSemesterActive, setIsSemesterActive] = useState(false);
@@ -82,7 +81,7 @@ function RoomSchedule() {
       console.log(data.status);
       
       setIsSemesterActive(data.status);
-      console.log("ASDASD", data.current_semester);
+      console.log("SEMESTER: ", data.current_semester);
 
       setSemester(data.current_semester);
     } catch (error) {
@@ -91,65 +90,62 @@ function RoomSchedule() {
   };
 
   const handleStartSemester = async (semester) => {
-    showAlertModal(`Are you sure you want to start the semester: ${semester}?`, async () => {
-      const accessToken = localStorage.getItem('accessToken');
-      try {
-        const response = await fetch(`${API_BASE_URL}/start_semester`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
-          },
-          body: JSON.stringify({ semester_name: semester })  
-        });
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/start_semester`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: JSON.stringify({ semester_name: semester })  
+      });
 
-        if (response.status === 401) {
-          await handleTokenRefresh();
-          return handleStartSemester(semester);
-        }
-        
-        if (response.ok)  {
-          fetchSchedules();
-          setAddSemesterFormVisible(false);
-          setSemester(semester); 
-        }
-
-      } catch (error) {
-        console.error('Error fetching schedules:', error);
-      } finally {
-        setIsModalOpen(false);
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleStartSemester(semester);
       }
-    });
+      
+      if (response.ok)  {
+        fetchSchedules();
+        setAddSemesterFormVisible(false);
+        setSemester(semester); 
+      }
+
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+    }
+    
+    setIsModalOpen(false);
   };
 
   const handleEndSemester = async () => {
-    showAlertModal(`Are you sure you want to end the semester: ${semester}?`, async () => {
+    const accessToken = localStorage.getItem('accessToken');
 
-      const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/end_semester`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`
+        },
+      });
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/end_semester`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
-          },
-        });
-
-        if (response.status === 401) {
-          await handleTokenRefresh();
-          return handleEndSemester();
-        }
-        
-        if (response.ok)  {
-          fetchSchedules();
-          setAddSemesterFormVisible(false);
-        }
-
-      } catch (error) {
-        console.error('Error fetching schedules:', error);
+      if (response.status === 401) {
+        await handleTokenRefresh();
+        return handleEndSemester();
       }
-    });
+      
+      if (response.ok)  {
+        fetchSchedules();
+        setAddSemesterFormVisible(false);
+      }
+
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+    }
+
+    setIsModalOpen(false);
   };
 
   const fetchSections = async () => {
@@ -225,10 +221,6 @@ function RoomSchedule() {
 
   const handleAddSchedule = async () => {
     const accessToken = localStorage.getItem('accessToken');
-    if (!newSubject || !newDay || !start_time || !end_time || !faculty || !selectedSection) {
-      alert('Please fill in all fields');
-      return;
-    }
     
     try {
       const response = await fetch(`${API_BASE_URL}/add_schedule`, {
@@ -264,6 +256,8 @@ function RoomSchedule() {
       console.error('Error adding schedule:', error);
       alert('Failed to add schedule. Please try again.');
     }
+
+    setIsModalOpen(false);
   };
 
   const resetForm = () => {
@@ -321,21 +315,21 @@ function RoomSchedule() {
         return errorMessages; 
       };
       
-      alert(data.status_message + "\n Error Messages: \n" + formatted_error_message(data.error_message));
+      console.log(data.status_message + "\n Error Messages: \n" + formatted_error_message(data.error_message));
 
       fetchSchedules();
       setEditFormVisible(false);
       resetForm();
     } catch (error) {
       console.error('Error editing schedule:', error);
-      alert('Failed to edit schedule. Please try again.');
+      console.log('Failed to edit schedule. Please try again.');
     }
+
+    setIsModalOpen(false);
   };
 
   const handleDeleteSchedule = async (schedule) => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmDelete = window.confirm(`Are you sure you want to delete ${schedule.subject}?`);
-    if (!confirmDelete) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/delete_schedule`, {
@@ -357,6 +351,8 @@ function RoomSchedule() {
     } catch (error) {
       console.error('Error deleting schedule:', error);
     }
+
+    setIsModalOpen(false);
   };
 
   return (
@@ -367,37 +363,36 @@ function RoomSchedule() {
           <div className='no-active-sem cont'>
 
             {addSemesterFormVisible ? (
-              <div className='filter-controls'>
-                <form className='add-sem-form filter-cont' 
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    handleStartSemester(semester)
-                  }}> 
-                  <div className='user-form'>
-                    <label>Semester Name: </label>
-                    <input
-                      type="text"
-                      onChange={(e) => setSemester(e.target.value)}
-                      placeholder="1st Sem (A.Y. 2021-2022)"
-                      required
-                    />
-                  </div>
-                  {/* <button type="button" onClick={() => handleStartSemester(semester)}>Start</button> */}
-                  <button type="submit">Start</button>
-                  <button type="cancel" onClick={() => {
-                    setAddSemesterFormVisible(false);
-                    setSemester('');
-                  }}>
-                    Cancel
-                  </button>
-                </form>
-                <AlertModal
-                  message={modalMessage}
-                  onConfirm={modalConfirmCallback} 
-                  onCancel={() => setIsModalOpen(false)}
-                  isOpen={isModalOpen}
-                />
-              </div>
+              <>
+                <h3 className='cont-title'> Semester Entry Form</h3>
+                <div className='filter-controls'>
+                  <form className='add-sem-form filter-cont' 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      showAlertModal(`Are you sure you want to start (${semester})?`, 
+                      () => handleStartSemester(semester));
+                    }}
+                  > 
+                    <div className='user-form'>
+                      <label>Semester Name: </label>
+                      <input
+                        type="text"
+                        onChange={(e) => setSemester(e.target.value)}
+                        placeholder="1st Sem (A.Y. 2021-2022)"
+                        required
+                      />
+                    </div>
+                    {/* <button type="button" onClick={() => handleStartSemester(semester)}>Start</button> */}
+                    <button type="submit">Start</button>
+                    <button type="cancel" onClick={() => {
+                      setAddSemesterFormVisible(false);
+                      setSemester('');
+                    }}>
+                      Cancel
+                    </button>
+                  </form>
+                </div>  
+              </>
             ) : (
               <>
                 <p className='no-fetch-msg'>No active semester</p>
@@ -414,24 +409,155 @@ function RoomSchedule() {
                 <>
                   <h3 classame="cont-title">Schedule Entry Form</h3>
                   <div className='subj-form-inner'>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        showAlertModal('Are you sure you want to add this schedule?', 
+                        handleAddSchedule);
+                      }}
+                    >
+                      <div className='input-subj-name user-form'> 
+                        <label className=''>Subject Name: </label>
+                        <input
+                          className="subj-input"
+                          type="text"
+                          value={newSubject}
+                          onChange={(e) => setNewSubject(e.target.value)}
+                          placeholder="Enter a subject"
+                          required
+                        />
+                      </div>
+                      
+                      <div className='input-day user-form'>
+                        <label className=''>Day: </label>
+                        <select
+                          className="day-select"
+                          value={newDay}
+                          onChange={(e) => setNewDay(e.target.value)}
+                          required
+                        >
+                          <option value="" disabled>Select a day</option>
+                          <option value="M">Monday</option>
+                          <option value="T">Tuesday</option>
+                          <option value="W">Wednesday</option>
+                          <option value="R">Thursday</option>
+                          <option value="F">Friday</option>
+                          <option value="S">Saturday</option>
+                          <option value="U">Sunday</option>
+                        </select>
+                      </div>
+            
+                      <div className='input-start-time user-form'>
+                        <label className=''>Start Time: </label>
+                        <input
+                          className="start-time-input"
+                          type="time"
+                          value={start_time}
+                          onChange={(e) => setStartTime(e.target.value)}
+                          required
+                        />
+                      </div>
+            
+                      <div className='input-end-time user-form'>
+                        <label className=''>End Time: </label>
+                        <input
+                          className="end-time-input"
+                          type="time"
+                          value={end_time}
+                          onChange={(e) => setEndTime(e.target.value)}
+                          required
+                        />
+                      </div>
+            
+                      <div className='input-fac-name user-form'>
+                        <label className=''>Faculty Name: </label>
+                        <select
+                          className="faculty-select"
+                          value={faculty}
+                          onChange={(e) => setFaculty(e.target.value)}
+                          required
+                        >
+                          <option value="" disabled>Select a faculty</option>
+                          {facultyList.map(faculty => (
+                            <option key={faculty.username} value={faculty.username}>
+                              {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+            
+                      <div className='input-sect user-form'>
+                        <label className=''>Section: </label>
+                        <select
+                          className="section-select"
+                          value={selectedSection}
+                          onChange={(e) => setSelectedSection(e.target.value)}
+                          required
+                        >
+                          <option value="" disabled>Select a section</option>
+                          {sections.map(section => (
+                            <option key={section} value={section}>
+                              {section}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+            
+                      <div className='input-action reg-div'>
+                        <button type="submit" className="confirm-btn">
+                          Add
+                        </button>
+                        <button className="cancel-btn" onClick={resetForm}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <div className='add-btn-div'>
+                  <button 
+                    className="add-url-btn" 
+                    onClick={() => {
+                      setSchedFormVisible(true);
+                      setEditFormVisible(false);
+                    }}
+                  >
+                    Add Schedule
+                  </button>
+                </div>
+              )}
+            </div>
+      
+            {editFormVisible && editSchedule && (
+              <div className="edit-subj-form cont">
+                <div className="edit-subj-form-inner">
+                  <h3 classame="cont-title">Schedule Edit Form</h3>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      showAlertModal('Are you sure you want to update this schedule?',
+                      handleEditSched);
+                    }}
+                  >
                     <div className='input-subj-name user-form'> 
                       <label className=''>Subject Name: </label>
                       <input
                         className="subj-input"
                         type="text"
-                        value={newSubject}
-                        onChange={(e) => setNewSubject(e.target.value)}
+                        value={editSchedule.subject}
+                        onChange={(e) => setEditSchedule({ ...editSchedule, subject: e.target.value })}
                         placeholder="Enter a subject"
                         required
                       />
                     </div>
                     
-                    <div className='input-day user-form'>
+                    <div className='input-day user-form'> 
                       <label className=''>Day: </label>
                       <select
                         className="day-select"
-                        value={newDay}
-                        onChange={(e) => setNewDay(e.target.value)}
+                        value={editSchedule.weekdays}
+                        onChange={(e) => setEditSchedule({ ...editSchedule, weekdays: e.target.value })}
                         required
                       >
                         <option value="" disabled>Select a day</option>
@@ -444,52 +570,55 @@ function RoomSchedule() {
                         <option value="U">Sunday</option>
                       </select>
                     </div>
-          
-                    <div className='input-start-time user-form'>
+                    
+                    <div className='input-start-time user-form'> 
                       <label className=''>Start Time: </label>
                       <input
                         className="start-time-input"
                         type="time"
-                        value={start_time}
-                        onChange={(e) => setStartTime(e.target.value)}
+                        step = {"900"}
+                        value={editSchedule.start_time}
+                        onChange={(e) => setEditSchedule({ ...editSchedule, start_time: e.target.value })}
                         required
                       />
                     </div>
-          
-                    <div className='input-end-time user-form'>
+                    
+                    <div className='input-end-time user-form'> 
                       <label className=''>End Time: </label>
                       <input
                         className="end-time-input"
                         type="time"
-                        value={end_time}
-                        onChange={(e) => setEndTime(e.target.value)}
+                        step={"900"}
+                        value={editSchedule.end_time}
+                        onChange={(e) => setEditSchedule({ ...editSchedule, end_time: e.target.value })}
                         required
                       />
                     </div>
-          
-                    <div className='input-fac-name user-form'>
+                    
+                    <div className='input-fac-name user-form'> 
                       <label className=''>Faculty Name: </label>
                       <select
                         className="faculty-select"
-                        value={faculty}
-                        onChange={(e) => setFaculty(e.target.value)}
+                        value={editSchedule.faculty_name || ""} 
+                        placeholder={editSchedule.faculty} 
+                        onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
                         required
                       >
                         <option value="" disabled>Select a faculty</option>
                         {facultyList.map(faculty => (
-                          <option key={faculty.username} value={faculty.username}>
+                          <option key={faculty.name} value={faculty.username}>
                             {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
                           </option>
                         ))}
                       </select>
                     </div>
-          
-                    <div className='input-sect user-form'>
+
+                    <div className='input-sect user-form'> 
                       <label className=''>Section: </label>
                       <select
                         className="section-select"
-                        value={selectedSection}
-                        onChange={(e) => setSelectedSection(e.target.value)}
+                        value={editSchedule.section}
+                        onChange={(e) => setEditSchedule({ ...editSchedule, section: e.target.value })}
                         required
                       >
                         <option value="" disabled>Select a section</option>
@@ -500,131 +629,16 @@ function RoomSchedule() {
                         ))}
                       </select>
                     </div>
-          
-                    <div className='input-action reg-div'>
-                      <button className="confirm-btn" onClick={handleAddSchedule}>
-                        Add
+                    
+                    <div className='input-action reg-div'> 
+                      <button type='submit' className="update-btn">
+                        Update
                       </button>
-                      <button className="cancel-btn" onClick={resetForm}>
+                      <button className="cancel-btn" onClick={() => setEditFormVisible(false)}>
                         Cancel
                       </button>
                     </div>
-                  </div>
-                </>
-              ) : (
-                <div className='add-btn-div'>
-                  <button className="add-url-btn" onClick={() => {
-                    setSchedFormVisible(true);
-                    setEditFormVisible(false);
-                  }}>
-                    Add Schedule
-                  </button>
-                </div>
-              )}
-            </div>
-      
-            {editFormVisible && editSchedule && (
-              <div className="edit-subj-form cont">
-                <div className="edit-subj-form-inner">
-                  <h3 classame="cont-title">Schedule Edit Form</h3>
-                  <div className='input-subj-name user-form'> 
-                    <label className=''>Subject Name: </label>
-                    <input
-                      className="subj-input"
-                      type="text"
-                      value={editSchedule.subject}
-                      onChange={(e) => setEditSchedule({ ...editSchedule, subject: e.target.value })}
-                       placeholder="Enter a subject"
-                      required
-                    />
-                  </div>
-                  
-                  <div className='input-day user-form'> 
-                    <label className=''>Day: </label>
-                    <select
-                      className="day-select"
-                      value={editSchedule.weekdays}
-                      onChange={(e) => setEditSchedule({ ...editSchedule, weekdays: e.target.value })}
-                      required
-                    >
-                      <option value="" disabled>Select a day</option>
-                      <option value="M">Monday</option>
-                      <option value="T">Tuesday</option>
-                      <option value="W">Wednesday</option>
-                      <option value="R">Thursday</option>
-                      <option value="F">Friday</option>
-                      <option value="S">Saturday</option>
-                      <option value="U">Sunday</option>
-                    </select>
-                  </div>
-                  
-                  <div className='input-start-time user-form'> 
-                    <label className=''>Start Time: </label>
-                    <input
-                      className="start-time-input"
-                      type="time"
-                      step = {"900"}
-                      value={editSchedule.start_time}
-                      onChange={(e) => setEditSchedule({ ...editSchedule, start_time: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <div className='input-end-time user-form'> 
-                    <label className=''>End Time: </label>
-                    <input
-                      className="end-time-input"
-                      type="time"
-                      step={"900"}
-                      value={editSchedule.end_time}
-                      onChange={(e) => setEditSchedule({ ...editSchedule, end_time: e.target.value })}
-                      required
-                    />
-                  </div>
-                  
-                  <div className='input-fac-name user-form'> 
-                    <label className=''>Faculty Name: </label>
-                    <select
-                      className="faculty-select"
-                      value={editSchedule.faculty_name || ""} 
-                      placeholder={editSchedule.faculty} 
-                      onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
-                      required
-                    >
-                      <option value="" disabled>Select a faculty</option>
-                      {facultyList.map(faculty => (
-                        <option key={faculty.name} value={faculty.username}>
-                          {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className='input-sect user-form'> 
-                    <label className=''>Section: </label>
-                    <select
-                      className="section-select"
-                      value={editSchedule.section}
-                      onChange={(e) => setEditSchedule({ ...editSchedule, section: e.target.value })}
-                      required
-                    >
-                      <option value="" disabled>Select a section</option>
-                      {sections.map(section => (
-                        <option key={section} value={section}>
-                          {section}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className='input-action reg-div'> 
-                    <button className="update-btn" onClick={handleEditSched}>
-                      Update
-                    </button>
-                    <button className="cancel-btn" onClick={() => setEditFormVisible(false)}>
-                      Cancel
-                    </button>
-                  </div>
+                  </form>
                 </div>
               </div>
             )}
@@ -671,8 +685,10 @@ function RoomSchedule() {
                                   {/* Edit */}
                                   <i className="fa-solid fa-pen-to-square"></i>
                                 </button>
-                                <button type="button" className="del-btn" onClick={() => handleDeleteSchedule(schedule)}>
-                                <i className="fa-solid fa-trash-can"></i>
+                                <button type="button" className="del-btn" 
+                                  onClick={() => showAlertModal('Are you sure you want to delete this schedule?', () => handleDeleteSchedule(schedule))}
+                                >
+                                  <i className="fa-solid fa-trash-can"></i>
                                 </button>
                               </td>
                             </tr>
@@ -722,19 +738,20 @@ function RoomSchedule() {
             </div>
 
             <div className='end-sem-btn'>
-              <button className="end-sem-btn del-btn" onClick={handleEndSemester}>
+              <button className="end-sem-btn del-btn" 
+                onClick={() => showAlertModal('Are you sure you want to end the current semester?', handleEndSemester)}>
                 End Semester
               </button>
-              <AlertModal
-                message={modalMessage}
-                onConfirm={modalConfirmCallback} 
-                onCancel={() => setIsModalOpen(false)}
-                isOpen={isModalOpen}
-              />
             </div>
           </>
         )}
       </div>
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </>
   );
   
