@@ -44,6 +44,8 @@ function ComputerControl() {
             headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify({ refresh: refreshToken }), 
           });
+
+          console.log("ulit")
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);

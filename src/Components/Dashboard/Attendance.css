@@ -99,6 +99,8 @@
         .date-select-rows {
           display: grid;
           grid-template-columns: repeat(8, 1fr); 
+          align-items: center;
+          flex-direction: column;
           text-align: center;
           flex-wrap: wrap;
           margin: 10px 0;

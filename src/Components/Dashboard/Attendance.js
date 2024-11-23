@@ -16,6 +16,7 @@ function ClassSchedules() {
   const [attendanceData, setAttendanceData] = useState(null);
   const [breadcrumb, setBreadcrumb] = useState('');
   const [isSelected, setIsSelected] = useState(false);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
 
   // PAST SEMESTER
   const [viewPastSemList, setViewPastSemList] = useState(false);
@@ -24,14 +25,6 @@ function ClassSchedules() {
   const [schedulesBySem, setSchedulesBySem] = useState([]);
   const [selectedSchedulesBySem, setSelectedSchedulesBySem] = useState([]);
 
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [modalMessage, setModalMessage] = useState('');
-  // const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
-  // const showAlertModal = (message, onConfirm) => {
-  //   setModalMessage(message);
-  //   setModalConfirmCallback(() => onConfirm);
-  //   setIsModalOpen(true); 
-  // };
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -86,7 +79,7 @@ function ClassSchedules() {
 
   const fetchAttendance = async (scheduleId) => {
     const accessToken = localStorage.getItem('accessToken');
-
+    console.log(scheduleId);
     try {
       const response = await fetch(`${API_BASE_URL}/get_attendance_info`, {
         method: 'POST',
@@ -105,7 +98,11 @@ function ClassSchedules() {
       const data = await response.json();
       if (response.ok) {
         console.log('Attendance data:', data);
-        setAttendanceData(data.attendace);
+        console.log("response", data.attendance.attendees);
+        console.log("attendance", data.attendance);
+        setAttendanceData(data.attendance || []);
+        console.log("state_attendance", attendanceData)
+        console.log("state", attendanceData.attendees); // Access attendanceData.attendees
         setDates(data.date || []);
       }
     } catch (error) {
@@ -176,6 +173,7 @@ function ClassSchedules() {
     fetchSchedules();
   }, []);
 
+ 
   const weekdayMap = {
     M: 'Monday',
     T: 'Tuesday',
@@ -202,13 +200,20 @@ function ClassSchedules() {
   };
   
   const handleSelectDate = (date) => {
-    setSelectedDate(date);
-    setIsSelected(!isSelected);
-    if (selectedSchedule) {
-      fetchAttendance(date, selectedSchedule.id);
+    setSelectedDate(prevDate => {
+      const newSelectedDate = prevDate === date ? '' : date;
+      setIsSelected(newSelectedDate !== '');
+      const selectedAttendance = attendanceData.find(attendance => attendance.date === newSelectedDate);
+      setSelectedAttendance(selectedAttendance || null);
+      return newSelectedDate;
+    });
+    
+    for (const attendance of attendanceData) {
+      if (attendance.date === date) {
+        setSelectedAttendance(attendance);
+      }
     }
   };
-
   const handleSelectSemester = (semester) => {
     setSelectedSchedule(null);
     setViewPastSemList(false);
@@ -223,13 +228,6 @@ function ClassSchedules() {
   //   fetchAttendance(semester.id);
   //   // fetchSchedules();
   // };
-
-  const handleToggleDate = (date) => {
-    setIsSelected(!isSelected);
-    if (selectedSchedule) {
-      fetchAttendance(date, selectedSchedule.id);
-    }
-  }
 
   const goBackSchedSelect = () => {
     setSelectedSchedule(null);
@@ -252,28 +250,33 @@ function ClassSchedules() {
               </div>
               {Array.isArray(dates) && dates.length > 0 ? (
                 dates.map((date, index) => (
-                  <div 
-                    key={index} 
-                    className='date-select-cont'
-                  >
-                    <div className='date-select-rows'>
-                      <div className='date-select'>
-                        <span 
-                          onClick={() => handleSelectDate(date)} 
-                          className={isSelected ? 'selected' : ''}
-                        >
-                          {date}
-                        </span>
+                  <>
+                    <div 
+                      key={index} 
+                      className='date-select-cont'
+                    >
+                      <div className='date-select-rows'>
+                        <div className='date-select'>
+                          <span 
+                            onClick={() => handleSelectDate(date)} 
+                            className={selectedDate === date ? 'selected' : ''}
+                          >
+                            {date}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </>
                 ))
               ) : (
                 <p className='no-fetch-msg'>No dates were found.</p>
               )}
-              {isSelected && attendanceData && selectedDate && (
+
+              {isSelected && selectedDate ? (
                 <div className="attendance-table">
+                  {console.log("DAPAT WALA", attendanceData)}
                   <h4>Attendance for {selectedDate}</h4>
+                  <h4> Illusion {selectedDate}</h4>
                   <table>
                     <thead>
                       <tr>
@@ -283,7 +286,7 @@ function ClassSchedules() {
                       </tr>
                     </thead>
                     <tbody>
-                      {attendanceData.attendees.map((attendee, index) => (
+                      {selectedAttendance.attendees.map((attendee, index) => (
                         <tr key={index}>
                           <td>{attendee.fullname}</td>
                           <td>{attendee.log_time}</td>
@@ -293,6 +296,10 @@ function ClassSchedules() {
                     </tbody>
                   </table>
                 </div>
+              ) : (
+                <>
+                  <p className='no-fetch-msg'>Please select a date.</p>
+                </>
               )}
             </div>
           </>
