@@ -293,7 +293,10 @@ function ComputerLogs() {
               type="text"
               placeholder='User Type'
               value={type}
-              onChange={e => setType(e.target.value)}
+              onChange={e => {
+                setType(e.target.value)
+                setSelectedSection('')
+              }}
             >
               <option value="" >Select User Type</option>
               <option value="faculty">Faculty</option>
