@@ -4,6 +4,7 @@ import './FacultyRecord.css';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import PasswordInput from '../LoginForm/PasswordInput';
+import AlertModal from './AlertModal';
 
 function FacultyRecord() {
   const [first_name, setFirstname] = useState('');
@@ -108,6 +109,7 @@ function FacultyRecord() {
       setErrorMessage('Error fetching faculty data. Please check your connection.');
     } finally {
       setLoading(false);
+      
     }
   };
 
@@ -115,21 +117,13 @@ function FacultyRecord() {
     fetchFaculty();
   }, []);
 
-  const handleAddFaculty = async (e) => {
+  const handleAddFaculty = async () => {
     const accessToken = localStorage.getItem('accessToken');
-    e.preventDefault();
-    if (!first_name || !last_name || !type || !password || !confirmPassword) {
-      setErrorMessage('Please fill in all fields correctly.');
-      return;
-    }
 
     if (password !== confirmPassword) {
-      setErrorMessage('Password does not matched. Try again.');
+      showAlertModal('Password does not matched. Try again.', setIsModalOpen(false));
       return;
     }
-
-    const confirm = window.confirm('Are you sure you want to add this faculty?');
-    if (!confirm) return;
 
     setLoading(true);
     setErrorMessage('');
@@ -153,7 +147,7 @@ function FacultyRecord() {
 
       if (response.status === 401) {
         await handleTokenRefresh();
-        return handleAddFaculty(e);
+        return handleAddFaculty();
       }
 
       if (response.ok) {
@@ -164,23 +158,17 @@ function FacultyRecord() {
         setErrorMessage(errorData.message || 'Failed to create faculty. Please try again.');
       }
     } catch (error) {
-      
-      setErrorMessage('An error occurred while creating faculty. Please check your connection.');
+      showAlertModal('An error occurred while creating faculty. Please check your connection.', setIsModalOpen(false));
     } finally {
       setLoading(false);
     }
+
+    setIsModalOpen(false);
   };
 
   const handleEditFaculty = async (e) => {
     const accessToken = localStorage.getItem('accessToken');
-  
-    if (!newFName || !newLName || !newMInit || !newUsername || !newType) {
-      setErrorMessage('Please fill in all fields correctly.');
-      return;
-    }
-  
-    const confirm = window.confirm(`Are you sure you want to edit the faculty details of ${selectedFaculty.first_name} ${selectedFaculty.last_name}?`);
-    if (!confirm) return;
+
 
     setLoading(true);
     setErrorMessage('');
@@ -214,15 +202,17 @@ function FacultyRecord() {
         console.log(data);
       } else {
         const errorData = await response.json();
-        setErrorMessage(errorData.message || 'Failed to update faculty. Please try again.');
+        showAlertModal(errorData.message || 'Failed to update faculty. Please try again.', setIsModalOpen(false));
       }
     } catch (error) {
       
-      setErrorMessage('An error occurred while updating faculty. Please check your connection.');
+      showAlertModal('An error occurred while updating faculty. Please check your connection.', setIsModalOpen(false));
       
     } finally {
       setLoading(false);
     }
+
+    setIsModalOpen(false);
   };
 
   const handleEditClick = (faculty) => {
@@ -241,14 +231,6 @@ function FacultyRecord() {
     const accessToken = localStorage.getItem('accessToken');
     console.log('Attempting to change password for faculty:', faculty);
     console.log('New password:', newPassword);
-    
-    if (newPassword !== confirmPassword) {
-        alert('Passwords do not match');
-        return;
-    }
-    
-    const confirm = window.confirm(`Are you sure you want to change the password of ${faculty.first_name} ${faculty.last_name}?`);
-    if (!confirm) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_admin`, {
@@ -270,23 +252,23 @@ function FacultyRecord() {
       }
       
       if (response.ok) {
-        alert('Password changed successfully!');
+        showAlertModal('Password changed successfully!', () => setIsModalOpen(false));
         setEditFormVisible(false);
         fetchFaculty();
+        setPassword('');
+        setConfirmPassword('');
       } else {
         const errorData = await response.json();
-        alert(`Failed to change password: ${errorData.status_message || 'Error changing password'}`);
+        showAlertModal(`Failed to change password: ${errorData.status_message || 'Error changing password'}`, () => setIsModalOpen(false));
       }
     } catch (error) {
-    
+      showAlertModal('An error occurred while changing password. Please check your connection.', () => setIsModalOpen(false));
     }
   }
 
 
   const handleDeleteFaculty = async (facultyUsername) => { 
     const accessToken = localStorage.getItem('accessToken');
-    const confirmDelete = window.confirm(`Are you sure you want to delete the faculty with username ${facultyUsername}?`);
-    if (!confirmDelete) return;
     
     try {
       const response = await fetch(`${API_BASE_URL}/delete_faculty`, {
@@ -312,12 +294,11 @@ function FacultyRecord() {
       }
     } catch (error) {
       
-      setErrorMessage('An error occurred while deleting faculty. Please check your connection.');
+      showAlertModal('An error occurred while deleting faculty. Please check your connection.', setIsModalOpen(false));
     }
+    
+    setIsModalOpen(false);
   };
-
-
-
 
   const handleDeleteRFID = async (rfid) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -353,13 +334,11 @@ function FacultyRecord() {
 
   const handleBindRFID = async (username, rfid) => {
     if (!username) {
-      alert('Please choose a faculty to assign the RFID.');
+      showAlertModal('Please choose a faculty to assign the RFID.', () => setIsModalOpen(false));
       return;
     }
 
     const accessToken = localStorage.getItem('accessToken');
-    const confirmBind = window.confirm(`Are you sure you want to bind RFID with value ${rfid} to ${username}?`);
-    if (!confirmBind) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
@@ -382,14 +361,16 @@ function FacultyRecord() {
       
       if (response.ok) {
         fetchFaculty();
-        alert(`RFID with value ${rfid} has been bound to ${username} successfully.`);
+        showAlertModal(`RFID with value ${rfid} has been bound to ${username} successfully.`, () => setIsModalOpen(false));
       } else {
         const errorData = await response.json();
-        alert(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+        console.error(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
       }
     } catch (error) {
-      setErrorMessage('An error occurred while binding RFID. Please check your connection.');
+      showAlertModal('An error occurred while binding RFID. Please check your connection.', () => setIsModalOpen(false));
     }
+
+    setIsModalOpen(false);
   };
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
@@ -454,113 +435,97 @@ function FacultyRecord() {
   const handleFacultyFileUpload = async () => {
     const accessToken = localStorage.getItem('accessToken');
 
-    // Check if a file is selected
-    if (!fileInput.current || !fileInput.current.files[0]) {
-        alert('Please select an Excel file to upload');
-        return;
-    }
-
     const file = fileInput.current.files[0];
     const fileType = file.name.split('.').pop().toLowerCase();
 
     // Validate file type
     if (fileType !== 'xlsx' && fileType !== 'xls') {
-        alert('Please upload a valid Excel file (.xlsx or .xls)');
-        return;
+      showAlertModal('Please upload a valid Excel file (.xlsx or .xls)', () => setIsModalOpen(false));
+      return;
     }
 
     // Read the Excel file and convert it to JSON
     const reader = new FileReader();
 
     reader.onload = async (e) => {
-        const data = e.target.result;
+      const data = e.target.result;
 
-        // Parse the Excel file using xlsx
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
-        const sheet = workbook.Sheets[sheetName];
+      // Parse the Excel file using xlsx
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0]; // Assuming first sheet is the target
+      const sheet = workbook.Sheets[sheetName];
 
-        // Convert sheet to JSON
-        const jsonData = XLSX.utils.sheet_to_json(sheet);
+      // Convert sheet to JSON
+      const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        console.log('Excel File Data:', jsonData);
+      console.log('Excel File Data:', jsonData);
 
-        const formData = new FormData();
-        formData.append('faculty_list', JSON.stringify(jsonData)); // Send the data as JSON
+      const formData = new FormData();
+      formData.append('faculty_list', JSON.stringify(jsonData)); // Send the data as JSON
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',  // Ensure content type is application/json
-                },
-                body: JSON.stringify({ faculty_list: jsonData }), // Send data as JSON in the body
-            });
-
-            if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleFacultyFileUpload();
-            }
-
-            const data = await response.json();
-
-            if (!data.errors) {
-                alert('File uploaded successfully!');
-                fetchFaculty();
-            } else {
-                console.error('Errors:', data.errors);
-                alert('Some errors occurred while uploading.');
-            }
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            alert(`An error occurred: ${error.message}`);
-        }
-      };
-
-      reader.readAsArrayBuffer(file);
-  };
-  
-  const downloadFile = (url, filename) => {
-    setLoading(true);
-    const accessToken = localStorage.getItem('accessToken');
-    fetch(url, {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    })
-        .then((reponse) => {
-            if(!reponse.ok) {
-                throw new Error('Network response was not ok. Failed to generate report');
-            }
-            return reponse.blob();
-        })
-        .then((blob) => {
-            const fileUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = fileUrl;
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setLoading(false);
-        })
-        .catch((error) => {
-            console.error('Error downloading file:', error);
-            alert(`An error occurred: ${error.message}`);
-        })
-        .finally(() => {
-            setLoading(false)
+      try {
+        const response = await fetch(`${API_BASE_URL}/upload_faculty`, {
+          method: 'POST',
+          headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',  // Ensure content type is application/json
+          },
+          body: JSON.stringify({ faculty_list: jsonData }), // Send data as JSON in the body
         });
-};
-        // Function to generate Faculty Report (Excel)
-    // const handleGenerateFacultyReportExcel = () => {
-    //     downloadFile(`${API_BASE_URL}faculty-report/excel/`, "smartsilid_faculty_report.xlsx");
-    // };
-    const handleGenerateFacultyReportPDF = () => {
-        downloadFile(`${API_BASE_URL}faculty-report/pdf/`, "smartsilid_faculty_report.pdf");
+
+        if (response.status === 401) {
+          await handleTokenRefresh();
+          return handleFacultyFileUpload();
+        }
+
+        const requiredFields = ['username',	'password',	'first_name',	'last_name',	'middle_initial',	'type']; // Add fields as necessary
+        const invalidEntries = [];
+        const validEntries = jsonData.filter((row, index) => {
+          const missingFields = requiredFields.filter((field) => !row[field]);
+          if (missingFields.length > 0) {
+            invalidEntries.push({
+              row: index + 1,
+              missingFields,
+            });
+            return false; // Exclude invalid rows
+          }
+          return true;
+        });
+
+        if (invalidEntries.length > 0) {
+          const errorDetails = invalidEntries
+          .map(
+            (entry) =>
+              `Row ${entry.row}: Missing fields - ${entry.missingFields.join(', ')}`
+          ).join('\n');
+          showAlertModal(`The following rows have missing fields and will not be uploaded:\n${errorDetails}`, 
+              () => setIsModalOpen(false)
+          );
+        } 
+    
+        // Check if there are valid entries to upload
+        if (validEntries.length === 0) {
+            showAlertModal('No valid data to upload.', () => setIsModalOpen(false));
+            return;
+        }
+
+        const data = await response.json();
+        if (response.ok) {
+          showAlertModal('File uploaded successfully!', () => setIsModalOpen(false));
+          fetchFaculty();
+        } else {
+          console.error('Errors:', data.errors);
+          showAlertModal('Faculties in the file already exists.', () => setIsModalOpen(false));
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        showAlertModal(`${error.message}`, () => setIsModalOpen(false));
+      }
     };
+
+    reader.readAsArrayBuffer(file);
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -577,23 +542,34 @@ function FacultyRecord() {
                     Add Faculty
                   </button>
                 </div>
-                <div className='adding-file-section'>
-                  <input 
+                <form onSubmit={(e) => { 
+                  e.preventDefault();
+                  showAlertModal(`Are you sure you want to upload this file?`, 
+                  handleFacultyFileUpload)
+                }}>
+                  <div className='adding-file-section'>
+                    <input 
                       className='file-batch-input'
                       type='file'
                       ref={fileInput}
                       accept=".xlsx, .xls"
-                  />
-                  <button className="add-section-btn" onClick={handleFacultyFileUpload} disabled={loading}>
+                      required
+                    />
+                    <button type="submit" className="add-section-btn" disabled={loading}>
                       {loading ? 'Uploading..' : 'Upload'}
-                  </button>
-                </div>
+                    </button>
+                  </div>
+                </form>
               </div>
             </>
           ) : (
             <>
               <h3 classame="cont-title">Faculty Entry Form</h3>
-              <form onSubmit={handleAddFaculty}>
+              <form onSubmit={(e) => { 
+                e.preventDefault(); 
+                showAlertModal('Are you sure you want to add this faculty?', 
+                handleAddFaculty)
+              }}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
                     <label htmlFor="firstname">First Name: <span>*</span></label>
@@ -677,8 +653,12 @@ function FacultyRecord() {
 
         {editFormVisible && (
           <div className="edit-faculty-form cont">
+            <h3 classame="cont-title">Faculty Edit Form</h3>
             <div className="edit-faculty-form-inner">
-              <form onSubmit={handleEditFaculty}>
+              <form onSubmit={ (e) => {
+                e.preventDefault();
+                showAlertModal('Are you sure you want to update this faculty?', handleEditFaculty);
+              }}>
                 <div className='name-faculty-edit'>
                   <div className="user-form">
                     <label htmlFor="firstname">First Name: </label>
@@ -742,32 +722,46 @@ function FacultyRecord() {
                 </div>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-                {changePassFormVisible ? (<div className="change-pass-div">
-                  <div className="user-form">
-                    <label htmlFor="password">New Password: </label>
-                    <PasswordInput
-                      placeholder="**********"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="user-form">
-                    <label htmlFor="password">Confirm Password: </label>
-                    <PasswordInput
-                      placeholder="**********"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
+                {changePassFormVisible ? (
+                  <div className="change-pass-div">
+                    <div className="user-form">
+                      <label htmlFor="password">New Password: </label>
+                      <PasswordInput
+                        placeholder="**********"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
                     </div>
-                  <div className='reg-div'>
-                    <button type="button" onClick={() => handleChangePassword(selectedFaculty, password)}>
-                      Change Password
-                    </button>
-                    <button type="button" onClick={handleCloseChangePassForm}>
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+                    <div className="user-form">
+                      <label htmlFor="password">Confirm Password: </label>
+                      <PasswordInput
+                        placeholder="**********"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                      </div>
+                    <div className='reg-div'>
+                      <button type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (password !== confirmPassword) {
+                            showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
+                            return;
+                          } else if (password === '') {
+                            showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
+                          } else {
+                            showAlertModal('Are you sure you want to change this faculty password?', 
+                            () => handleChangePassword(selectedFaculty, password));
+                          }
+                        }}
+                      >
+                        Change Password
+                      </button>
+                      <button type="button" onClick={handleCloseChangePassForm}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>  
                 ) : (
                   <div className='reg-div'>
                     <button type="button" onClick={() => setChangePassFormVisible(true)}>
@@ -803,9 +797,11 @@ function FacultyRecord() {
                             <button 
                               className='del-btn'
                               onClick={(event) => {
-                              event.stopPropagation(); // Prevent toggle when deleting
-                              handleDeleteFaculty(faculty.username);
-                            }}>
+                                event.stopPropagation(); 
+                                showAlertModal(`Are you sure you want to delete ${faculty.username}?`, 
+                                () => handleDeleteFaculty(faculty.username));
+                              }}
+                            >
                               <i className="fa-solid fa-trash-can"></i>
                             </button>
                           </div>
@@ -871,17 +867,25 @@ function FacultyRecord() {
                 </select>
                 <button 
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                  onClick={() => {
-                    handleBindRFID(rfidBindUser[rfid], rfid)
-                    console.log(rfidBindUser[rfid] + rfid)
-                  }} // Pass the selected username and RFID
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (rfidBindUser[rfid] === '' || rfidBindUser[rfid] === undefined) {
+                      showAlertModal(`Please choose a faculty to assign the RFID with value ${rfid}.`, () => setIsModalOpen(false));
+                    } else {
+                      showAlertModal(`Are you sure you want to bind RFID with value ${rfid} to ${rfidBindUser[rfid]}?`,
+                      () => handleBindRFID(rfidBindUser[rfid], rfid))
+                    }
+                  }}
                 >
                   Assign
                 </button>
                 <button 
                   className='del-btn'  
                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                  onClick={() => handleDeleteRFID(rfid)}
+                  onClick={
+                    () => showAlertModal(`Are you sure you want to delete ${rfid}?`,
+                    () => handleDeleteRFID(rfid))
+                  }
                 >
                   <i className="fa-solid fa-trash-can"></i>
                 </button>
@@ -892,6 +896,13 @@ function FacultyRecord() {
           )}
         </div>
       </div>
+
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </>
   );
 }

@@ -327,6 +327,7 @@ function StudentRecord() {
     const handleAddClick = () => {
         setFormVisible(true);
         setEditFormVisible(false)
+        setIsAddingSection(false);
     };
 
     const handleCancelClick = () => {
@@ -441,6 +442,8 @@ function StudentRecord() {
                 const responseData = await response.json();
                 alert("Student updated successfully", responseData);
                 // Optionally handle success, e.g., refresh student data or show success message
+                handleStudentList(selectedSection);
+                setEditFormVisible(false);
             } else {
                 const errorData = await response.json();
                 console.error("Failed to update student:", errorData);
@@ -449,7 +452,7 @@ function StudentRecord() {
         } catch (error) {
             console.error('Error updating student:', error);
             
-            setErrorMessage('An error occurred while updating student. Please check your connection.');
+            showAlertModal('An error occurred while updating student. Please check your connection.', () => setIsModalOpen(false));
             
         } finally {
             setLoading(false);
@@ -492,6 +495,8 @@ function StudentRecord() {
             console.error('Error removing section:', error);
             alert(`An error occurred: ${error.message}`);
         }
+
+        setIsModalOpen(false);
     };
 
     const handleMoveSection = async (student, newSection) => {
@@ -588,7 +593,9 @@ function StudentRecord() {
             console.error('Error changing password:', error);
             alert(`An error occurred: ${error.message}`);
         }
+        
         setEditFormVisible(false);
+        setIsModalOpen(false);
     };
 
     const handleStudentFileUpload = async () => {
@@ -793,8 +800,6 @@ function StudentRecord() {
         }
     
         const accessToken = localStorage.getItem('accessToken');
-        const confirmUnbind = window.confirm(`Are you sure you want to unbind RFID with value ${rfid} to ${username}?`);
-        if (!confirmUnbind) return;
     
         try {
             const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
@@ -817,14 +822,15 @@ function StudentRecord() {
             }
             if (response.ok) {
                 handleStudentList(selectedSection);
-                alert(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
+                console.log(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
+                setSelectedStudent({...selectedStudent, rfid: null});
             } else {
                 const errorData = await response.json();
-                alert(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
+                console.error(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
             }
             
         } catch (error) {
-            setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
+            showAlertModal('An error occurred while unbinding RFID. Please check your connection.', () => setIsModalOpen(false));
         }
         
         setIsModalOpen(false);
@@ -862,16 +868,10 @@ function StudentRecord() {
         setIsModalOpen(false);
     };
 
-    const handleBindPC = async (username, computer, section) => {
-        if (!username) {
-            alert('Please choose a faculty to assign the RFID.');
-            return;
-        }
+    const handleBindPC = async (username, computer) => {
     
         const accessToken = localStorage.getItem('accessToken');
-        const confirmBind = window.confirm(`Are you sure you want to bind Computer ${computer} to ${username}?`);
-        if (!confirmBind) return;
-    
+
         try {
             const response = await fetch(`${API_BASE_URL}/bind_computer`, {
                 method: 'POST',
@@ -893,13 +893,13 @@ function StudentRecord() {
 
             if (response.ok) {
                 handleStudentList(selectedSection);
-                alert(`Computer ${computer} has been unbound to ${username} successfully.`);
+                console.log(`Computer ${computer} has been unbound to ${username} successfully.`);
             } else {
                 const errorData = await response.json();
-                alert(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
+                console.error(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
             }
         } catch (error) {
-            setErrorMessage('An error occurred while binding the Computer. Please check your connection.');
+            showAlertModal('An error occurred while binding the Computer. Please check your connection.', () => setIsModalOpen(false));
         }
         
         setIsModalOpen(false);
@@ -970,14 +970,8 @@ function StudentRecord() {
     };
 
     const handleUnbindPC = async (username, computer, section) => {
-        if (!username) {
-            alert('Please choose a faculty to assign the RFID.');
-            return;
-        }
 
         const accessToken = localStorage.getItem('accessToken');
-        const confirmUnbind = window.confirm(`Are you sure you want to unbind Computer ${computer} from ${username}?`);
-        if (!confirmUnbind) return;
 
         try {
             const response = await fetch(`${API_BASE_URL}/bind_computer`, {
@@ -999,13 +993,14 @@ function StudentRecord() {
             }
             if (response.ok) {
                 handleStudentList(selectedSection);
-                alert(`Computer ${computer} has been unbound from ${username} successfully.`);
+                console.log(`Computer ${computer} has been unbound from ${username} successfully.`);
+                setSelectedStudent({...selectedStudent, computer: null});
             } else {
                 const errorData = await response.json();
-                alert(`Failed to unbind Computer: ${errorData.status_message || 'Error unbinding computer'}`);
+                console.error(`Failed to unbind Computer: ${errorData.status_message || 'Error unbinding computer'}`);
             }
         } catch (error) {
-            setErrorMessage('An error occurred while unbinding the Computer. Please check your connection.');
+            showAlertModal('An error occurred while unbinding the Computer. Please check your connection.', () => setIsModalOpen(false));
         }
         
         setIsModalOpen(false);
@@ -1069,27 +1064,32 @@ function StudentRecord() {
                     ) : (
                         <div className='adding-section'>
                             <div className='adding-btn-section'>
-                                <button className="add-section-btn" onClick={() => setIsAddingSection(true)}>
+                                <button className="add-section-btn" onClick={() => {
+                                    setFormVisible(false);
+                                    setIsAddingSection(true);
+                                }}
+                                >
                                     Add Section
                                 </button>
                             </div>
-                            <div className='adding-file-section'>
-                                <input 
-                                    className='file-batch-input'
-                                    type='file'
-                                    ref={fileInput}
-                                    accept=".xlsx, .xls"
-                                />
-                                <button className="add-section-btn" 
-                                    onClick={
-                                        () => showAlertModal(`Are you sure you want to upload this ${fileInput.current.files[0].name}?`, 
-                                        handleStudentFileUpload)
-                                    } 
-                                    disabled={loading}
-                                >
-                                    {loading ? 'Uploading..' : 'Upload'}
-                                </button>
-                            </div>
+                            <form onSubmit={ (e) => {
+                                e.preventDefault();
+                                showAlertModal(`Are you sure you want to upload this file?`, 
+                                handleStudentFileUpload)
+                            }}>
+                                <div className='adding-file-section'>
+                                    <input 
+                                        className='file-batch-input'
+                                        type='file'
+                                        ref={fileInput}
+                                        accept=".xlsx, .xls"
+                                        required
+                                    />
+                                    <button type="submit" className="add-section-btn" disabled={loading}>
+                                        {loading ? 'Uploading..' : 'Upload'}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     )}
                 </div>
@@ -1111,7 +1111,8 @@ function StudentRecord() {
                                                 className="remove-btn"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    handleRemoveSection(sec);
+                                                    showAlertModal('Are you sure you want to remove this section?',
+                                                    () => handleRemoveSection(sec));
                                                 }}
                                             >
                                                 <b>–</b>
@@ -1334,8 +1335,21 @@ function StudentRecord() {
                                                     />
                                                 </div>
                                                 <div className="reg-div">
-                                                    <button type="button" onClick={() => handleChangePassword(selectedStudent, password)} disabled={loading}>
-                                                    {loading ? 'Changing...' : 'Change Password'}
+                                                    <button type="button" 
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            if (password !== confirmPassword) {
+                                                                showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
+                                                                return;
+                                                            } else if (password === '') {
+                                                                showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
+                                                            } else {
+                                                                showAlertModal('Are you sure you want to change this faculty password?', 
+                                                                () => handleChangePassword(selectedStudent, password));
+                                                            }
+                                                        }}
+                                                        disabled={loading}>
+                                                        {loading ? 'Changing...' : 'Change Password'}
                                                     </button>
                                                     <button className="cancel-btn" type="button" onClick={handleCloseChangePassForm}>
                                                         Cancel
@@ -1352,8 +1366,8 @@ function StudentRecord() {
 
                                         {selectedStudent?.rfid !== null ? (
                                             <button type="button" onClick={() => {
-                                                handleUnbindRFID(selectedStudent.username, selectedStudent.rfid);
-                                                setSelectedStudent({...selectedStudent, rfid: null});
+                                                showAlertModal('Are you sure you want to unbind this RFID?', 
+                                                () => handleUnbindRFID(selectedStudent.username, selectedStudent.rfid));
                                             }}>
                                                 Unbind RFID
                                             </button>
@@ -1363,15 +1377,14 @@ function StudentRecord() {
 
                                         {selectedStudent?.computer !== null ? (
                                             <button type="button" onClick={() => {
-                                                handleUnbindPC(selectedStudent.username, selectedStudent.computer);
-                                                setSelectedStudent({...selectedStudent, computer: null});
+                                                showAlertModal('Are you sure you want to unbind this computer?',
+                                                () => handleUnbindPC(selectedStudent.username, selectedStudent.computer));
                                             }}>
                                                 Unbind Computer
                                             </button>
                                         ) : (
                                             <></>
                                         )}
-
                                     </div>
                                 </form>
                             </div>
@@ -1464,7 +1477,7 @@ function StudentRecord() {
                                                                 showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
                                                                 () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
                                                             } else {
-                                                                showAlertModal('Please select a username before assigning.', () => setIsModalOpen(false));    
+                                                                showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));    
                                                             }
                                                         }}
                                                     >
@@ -1492,8 +1505,22 @@ function StudentRecord() {
                                     <h3>
                                         <div>Available PCs</div>
                                         <div className='bind-opt-cont'>
-                                            <a className='bind-btn-opt' onClick={() => handleAutoPCBind(selectedSection)}>Bind All</a>
-                                            <a className='bind-btn-opt' onClick={() => handleAutoPCUnbind(selectedSection)}>Unbind All</a>
+                                            <a className='bind-btn-opt' 
+                                                onClick={
+                                                    () => showAlertModal('This will bind all available PCs alphabetically. Proceed?', 
+                                                    () => handleAutoPCBind(selectedSection))
+                                                }
+                                            >
+                                                Bind All
+                                            </a>
+                                            <a className='bind-btn-opt' 
+                                                onClick={
+                                                    () => showAlertModal('Are you sure you want to unbind all PCs from this section?', 
+                                                    () => handleAutoPCUnbind(selectedSection))
+                                                }
+                                            >
+                                                Unbind All
+                                            </a>
                                         </div>
                                     </h3>
                                 </div>
@@ -1523,9 +1550,10 @@ function StudentRecord() {
                                                     <button
                                                         onClick={() => {
                                                             if (pcBindUser[pc]) {
-                                                                handleBindPC(pcBindUser[pc], pc, selectedSection);
+                                                                showAlertModal(`Are you sure you want to assign PC: ${pc} to ${pcBindUser[pc]}?`,
+                                                                () => handleBindPC(pcBindUser[pc], pc, selectedSection));
                                                             } else {
-                                                                showAlertModal('Please select a username before assigning.', () => setIsModalOpen(false));  
+                                                                showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));  
                                                             }
                                                         }}
                                                     >

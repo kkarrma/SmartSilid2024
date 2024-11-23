@@ -159,11 +159,11 @@ function ComputerLogs() {
           Authorization: `Bearer ${accessToken}`,
       },
     })
-    .then((reponse) => {
-      if(!reponse.ok) {
-          throw new Error('Network response was not ok. Failed to generate report');
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok. Failed to generate report');
       }
-      return reponse.blob();
+      return response.blob();
     })
     .then((blob) => {
       const fileUrl = window.URL.createObjectURL(blob);
@@ -180,37 +180,37 @@ function ComputerLogs() {
       showAlertModal(`${error.message}`, () => setIsModalOpen(false));
     })
     .finally(() => {
-      setLoading(false)
+      setLoading(false);
     });
-    
+  
     setIsModalOpen(false);
   };
-
-  const handleGenerateStudentReportPDF = () => {
+  
+  const handleGenerateStudentReportExcel = () => {
     const queryParams = new URLSearchParams({
       start_date: start_date,
       end_date: end_date,
       section: selectedSection,
     }).toString();
-    downloadFile(`${API_BASE_URL}/student-report/pdf?${queryParams}`, "smartsilid_student_report.pdf");
+    downloadFile(`${API_BASE_URL}/student-report/excel?${queryParams}`, "smartsilid_student_report.xlsx");
   };
-
-  const handleGenerateFacultyReportPDF = () => {
+  
+  const handleGenerateFacultyReportExcel = () => {
     const queryParams = new URLSearchParams({
       start_date: start_date,
       end_date: end_date,
     }).toString();
-    downloadFile(`${API_BASE_URL}/faculty-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+    downloadFile(`${API_BASE_URL}/faculty-report/excel?${queryParams}`, "smartsilid_faculty_report.xlsx");
   };
-
-  const handleGenerateCombinedReportPDF = () => {
+  
+  const handleGenerateCombinedReportExcel = () => {
     const queryParams = new URLSearchParams({
       start_date: start_date,
       end_date: end_date,
     }).toString();
-    downloadFile(`${API_BASE_URL}/combined-report/pdf?${queryParams}`, "smartsilid_faculty_report.pdf");
+    downloadFile(`${API_BASE_URL}/combined-report/excel?${queryParams}`, "smartsilid_combined_report.xlsx");
   };
-
+  
   const handleFilter = () => {
     setPagination(1);
     fetchComputerLogs();
@@ -417,21 +417,21 @@ function ComputerLogs() {
           <div className='gen-report'>
             {type === 'student' ? (
               <button 
-                onClick={handleGenerateStudentReportPDF} 
+                onClick={handleGenerateStudentReportExcel} 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Class Report"</>}
               </button>
             ) : type === 'faculty' ? (
               <button 
-                onClick={handleGenerateFacultyReportPDF} 
+                onClick={handleGenerateFacultyReportExcel} 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Faculty Report</>}
               </button>
             ) : type === '' ? (
               <button 
-                onClick={handleGenerateCombinedReportPDF} 
+                onClick={handleGenerateCombinedReportExcel} 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download All Computer Report</>}

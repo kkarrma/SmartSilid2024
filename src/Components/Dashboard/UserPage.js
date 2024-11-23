@@ -3,14 +3,10 @@ import { API_BASE_URL } from './BASE_URL';
 import './UserPage.css';
 import { useNavigate } from 'react-router-dom';
 import PasswordInput from '../LoginForm/PasswordInput';
+import AlertModal from './AlertModal';
 
 function UserPage() {
-  const [data, setData] = useState({
-    firstName: 'John',
-    middleInitial: 'D',
-    lastName: 'Doe',
-    type: 'Faculty',
-  });
+  const [data, setData] = useState({});
 
   // New Inputted Credentials initialized as null
   const [newFName, setNewFName] = useState(null);
@@ -66,42 +62,38 @@ function UserPage() {
   };
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      navigate('/login');
-      return;
-    }
-
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/get_faculty_by_id`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ id: user_id }),
-        });
-
-        if(response.status === 401) {
-          await handleTokenRefresh();
-          return fetchUserData(); 
-        }
-
-        if (response.ok) {
-          const userData = await response.json();
-          setData(userData.faculty_info);
-        } else {
-          alert('Failed to fetch user data');
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        alert('An error occurred while fetching user data.');
-      }
-    };
-
     fetchUserData();
-  }, [navigate]);
+  }, []);
+
+  const fetchUserData = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_faculty_by_id`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ id: user_id }),
+      });
+      
+      if(response.status === 401){
+        await handleTokenRefresh();
+        return fetchUserData();
+      }
+
+      if (response.ok) {
+        const userData = await response.json();
+        setData(userData.faculty_info);
+      } else {
+        alert('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      alert('An error occurred while fetching user data.');
+    }
+  };
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -131,8 +123,9 @@ function UserPage() {
   };
 
   const handleUpdateFaculty = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${API_BASE_URL}/update_faculty`, {
         method: 'POST',
         headers: {
@@ -155,27 +148,26 @@ function UserPage() {
       }
 
       if (response.ok) {
-        alert('User updated successfully!');
+        console.log('User updated successfully!');
         const data = await response.json();
         console.log(data);
         setIsEditing(false);
+        fetchUserData();
       } else {
-        alert('Error updating user!');
+        console.error('Error updating user!');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error updating user!');
+      showAlertModal('Error updating user.', setIsModalOpen(false));
     }
+
+    setIsModalOpen(false);
   };
 
   const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
-      return;
-    }
+    const accessToken = localStorage.getItem('accessToken');
 
     try {
-      const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_faculty`, {
         method: 'POST',
         headers: {
@@ -214,165 +206,193 @@ function UserPage() {
  }
 
   return (
-    <div className="user-page">
-      <div className="user-pic">
-        <i className="fa-solid fa-user"></i>
-      </div>
-      <div className="user-info cont">
-        <div className="username-row">
-          <div className="user-L-side">
-            <h3>{data.username}</h3>
-          </div>
-          <div className="user-R-side">
-            <i
-              className="fa-solid fa-pen edit-icon"
-              onClick={handleEditClick}
-            ></i>
-            <button onClick={async() => {
-              localStorage.clear();
-              window.location.reload();
-            }}>
-              <i className="fa-solid fa-right-from-bracket logout-icon"></i>
-            </button>
-          </div>
+    <>
+      <div className="user-page">
+        <div className="user-pic">
+          <i className="fa-solid fa-user"></i>
         </div>
+        <div className="user-info cont">
+          <div className="username-row">
+            <div className="user-L-side">
+              <h3>{data.username}</h3>
+            </div>
+            <div className="user-R-side">
+              <i
+                className="fa-solid fa-pen edit-icon"
+                onClick={handleEditClick}
+              ></i>
+              <button onClick={async() => {
+                localStorage.clear();
+                window.location.reload();
+              }}>
+                <i className="fa-solid fa-right-from-bracket logout-icon"></i>
+              </button>
+            </div>
+          </div>
 
-        {isEditing ? (
-          <>
-            <div className="username-row user-row">
-              <div className="user-label">Username</div>
-              <input
-                type="text"
-                placeholder={data.username}
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                onBlur={() => newUsername === '' && setNewUsername(data.username)}
-                className="user-input"
-              />
-            </div>
-            <div className="firstname-row user-row">
-              <div className="user-label">First Name</div>
-              <input
-                type="text"
-                placeholder={data.first_name}
-                value={newFName}
-                onChange={(e) => setNewFName(e.target.value)}
-                onBlur={() => newFName === '' && setNewFName(data.first_name)}
-                className="user-input"
-              />
-            </div>
-            <div className="middleinit-row user-row">
-              <div className="user-label">Middle Initial</div>
-              <input
-                type="text"
-                placeholder={data.middle_initial}
-                value={newMInit}
-                onChange={(e) => setNewMInit(e.target.value)}
-                onBlur={() => newMInit === '' && setNewMInit(data.middle_initial)}
-                className="user-input"
-              />
-            </div>
-            <div className="lastname-row user-row">
-              <div className="user-label">Last Name</div>
-              <input
-                type="text"
-                placeholder={data.last_name}
-                value={newLName}
-                onChange={(e) => setNewLName(e.target.value)}
-                onBlur={() => newLName === '' && setNewLName(data.last_name)}
-                className="user-input"
-              />
-            </div>
-            <div className="role-row user-row">
-              <div className="user-label">Role</div>
-              <select
-                value={newType}
-                onChange={(e) => setNewType(e.target.value)}
-                className="user-input"
-              >
-                <option value="admin">Admin</option>
-                <option value="faculty">Faculty</option>
-              </select>
-            </div>
-            {isChangePass ? (
-              <>
-                <div className="old-pass-row user-row">
-                  <div className="user-label">Old Password</div>
-                  <PasswordInput
-                    placeholder="************"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
+          {isEditing ? (
+            <>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                showAlertModal('Are you sure you want to update your profile?',
+                handleUpdateFaculty)
+              }}>
+                <div className="username-row user-row">
+                  <div className="user-label">Username</div>
+                  <input
+                    type="text"
+                    placeholder={data.username}
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    onBlur={() => newUsername === '' && setNewUsername(data.username)}
                     className="user-input"
                   />
                 </div>
-                <div className="new-pass-row user-row">
-                  <div className="user-label">New Password</div>
-                  <PasswordInput
-                    placeholder="************"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
+                <div className="firstname-row user-row">
+                  <div className="user-label">First Name</div>
+                  <input
+                    type="text"
+                    placeholder={data.first_name}
+                    value={newFName}
+                    onChange={(e) => setNewFName(e.target.value)}
+                    onBlur={() => newFName === '' && setNewFName(data.first_name)}
                     className="user-input"
                   />
                 </div>
-                <div className="new-pass-row user-row">
-                  <div className="user-label">Confirm Password</div>
-                  <PasswordInput
-                    placeholder="************"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                <div className="middleinit-row user-row">
+                  <div className="user-label">Middle Initial</div>
+                  <input
+                    type="text"
+                    placeholder={data.middle_initial}
+                    value={newMInit}
+                    onChange={(e) => setNewMInit(e.target.value)}
+                    onBlur={() => newMInit === '' && setNewMInit(data.middle_initial)}
                     className="user-input"
-                    />
-                  {passwordError && <div className="error-message">{passwordError}</div>}
+                  />
                 </div>
+                <div className="lastname-row user-row">
+                  <div className="user-label">Last Name</div>
+                  <input
+                    type="text"
+                    placeholder={data.last_name}
+                    value={newLName}
+                    onChange={(e) => setNewLName(e.target.value)}
+                    onBlur={() => newLName === '' && setNewLName(data.last_name)}
+                    className="user-input"
+                  />
+                </div>
+                <div className="role-row user-row">
+                  <div className="user-label">Role</div>
+                  <select
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value)}
+                    className="user-input"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="faculty">Faculty</option>
+                  </select>
+                </div>
+                {isChangePass ? (
+                  <>
+                    <form onSubmit={
+                      (e) => {
+                        e.preventDefault();
+                        if (newPassword !== confirmPassword) {
+                          showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
+                          return;
+                        } else {
+                          showAlertModal('Are you sure you want to update password?', handleChangePassword)
+                        }
+                      }
+                    }>
+                      <div className="old-pass-row user-row">
+                        <div className="user-label">Old Password</div>
+                        <PasswordInput
+                          placeholder="************"
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                          className="user-input"
+                        />
+                      </div>
+                      <div className="new-pass-row user-row">
+                        <div className="user-label">New Password</div>
+                        <PasswordInput
+                          placeholder="************"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="user-input"
+                        />
+                      </div>
+                      <div className="new-pass-row user-row">
+                        <div className="user-label">Confirm Password</div>
+                        <PasswordInput
+                          placeholder="************"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          className="user-input"
+                          />
+                        {passwordError && <div className="error-message">{passwordError}</div>}
+                      </div>
+                      <div className="action-btn">
+                        <button type="submit" className="update-pass-button">
+                          Update Password
+                        </button>
+                        <button className="cancel-button" onClick={handleCancelPassClick}>
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <div className='open-pass-form'>
+                      <button className='update-pass-button' onClick={openChangePassForm}>
+                        Change Password
+                      </button>
+                    </div>
+                  </>
+                )}
                 <div className="action-btn">
-                  <button className="update-pass-button" onClick={handleChangePassword}>
-                    Update Password
+                  <button type='submit' className="update-button">
+                    Update
                   </button>
-                  <button className="cancel-button" onClick={handleCancelPassClick}>
+                  <button className="cancel-button" onClick={handleCancelClick}>
                     Cancel
                   </button>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className='open-pass-form'>
-                  <button className='update-pass-button' onClick={openChangePassForm}>
-                    Change Password
-                  </button>
-                </div>
-              </>
-            )}
-            <div className="action-btn">
-              <button className="update-button" onClick={handleUpdateFaculty}>
-                Update
-              </button>
-              <button className="cancel-button" onClick={handleCancelClick}>
-                Cancel
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="firstname-row user-row">
-              <div className="user-label">First Name</div>
-              <div className="user-value">{data.first_name}</div>
-            </div>
-            <div className="middleinit-row user-row">
-              <div className="user-label">Middle Initial</div>
-              <div className="user-value">{data.middle_initial}</div>
-            </div>
-            <div className="lastname-row user-row">
-              <div className="user-label">Last Name</div>
-              <div className="user-value">{data.last_name}</div>
-            </div>
-            <div className="role-row user-row">
-              <div className="user-label">Role</div>
-              <div className="user-value">{data.type}</div>
-            </div>
-          </>
-        )}
+              </form>
+            </>
+          ) : (
+            <>
+              <div className="firstname-row user-row">
+                <div className="user-label">First Name</div>
+                <div className="user-value">{data.first_name}</div>
+              </div>
+              <div className="middleinit-row user-row">
+                <div className="user-label">Middle Initial</div>
+                <div className="user-value">{data.middle_initial}</div>
+              </div>
+              <div className="lastname-row user-row">
+                <div className="user-label">Last Name</div>
+                <div className="user-value">{data.last_name}</div>
+              </div>
+              <div className="role-row user-row">
+                <div className="user-label">Role</div>
+                <div className="user-value">{data.type}</div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      
+
+        <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
+    </>
   );
 }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './WebFilter.css';
 import { useNavigate } from 'react-router-dom';
+import AlertModal from './AlertModal';
 
 function WebFilter() {
   const [blockedURLs, setBlockedURLs] = useState([]);
@@ -82,8 +83,6 @@ function WebFilter() {
 
   const handleAddURL = async () => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmAdd = window.confirm(`Are you sure you want to add ${newBlockURL}?`);
-    if (!confirmAdd) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/add_url_block`, {
@@ -100,7 +99,12 @@ function WebFilter() {
         return handleAddURL();
       }
 
-      if (!response.ok) throw new Error('Failed to add URL');
+      if (!response.ok) {
+        console.error('Failed to add URL'); 
+      } else {
+        console.log('URL added successfully!');
+        showAlertModal('URL added successfully!', () => setIsModalOpen(false));
+      }
       
       setNewBlockURL('');
       setUrlFormVisible(false);
@@ -108,18 +112,18 @@ function WebFilter() {
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error adding URL:', error.message || error);
-        alert('Failed to add URL. Please try again.');
+        console.error('Failed to add URL. Please try again.');
       } else {
         console.error('Unexpected error:', error);
-        alert('Unexpected error occurred. Please try again.');
+        showAlertModal('Unexpected error occurred. Please try again.', () => setIsModalOpen(false));
       }
     }
+
+    setIsModalOpen(false);
   };
 
   const handleDeleteURL = async (url) => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmDelete = window.confirm(`Are you sure you want to delete ${url}?`);
-    if (!confirmDelete) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/delete_url_block`, {
@@ -145,12 +149,14 @@ function WebFilter() {
       }
       if (error instanceof Error) {
         console.error('Error deleting URL:', error.message || error);
-        alert('Failed to delete URL. Please try again.');
+        console.error('Failed to delete URL. Please try again.');
       } else {
         console.error('Unexpected error:', error);
-        alert('Unexpected error occurred. Please try again.');
+        showAlertModal('Unexpected error occurred. Please try again.', () => setIsModalOpen(false));
       }
     }
+
+    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -164,21 +170,29 @@ function WebFilter() {
           {urlFormVisible ? (
             <>
               <h3 classame="cont-title">URL Block Form</h3>
-              <div className="new-url-form">
-                <input
-                  className="url-input"
-                  type="text"
-                  value={newBlockURL}
-                  onChange={(e) => setNewBlockURL(e.target.value)}
-                  placeholder="https://www.sample.com/"
-                />
-                <button className="confirm-btn" onClick={handleAddURL}>
-                  Confirm
-                </button>
-                <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
-                  Cancel
-                </button>
-              </div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                showAlertModal('Are you sure you want to add this URL?',
+                handleAddURL)
+              }
+              }>
+                <div className="new-url-form">
+                  <input
+                    className="url-input"
+                    type="text"
+                    value={newBlockURL}
+                    onChange={(e) => setNewBlockURL(e.target.value)}
+                    placeholder="https://www.sample.com/"
+                    required
+                  />
+                  <button type="submit" className="confirm-btn">
+                    Add URL
+                  </button>
+                  <button className="cancel-btn" onClick={() => setUrlFormVisible(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </>
           ) : (
             <button className="add-url-btn" onClick={() => setUrlFormVisible(true)}>
@@ -209,7 +223,15 @@ function WebFilter() {
                     <tr key={index}>
                       <td className="url">{url}</td>
                       <td className="action">
-                        <button type="button" className="del-btn" onClick={() => handleDeleteURL(url)}>
+                        <button 
+                          type="button" 
+                          className="del-btn" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            showAlertModal('Are you sure you want to delete this URL?',
+                            () => handleDeleteURL(url))
+                          }}
+                        >
                           <i className="fa-solid fa-trash"></i>
                         </button>
                       </td>
@@ -221,6 +243,13 @@ function WebFilter() {
           </form>
         </div>
       </div>
+
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </>
   );
 }
