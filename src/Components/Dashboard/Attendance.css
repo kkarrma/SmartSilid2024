@@ -1,36 +1,108 @@
 .attendance {
-  
   .schedule-row {
     padding: 20px;
+    
+    .sched-list-table {
+      display: none;
+      transition: 0.3s ease-in-out;
+      margin-top: 10px;
+    
+      overflow: hidden;
+      overflow-x: auto;
+    
+      table {
+        tbody {
+          .schedule-row {
+            transition: background-color 0.3s ease-in-out;
+            cursor: pointer;
+    
+            &:hover {
+              background-color: var(--div-hov); 
+            }
+    
+            .view-sched-btn {
+              display: flex;
+              padding: 5px;
+              color: var(--btn);
+            }
+          }
+        }
+      }
+    }    
 
     .schedule-items {
       display: block;
       gap: 15px;
-      
+      overflow: hidden;
+      overflow-y: auto;
+      max-height: 400px;
+
       .sched-info-cont {
-        max-height: 400px;
-        
         .sched-info-rows {
           display: grid;
           text-align: center;
-          grid-template-columns: repeat(5, 1fr); 
+          grid-template-columns: repeat(5, 1fr); /* Default to 5 columns */
           background-color: #f3f3f3;
           align-items: center;
           padding: 10px;
           margin: 10px 0;
-          transition: .3s ease-in-out;
-          flex-wrap: wrap;
+          transition: 0.3s ease-in-out;
           cursor: pointer;
+          overflow: hidden;
+          overflow-x: auto;
+          
+          .sched-mobile-day-time {
+            display: none;
+          }
+
+          @media (max-width: 870px) {
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px;
+
+            .sched-mobile-day-time {
+              display: block;
+
+              .sched-days {
+                margin-bottom: 5px;
+                span {
+                  border-radius: 50px;
+                  color: var(--bg1);
+                  background-color: var(--bg3);
+                  font-weight: bold;
+                  max-width: fit-content;
+                  padding: 2px 5px;
+                }
+              }
+    
+              .sched-times {
+                span {
+                  display: inline-block;
+                  border-radius: 50px;
+                  background: var(--btn);
+                  color: white;
+                  max-width: fit-content;
+                  padding: 2px 5px;
+                }
+              }
+            }
+
+            .sched-day,
+            .sched-time {
+              display: none;
+            }
+          }
 
           &:hover {
-            background-color: #dadada;
+            background-color: var(--div-hov);
           }
 
           .sched-subj {
-            border-radius: 0 5em 5em 0 ;
-            padding: .5em 2em;
-            text-align: left;
-            /* font-weight: bold; */
+            border-radius: 0 5em 5em 0;
+            padding: 5px;
+            text-align: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px; 
           }
 
           .sched-day {
@@ -40,7 +112,7 @@
               background-color: var(--bg3);
               font-weight: bold;
               max-width: fit-content;
-              padding: .5em 2em;
+              padding: 5px 20px;
             }
           }
 
@@ -48,29 +120,29 @@
             span {
               display: inline-block;
               border-radius: 50px;
-              background: var(--btn); 
+              background: var(--btn);
               color: white;
               max-width: fit-content;
-              padding: .5em 2em;
+              padding: 5px 20px;
             }
           }
 
           .sched-sec,
           .sched-fac {
-            display: flex;  
+            display: flex;
             text-align: center;
             align-items: center;
             justify-content: center;
           }
-          
+
           .sched-info {
-            position: relative; 
-            padding: 10px; 
+            position: relative;
+            padding: 10px;
             font-size: 14px;
             max-width: fit-content;
-            
+
             span {
-              position: absolute; 
+              position: absolute;
               top: 0;
               left: 0;
               color: var(--sub-txt);
@@ -80,48 +152,83 @@
         }
       }
     }
+    
+    @media (max-width: 526px) {
+      .sched-list-table {
+        display: block;
+      }
+
+      .schedule-items {
+        display: none;
+      }
+      .past-semester {
+        display: block;
+      }
+    }
 
     .date-items {
       display: block;
       gap: 10px;
 
-      .back-sched-div { 
+      .back-sched-div {
         display: flex;
         margin: 10px 0 20px 0;
       }
 
-      .date-select-cont {
-        max-height: 400px;
-        overflow: hidden;
-        overflow-y: auto;
-        overflow-x: auto;
-        
-        .date-select-rows {
-          display: grid;
-          grid-template-columns: repeat(8, 1fr); 
-          align-items: center;
-          flex-direction: column;
-          text-align: center;
-          flex-wrap: wrap;
-          margin: 10px 0;
+      .date-btn-div {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
 
-          .date-select  {
+        @media (max-width: 1200px) {
+          grid-template-columns: repeat(6, 1fr); 
+        }
 
-            span {
-              cursor: pointer;
-              background-color: var(--btn);
-              color: var(--bg1);
-              border-radius: 5px;
-              align-items: center;
-              padding: 10px;
-              transition: .3s ease-in-out;
-              max-width: fit-content;
-            
-              &:hover {
+        @media (max-width: 992px) {
+          grid-template-columns: repeat(5, 1fr); 
+        }
+
+        @media (max-width: 768px) {
+          grid-template-columns: repeat(4, 1fr); 
+        }
+
+        @media (max-width: 576px) {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 400px) {
+          grid-template-columns: repeat(2, 1fr); 
+        }
+
+        .date-select-cont {
+          max-height: 400px;
+          overflow: auto;
+
+          .date-select-rows {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 10px 0;
+            text-align: center;
+
+            .date-select {
+              span {
+                cursor: pointer;
+                background-color: var(--btn);
+                color: var(--bg1);
+                border-radius: 5px;
+                padding: 10px;
+                transition: 0.3s ease-in-out;
+                width: fit-content;
+                min-width: 200px;
+                text-align: center;
+              }
+
+              span:hover {
                 background-color: var(--btn-hov);
               }
-            
-              &.selected {
+
+              span.selected {
                 background-color: var(--btn-hov);
                 font-weight: bold;
                 font-size: 110%;
@@ -132,10 +239,52 @@
       }
     }
   }
-  
+
   .view-past-sem-div {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    .past-sem-button {
+      background-color: transparent;
+      color: var(--btn);
+      border: var(--btn) 2px solid;
+      border-radius: 5px;
+      padding: 5px 10px;
+      width: fit-content;
+      text-align: center;
+      transition: 0.3s ease-in-out;
+
+      &:hover {
+        border-color: var(--btn-hov);
+        color: var(--btn-hov);
+      }
+    }
+  }
+
+  h3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: justify;
+    gap: 10px;
+    
+    .bind-opt-cont {
+      display: flex;
+      gap: 5px;
+      
+      a {
+        border: var(--btn) 2px solid;
+        border-radius: 5px;
+        padding: 4px 10px;
+        color: var(--btn);
+        transition: 0.3s ease-in-out;
+
+        &:hover {
+          border-color: var(--btn-hov);
+          color: var(--btn-hov);
+        }
+      }
+    }
   }
 }

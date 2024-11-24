@@ -11,6 +11,7 @@ function RFIDLogs() {
   const [end_date, setEndDate] = useState('');
   const [start_time, setStartTime] = useState(''); // New start time state
   const [facultyName, setFacultyName] = useState('');
+  const [type, setType] = useState(''); // New type filter state
   const [subject, setSubject] = useState('');
   const [section, setSection] = useState('');
   const [availableSections, setAvailableSection] = useState([]);
@@ -75,15 +76,12 @@ function RFIDLogs() {
       const data = await response.json();
       console.log(data);
       if (response.ok) {
-        const data = await response.json();
         const fetchedSections = data.map(item => item.section);
         setAvailableSection(fetchedSections);
       } else {
         console.error('Failed to fetch sections');
-        
       }
     } catch (error) {
-      
       console.log('Error fetching sections:', error);
     }
   };
@@ -105,6 +103,7 @@ function RFIDLogs() {
           start_date: formattedStartDate,
           end_date,
           pagination,
+          type
         }),
       });
       
@@ -122,10 +121,9 @@ function RFIDLogs() {
         console.error('Failed to fetch logs');
       }
     } catch (error) {
-      
       console.error('Error fetching logs:', error);
     }
-  };  
+  };
 
   const handleFilter = () => {
     setPagination(1);
@@ -139,6 +137,7 @@ function RFIDLogs() {
     setFacultyName('');
     setSubject('');
     setSection('');
+    setType(''); // Reset type filter
     setPagination(1);
   };
 
@@ -148,7 +147,7 @@ function RFIDLogs() {
     <>
       <div className='logbook'>
         <div className="filter-controls cont">
-          <h3 classame="cont-title">Filter Controls</h3>
+          <h3 className="cont-title">Filter Controls</h3>
           <div className='start-date-filter filter-cont'>
             <label className='start-date-input'>Start Date: </label>
             <input
@@ -156,6 +155,17 @@ function RFIDLogs() {
               value={start_date}
               onChange={e => setStartDate(e.target.value)}
             />
+          </div>
+          <div className='type-filter filter-cont'>
+            <label className='type-label'>Type: </label>
+            <select
+              value={type}
+              onChange={e => setType(e.target.value)}
+            >
+              <option value="">Select Type</option>
+              <option value="faculty">Faculty</option>
+              <option value="student">Student</option>
+            </select>
           </div>
           <div className='end-date-filter filter-cont'>
             <label className='end-date-input'>End Date: </label>
@@ -166,45 +176,19 @@ function RFIDLogs() {
             />
           </div>
           <div className='faculty-filter filter-cont'>
-            <label className='faculty-name'>Username: </label>
+            <label className='faculty-name'>Name: </label>
             <input
               type="text"
-              placeholder="Username"
+              placeholder="Name"
               value={facultyName}
               onChange={e => setFacultyName(e.target.value)}
             />
           </div>
-          {/* <div className='subject-filter filter-cont'>
-            <label className='faculty-name'>Subject: </label>
-            <input
-              type="text"
-              placeholder="Subject"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
-            />
-          </div>
-          <div className='section-filter filter-cont'>
-            <label className='faculty-name'>Section: </label>
-            <select
-              value={section}
-              onChange={e => setSection(e.target.value)}
-              >
-              <option value="">Select Section</option>
-              {availableSections.map(section => (
-                <option key={section} value={section}>{section}</option>
-              ))}
-            </select>
-          </div> */}
 
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
           </div>
-          
-          {/* <div className='action-filter'>
-            <button type="button" onClick={handleFilter}>Filter</button>
-            <button type="button" onClick={handleClearFilters}>Clear</button>
-          </div> */}
         </div>
 
         <div className="log-table cont">
@@ -212,11 +196,10 @@ function RFIDLogs() {
             <table>
               <thead>
                 <tr>
-                  <th>Username</th>
-                  {/* <th>Subject</th>
-                  <th>Section</th> */}
-                  <th>Log Date</th>
-                  <th>Login</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Scan Date</th>
+                  <th>Timestamp</th>
                 </tr>
               </thead>
               
@@ -225,15 +208,14 @@ function RFIDLogs() {
                   sortedLogs.map((log, index) => (
                     <tr key={index}>
                       <td className="faculty-name">{log.username}</td>
-                      {/* <td className="subject">{log.subject}</td>
-                      <td className="section">{log.section}</td> */}
+                      <td className="log-type">{log.type}</td> 
                       <td className="log-date">{log.date}</td>
                       <td className="log-in">{log.start_time}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className='no-fetch-msg'>No logs available.</td>
+                    <td colSpan="5" className='no-fetch-msg'>No logs available.</td> {/* Adjusted colspan */}
                   </tr>
                 )}
               </tbody>

@@ -17,6 +17,7 @@
   --sub-txt: #292929;
   --txt2: #4fa5ad;
   --alert-bg: rgba(0, 0, 0, 0.5);
+  --div-hov: #dadada;
 }
 
 body {
@@ -217,6 +218,8 @@ table {
     padding: 2px;
     text-align: center;
     border: 1px solid #ddd;
+    min-width: fit-content;
+    white-space: nowrap;
   }
 
   th {

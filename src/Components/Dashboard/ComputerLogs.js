@@ -251,10 +251,10 @@ function ComputerLogs() {
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
           <div className='username-filter filter-cont'>
-            <label className='start-date-input'>Username: </label>
+            <label className='start-date-input'>Name: </label>
             <input
               type="text"
-              placeholder="Username"
+              placeholder="Name"
               value={username}
               onChange={e => setUsername(e.target.value)}
             />
@@ -336,10 +336,10 @@ function ComputerLogs() {
           <table>
             <thead>
               <tr>
-                <th>PC Name</th>
-                <th>Username</th>
+                <th>Computer Name</th>
+                <th>Name</th>
                 <th>Section</th>
-                <th>Log Date</th>
+                <th>Usage Date</th>
                 <th>Login</th>
                 <th>Logout</th>
               </tr>
@@ -420,21 +420,30 @@ function ComputerLogs() {
           <div className='gen-report'>
             {type === 'student' ? (
               <button 
-                onClick={handleGenerateStudentReportExcel} 
+                onClick={
+                  () => showAlertModal('Are you sure you want to download computer logs?',
+                  handleGenerateStudentReportExcel)
+                } 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Class Report"</>}
               </button>
             ) : type === 'faculty' ? (
               <button 
-                onClick={handleGenerateFacultyReportExcel} 
+                onClick={
+                  () => showAlertModal('Are you sure you want to download computer logs?',
+                  handleGenerateFacultyReportExcel)
+                } 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Faculty Report</>}
               </button>
             ) : type === '' ? (
               <button 
-                onClick={handleGenerateCombinedReportExcel} 
+                onClick={
+                  () => showAlertModal('Are you sure you want to download computer logs?',
+                  handleGenerateCombinedReportExcel)
+                } 
                 disabled={loading}
               >
                 <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download All Computer Report</>}
