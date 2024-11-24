@@ -47,8 +47,8 @@ function FacultyRecord() {
   };
 
   useEffect(() => {
-    setUsername(`${first_name}.${last_name}.${middle_initial}`);
-  }, [first_name, last_name, middle_initial]);
+    setUsername(`${first_name}.${last_name}.${middle_initial}`.slice(0, 20));
+}, [first_name, last_name, middle_initial]);
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
@@ -586,8 +586,10 @@ function FacultyRecord() {
                     <input
                       type="text"
                       placeholder="Middle Initial"
-                      value={middle_initial}
-                      onChange={(e) => setMiddleinitial(e.target.value)}
+                      value={middle_initial.toUpperCase()}
+                      onChange={(e) => setMiddleinitial(e.target.value.slice(0, 1))}
+                      maxLength={1}
+                      required
                     />
                   </div>
                   <div className='user-form'>

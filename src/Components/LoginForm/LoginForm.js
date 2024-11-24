@@ -39,11 +39,6 @@ function LoginForm() {
       if (!response.ok) {
         const text = await response.text();
         console.error('Response text:', text);
-        if (response.status === 401) {
-          alert('Login failed: Incorrect password');
-        } else {
-          alert(`Login failed: ${response.status} ${response.statusText}`);
-        }
         return;
       }
 
@@ -53,9 +48,12 @@ function LoginForm() {
         localStorage.setItem('refreshToken', data.refresh);
         localStorage.setItem('id', data.user_id);
         localStorage.setItem('type', data.type);
-        showAlertModal('Login successful!', () => setIsModalOpen(false));
-        navigate('/dashboard');
+        showAlertModal('Login successful!', () => {
+          setIsModalOpen(false);
+          navigate('/dashboard');
+        });
       } else {
+        console.error('Response text:', data.detail);
         showAlertModal(`Login failed: ${data.detail}`, () => setIsModalOpen(false));
       }
 

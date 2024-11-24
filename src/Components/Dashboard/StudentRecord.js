@@ -10,9 +10,9 @@ function StudentRecord() {
     const type = "Student";
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [first_name, setFirstname] = useState('');
-    const [middle_initial, setMiddlename] = useState('');
-    const [last_name, setLastname] = useState('');
+    const [first_name, setFirstName] = useState('');
+    const [middle_initial, setMiddleInitial] = useState('');
+    const [last_name, setLastName] = useState('');
     const [username, setUsername] = useState('');
     
     // New Inputted Credentials for UpdateStudent
@@ -78,7 +78,7 @@ function StudentRecord() {
     });
     
     useEffect(() => {
-        setUsername(`${first_name}.${last_name}.${middle_initial}`);
+        setUsername(`${first_name}.${last_name}.${middle_initial}`.slice(0, 20));
     }, [first_name, last_name, middle_initial]);
 
     const handleTokenRefresh = async () => {
@@ -333,9 +333,9 @@ function StudentRecord() {
         setPassword('');
         setConfirmPassword('');
         setUsername('');
-        setFirstname('');
-        setMiddlename('');
-        setLastname('');
+        setFirstName('');
+        setMiddleInitial('');
+        setLastName('');
         setSection('');
         setMoveSecFormVisible(false);
         setChangePassVisible(false);
@@ -393,9 +393,9 @@ function StudentRecord() {
             setNewSectionName('');
             setIsAddingSection(false);
             setUsername('')
-            setFirstname('')
-            setMiddlename('')
-            setLastname('')
+            setFirstName('')
+            setMiddleInitial('')
+            setLastName('')
             setPassword('')
             setConfirmPassword('')
         }
@@ -1152,7 +1152,7 @@ function StudentRecord() {
                                                     type="text"
                                                     id="firstname"
                                                     value={first_name}
-                                                    onChange={(e) => setFirstname(e.target.value)}
+                                                    onChange={(e) => setFirstName(e.target.value)}
                                                     required
                                                 />
                                             </div>
@@ -1161,8 +1161,9 @@ function StudentRecord() {
                                                 <input
                                                     type="text"
                                                     id="middlename"
-                                                    value={middle_initial}
-                                                    onChange={(e) => setMiddlename(e.target.value)}
+                                                    value={middle_initial.toUpperCase()}
+                                                    onChange={(e) => setMiddleInitial(e.target.value.slice(0, 1).toUpperCase())}
+                                                    maxLength={1}
                                                     required
                                                 />
                                             </div>
@@ -1172,7 +1173,7 @@ function StudentRecord() {
                                                     type="text"
                                                     id="lastname"
                                                     value={last_name}
-                                                    onChange={(e) => setLastname(e.target.value)}
+                                                    onChange={(e) => setLastName(e.target.value)}
                                                     required
                                                 />
                                             </div>
