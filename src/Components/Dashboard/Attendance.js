@@ -458,16 +458,18 @@ function ClassSchedules() {
             <div className='cont-title'>
               <h3>
                 <div>Semester: {semester}</div>
-                <div className='bind-opt-cont'>
-                  <a className='bind-btn-opt' 
-                    onClick={
-                        () => showAlertModal(`Are you sure you want to dowload semestral report for ${semester}?`, 
-                        () => downloadReport(semesterId))
-                    }
-                  >
-                    <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Print</>}
-                  </a>
-                </div>
+                { semester &&
+                  <div className='bind-opt-cont'>
+                    <a className='bind-btn-opt' 
+                      onClick={
+                          () => showAlertModal(`Are you sure you want to dowload semestral report for ${semester}?`, 
+                          () => downloadReport(semesterId))
+                      }
+                    >
+                      <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Print</>}
+                    </a>
+                  </div>
+                }
               </h3>
             </div>
             <div className='schedule-items'>
