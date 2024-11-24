@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.css';
 // import './SignForm.css';
 import { API_BASE_URL } from '../Dashboard/BASE_URL';
+import AlertModal from '../Dashboard/AlertModal';
 
 function SignupForm() {
   const [username, setUsername] = useState('');
@@ -11,30 +12,21 @@ function SignupForm() {
   const [first_name, setFirstname] = useState('');
   const [middle_initial, setMiddlename] = useState('');
   const [last_name, setLastname] = useState('');
-  // const [OU, setOU] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-
-  // Function to get the CSRF token from a meta tag
-  const getCSRFToken = () => {
-    const tokenElement = document.querySelector('meta[name="csrf-token"]');
-    return tokenElement ? tokenElement.getAttribute('content') : '';
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!username || !password || !confirmPassword || !first_name || !last_name) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
-      return;
-    }
+  
+  const handleSubmit = async () => {
 
     setLoading(true);
 
@@ -43,7 +35,6 @@ function SignupForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': getCSRFToken(), // Include the CSRF token
         },
         body: JSON.stringify({
           username,
@@ -58,32 +49,27 @@ function SignupForm() {
       if (!response.ok) {
         const text = await response.text();
         console.error('Response text:', text);
-        alert(`Signup failed: ${response.status} ${response.statusText}`);
+        showAlertModal(`Signup failed: ${response.status} ${response.statusText}`, () => setIsModalOpen(false));
         return;
       }
 
       const data = await response.json();
       console.log(`TYPE: `, data);
       if (data.status_message) {
-        alert(data.status_message);
+        console.log(data.status_message);
       } else {
-        alert('Signup successful');
+        console.log('Signup successful');
       }
       navigate('/');
 
     } catch (error) {
       console.error('Error:', error);
-      alert(`An error occurred: ${error.message}`);
+      showAlertModal(`An error occurred: ${error.message}`, () => setIsModalOpen(false));
     } finally {
       setLoading(false);
     }
   };
 
-  // const goHome = () => {
-  //   navigate('/');
-  // };
-
-  // Function to toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -99,7 +85,14 @@ function SignupForm() {
           <div className="logo"></div>
           <h2>Smart<span>Silid</span></h2>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (password !== confirmPassword) {
+            showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
+            return;
+          }
+          handleSubmit();
+        }}>
           <div className=' log-input'>
             <label htmlFor="firstname">First Name:</label>
             <input
@@ -189,6 +182,13 @@ function SignupForm() {
           </div>
         </form>
       </div>
+      
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </div>
   );
 }

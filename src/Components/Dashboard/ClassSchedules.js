@@ -79,6 +79,7 @@ function RoomSchedule() {
       const data = await response.json();
       setSchedules(data.schedule || []);
       console.log(data.status);
+      console.log(data);
       
       setIsSemesterActive(data.status);
       console.log("SEMESTER: ", data.current_semester);
@@ -480,7 +481,7 @@ function RoomSchedule() {
                           <option value="" disabled>Select a faculty</option>
                           {facultyList.map(faculty => (
                             <option key={faculty.username} value={faculty.username}>
-                              {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
+                              {`${faculty.first_name} ${faculty.middle_initial}. ${faculty.last_name}`.trim()}
                             </option>
                           ))}
                         </select>

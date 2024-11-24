@@ -10,9 +10,9 @@ function StudentRecord() {
     const type = "Student";
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [first_name, setFirstname] = useState('');
-    const [middle_initial, setMiddlename] = useState('');
-    const [last_name, setLastname] = useState('');
+    const [first_name, setFirstName] = useState('');
+    const [middle_initial, setMiddleInitial] = useState('');
+    const [last_name, setLastName] = useState('');
     const [username, setUsername] = useState('');
     
     // New Inputted Credentials for UpdateStudent
@@ -21,7 +21,6 @@ function StudentRecord() {
     const [newLName, setNewLName] = useState('');
     const [newMInit, setNewMInit] = useState('');
     const [newUsername, setNewUsername] = useState('');
-    const [newType, setNewType] = useState('');
 
     // Bind RFID and PC per Student
     const [availableRfids, setAvailableRfids] = useState([]);
@@ -55,8 +54,6 @@ function StudentRecord() {
       setIsModalOpen(true); 
     };
 
-    const [errors, setErrors] = useState(null);
-
     const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
     const formatMiddleInitials = (middleInitials) =>
@@ -81,7 +78,7 @@ function StudentRecord() {
     });
     
     useEffect(() => {
-        setUsername(`${first_name}.${last_name}.${middle_initial}`);
+        setUsername(`${first_name}.${last_name}.${middle_initial}`.slice(0, 20));
     }, [first_name, last_name, middle_initial]);
 
     const handleTokenRefresh = async () => {
@@ -197,7 +194,7 @@ function StudentRecord() {
             const response = await fetch(`${API_BASE_URL}/get_all_students`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
-    
+
             if (response.status === 401) {
                 await handleTokenRefresh();
                 return handleStudentList(sectionName);
@@ -336,9 +333,9 @@ function StudentRecord() {
         setPassword('');
         setConfirmPassword('');
         setUsername('');
-        setFirstname('');
-        setMiddlename('');
-        setLastname('');
+        setFirstName('');
+        setMiddleInitial('');
+        setLastName('');
         setSection('');
         setMoveSecFormVisible(false);
         setChangePassVisible(false);
@@ -358,6 +355,17 @@ function StudentRecord() {
     const handleAddSection = async () => {
         const accessToken = localStorage.getItem('accessToken');
         if (newSectionName.trim()) {
+            console.log(newSectionName);
+            if (!/^[a-zA-Z0-9\s]+$/.test(newSectionName)) {
+                showAlertModal('Section name should contain only letters, numbers, and spaces', 
+                    () => {
+                        setIsModalOpen(false);
+                        setIsAddingSection(false);
+                        setSection('');
+                    }
+                );
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE_URL}/add_section`, {
                     method: 'POST',
@@ -385,9 +393,9 @@ function StudentRecord() {
             setNewSectionName('');
             setIsAddingSection(false);
             setUsername('')
-            setFirstname('')
-            setMiddlename('')
-            setLastname('')
+            setFirstName('')
+            setMiddleInitial('')
+            setLastName('')
             setPassword('')
             setConfirmPassword('')
         }
@@ -1144,7 +1152,7 @@ function StudentRecord() {
                                                     type="text"
                                                     id="firstname"
                                                     value={first_name}
-                                                    onChange={(e) => setFirstname(e.target.value)}
+                                                    onChange={(e) => setFirstName(e.target.value)}
                                                     required
                                                 />
                                             </div>
@@ -1153,8 +1161,9 @@ function StudentRecord() {
                                                 <input
                                                     type="text"
                                                     id="middlename"
-                                                    value={middle_initial}
-                                                    onChange={(e) => setMiddlename(e.target.value)}
+                                                    value={middle_initial.toUpperCase()}
+                                                    onChange={(e) => setMiddleInitial(e.target.value.slice(0, 1).toUpperCase())}
+                                                    maxLength={1}
                                                     required
                                                 />
                                             </div>
@@ -1164,7 +1173,7 @@ function StudentRecord() {
                                                     type="text"
                                                     id="lastname"
                                                     value={last_name}
-                                                    onChange={(e) => setLastname(e.target.value)}
+                                                    onChange={(e) => setLastName(e.target.value)}
                                                     required
                                                 />
                                             </div>
@@ -1468,7 +1477,7 @@ function StudentRecord() {
                                                         <option value="">None</option>
                                                         {students.map((student) => (
                                                             <option key={student.username} value={student.username}>
-                                                                {student.username}
+                                                                {student.first_name} {student.middle_initial}. {student.last_name}
                                                             </option>
                                                         ))}
                                                     </select>

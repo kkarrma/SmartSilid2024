@@ -27,6 +27,7 @@ function ComputerControl() {
   };
   
   useEffect(() => {
+    setStreamToken(localStorage.getItem('streamToken'));
     fetchComputers();
   }, []);
   
@@ -60,6 +61,7 @@ function ComputerControl() {
   };
 
   const fetchComputers = async () => {
+
     const accessToken = localStorage.getItem('accessToken');
 
     try {
@@ -366,7 +368,7 @@ function ComputerControl() {
 
     setIsModalOpen(false);
   };
-
+  
   const stopStream = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/stream/stop/`, {
@@ -413,8 +415,10 @@ function ComputerControl() {
             <h3 className="cont-title">Casting Controls</h3>
             <div className="stream-row">
               <div className='stream-btn'>
-                <button onClick={() => showAlertModal('Are you sure you want to start a stream?', () => startStream())}>Start Stream</button>
-                <button onClick={() => showAlertModal('Are you sure you want to stop the stream?', () => stopStream())}>Stop Stream</button>
+                <button onClick={() => showAlertModal('Are you sure you want to start a stream?', () => startStream())} 
+                  disabled={streamToken !== ''}>Start Stream</button>
+                <button onClick={() => showAlertModal('Are you sure you want to stop the stream?', () => stopStream())}
+                  disabled={streamToken === ''}>Stop Stream</button>
                 <div id="stream"></div> 
               </div>
             </div>
