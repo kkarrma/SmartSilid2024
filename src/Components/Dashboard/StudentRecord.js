@@ -655,6 +655,7 @@ function StudentRecord() {
                 showAlertModal(`The following rows have missing fields and will not be uploaded:\n${errorDetails}`, 
                     () => setIsModalOpen(false)
                 );
+                return;
             }
     
             // Check if there are valid entries to upload
