@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './LoginForm.css';
 import { API_BASE_URL } from '../Dashboard/BASE_URL';
+import AlertModal from '../Dashboard/AlertModal';
 
 function LoginForm() {
   const [username, setUsername] = useState('');
@@ -10,14 +11,16 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
+  const showAlertModal = (message, onConfirm) => {
+    setModalMessage(message);
+    setModalConfirmCallback(() => onConfirm);
+    setIsModalOpen(true); 
+  };
 
-    // Basic validation
-    if (!username || !password) {
-      alert('Please fill in both fields');
-      return;
-    }
+  const handleSubmit = async () => {
 
     setLoading(true);
 
@@ -50,10 +53,10 @@ function LoginForm() {
         localStorage.setItem('refreshToken', data.refresh);
         localStorage.setItem('id', data.user_id);
         localStorage.setItem('type', data.type);
-        alert('Login successful!');
+        showAlertModal('Login successful!', () => setIsModalOpen(false));
         navigate('/dashboard');
       } else {
-        alert(`Login failed: ${data.detail}`);
+        showAlertModal(`Login failed: ${data.detail}`, () => setIsModalOpen(false));
       }
 
     } catch (error) {
@@ -75,7 +78,15 @@ function LoginForm() {
           <div className="logo"></div>
           <h2>Smart<span>Silid</span></h2>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => {
+          e.preventDefault(); 
+          
+          if (!username || !password) {
+            showAlertModal('Please fill in both fields.', () => setIsModalOpen(false));
+            return;
+          }
+          handleSubmit();
+        }}>
           <div className="username-div log-input">
             <label htmlFor="username">Username:</label>
             <input
@@ -117,6 +128,13 @@ function LoginForm() {
           <Link to="/signup" className="link sign">Set up Admin →</Link>
         </div>
       </div>
+
+      <AlertModal
+        message={modalMessage}
+        onConfirm={modalConfirmCallback} 
+        onCancel={() => setIsModalOpen(false)}
+        isOpen={isModalOpen}
+      />
     </div>
   );
 }

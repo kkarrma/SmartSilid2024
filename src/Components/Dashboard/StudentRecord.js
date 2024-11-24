@@ -21,7 +21,6 @@ function StudentRecord() {
     const [newLName, setNewLName] = useState('');
     const [newMInit, setNewMInit] = useState('');
     const [newUsername, setNewUsername] = useState('');
-    const [newType, setNewType] = useState('');
 
     // Bind RFID and PC per Student
     const [availableRfids, setAvailableRfids] = useState([]);
@@ -54,8 +53,6 @@ function StudentRecord() {
       setModalConfirmCallback(() => onConfirm);
       setIsModalOpen(true); 
     };
-
-    const [errors, setErrors] = useState(null);
 
     const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
@@ -197,7 +194,7 @@ function StudentRecord() {
             const response = await fetch(`${API_BASE_URL}/get_all_students`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
-    
+
             if (response.status === 401) {
                 await handleTokenRefresh();
                 return handleStudentList(sectionName);
