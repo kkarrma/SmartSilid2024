@@ -784,7 +784,7 @@ function FacultyRecord() {
                   <div key={index} className="faculty-item">
                     <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
                       <span>{expandedIndex === index ? '-' : '+'} &nbsp;</span>
-                      <strong>{`${faculty.username}`}</strong>
+                      <strong>{`${faculty.first_name} ${faculty.middle_initial}. ${faculty.last_name}`}</strong>
                       <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
                         {localStorage.getItem('id') !== faculty.id.toString() ? (
                           <div>
@@ -822,7 +822,7 @@ function FacultyRecord() {
                                 <button 
                                   className='del-btn'
                                   style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                  onClick={() => handleUnbindRFID(faculty.username, faculty.rfid)} // Pass specific RFID
+                                  onClick={() => handleUnbindRFID(`${faculty.first_name} ${faculty.last_name}`, faculty.rfid)} // Pass specific RFID
                                 >
                                   {/* remove */}
                                   <i className="fa-solid fa-minus"></i>

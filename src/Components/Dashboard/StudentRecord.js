@@ -355,6 +355,17 @@ function StudentRecord() {
     const handleAddSection = async () => {
         const accessToken = localStorage.getItem('accessToken');
         if (newSectionName.trim()) {
+            console.log(newSectionName);
+            if (!/^[a-zA-Z0-9\s]+$/.test(newSectionName)) {
+                showAlertModal('Section name should contain only letters, numbers, and spaces', 
+                    () => {
+                        setIsModalOpen(false);
+                        setIsAddingSection(false);
+                        setSection('');
+                    }
+                );
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE_URL}/add_section`, {
                     method: 'POST',
@@ -1465,7 +1476,7 @@ function StudentRecord() {
                                                         <option value="">None</option>
                                                         {students.map((student) => (
                                                             <option key={student.username} value={student.username}>
-                                                                {student.username}
+                                                                {student.first_name} {student.middle_initial}. {student.last_name}
                                                             </option>
                                                         ))}
                                                     </select>

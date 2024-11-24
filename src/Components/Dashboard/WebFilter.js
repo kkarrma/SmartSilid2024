@@ -172,7 +172,7 @@ function WebFilter() {
               <h3 classame="cont-title">URL Block Form</h3>
               <form onSubmit={(e) => {
                 e.preventDefault();
-                showAlertModal('Are you sure you want to add this URL?',
+                showAlertModal('Are you sure you want to add this URL? This will be blocked once the computers restart.',
                 handleAddURL)
               }
               }>
