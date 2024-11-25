@@ -116,8 +116,6 @@ function RoomSchedule() {
     } catch (error) {
       console.error('Error fetching schedules:', error);
     }
-    
-    setIsModalOpen(false);
   };
 
   const handleEndSemester = async () => {
@@ -145,8 +143,6 @@ function RoomSchedule() {
     } catch (error) {
       console.error('Error fetching schedules:', error);
     }
-
-    setIsModalOpen(false);
   };
 
   const fetchSections = async () => {
@@ -228,54 +224,43 @@ function RoomSchedule() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`
         },
         body: JSON.stringify({
           id,
           subject: newSubject,
           section: selectedSection,
-          weekdays: newDay,
+          weekdays: newDay, 
           start_time,
           end_time,
           faculty_name: faculty,
-          semester_name: semester,
+          semester_name: semester
         }),
       });
-  
-      // Handle token refresh if needed
+
       if (response.status === 401) {
-        console.warn("Unauthorized, attempting token refresh...");
         await handleTokenRefresh();
-        return handleAddSchedule(); // Retry after refreshing token
+        return handleAddSchedule();
       }
-  
-      // Check for non-OK response
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server responded with error:", errorText);
-        throw new Error(`Request failed with status ${response.status}`);
+        throw new Error('Network response was not ok');
       }
-  
+
       const data = await response.json();
       console.log("NIGAARUUUUNN", data);
-  
-      // Safeguard to ensure status_message exists
-      const statusMessage = data.status_message || "Schedule added successfully!";
-      
-      // Display the alert modal
-      showAlertModal(statusMessage, () => {
-        fetchSchedules(); // Refresh schedules
-        resetForm();      // Reset the form after successful submission
+      showAlertModal(data.status_message, () => {
+        fetchSchedules();
+        resetForm();
+        setIsModalOpen(false);
       });
-  
-      setIsModalOpen(false); // Close the modal regardless of success/failure
+
     } catch (error) {
-      console.error("Error adding schedule:", error);
-      alert("Failed to add schedule. Please try again.");
+      console.error('Error adding schedule:', error);
+      alert('Failed to add schedule. Please try again.');
     }
-  
+
   };
-  
 
   const resetForm = () => {
     setId('');
@@ -387,7 +372,10 @@ function RoomSchedule() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       showAlertModal(`Are you sure you want to start (${semester})?`, 
-                      () => handleStartSemester(semester));
+                      () => {
+                        handleStartSemester(semester);
+                        setIsModalOpen(false);
+                      });
                     }}
                   > 
                     <div className='user-form'>
@@ -430,7 +418,10 @@ function RoomSchedule() {
                       onSubmit={(e) => {
                         e.preventDefault();
                         showAlertModal('Are you sure you want to add this schedule?', 
-                        handleAddSchedule);
+                        () => {
+                          handleAddSchedule();
+                          setIsModalOpen(false);
+                        });
                       }}
                     >
                       <div className='input-subj-name user-form'> 
@@ -554,7 +545,10 @@ function RoomSchedule() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       showAlertModal('Are you sure you want to update this schedule?',
-                      handleEditSched);
+                      () => {
+                        handleEditSched();
+                        setIsModalOpen(false);
+                      });
                     }}
                   >
                     <div className='input-subj-name user-form'> 
@@ -704,7 +698,12 @@ function RoomSchedule() {
                                   <i className="fa-solid fa-pen-to-square"></i>
                                 </button>
                                 <button type="button" className="del-btn" 
-                                  onClick={() => showAlertModal('Are you sure you want to delete this schedule?', () => handleDeleteSchedule(schedule))}
+                                  onClick={() => showAlertModal('Are you sure you want to delete this schedule?', 
+                                    () => {
+                                      handleDeleteSchedule(schedule);
+                                      setIsModalOpen(false);
+                                    }
+                                  )}
                                 >
                                   <i className="fa-solid fa-trash-can"></i>
                                 </button>
@@ -757,7 +756,12 @@ function RoomSchedule() {
 
             <div className='end-sem-btn'>
               <button className="end-sem-btn del-btn" 
-                onClick={() => showAlertModal('Are you sure you want to end the current semester?', handleEndSemester)}>
+                onClick={() => showAlertModal('Are you sure you want to end the current semester?', 
+                  () => {
+                    handleEndSemester();
+                    setIsModalOpen(false);
+                  }
+                )}>
                 End Semester
               </button>
             </div>
