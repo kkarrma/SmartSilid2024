@@ -251,8 +251,10 @@ function RoomSchedule() {
         throw new Error('Network response was not ok');
       }
 
-      fetchSchedules();
-      resetForm();
+      const data = await response.json();
+      
+      showAlertModal(data.message, () => {fetchSchedules; resetForm();});
+
     } catch (error) {
       console.error('Error adding schedule:', error);
       alert('Failed to add schedule. Please try again.');
