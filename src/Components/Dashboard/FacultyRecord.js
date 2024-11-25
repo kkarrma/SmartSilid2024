@@ -779,123 +779,134 @@ function FacultyRecord() {
 
         <div className="faculty-list-label cont">
           <h3>Faculty List</h3>
-          <div className='faculty-list'>
+          <div className="faculty-table">
             {Array.isArray(facultyData) && facultyData.length > 0 ? (
-              <div className='faculty-rows'>
-                {facultyData.map((faculty, index) => (
-                  <div key={index} className="faculty-item">
-                    <div className="faculty-header" onClick={() => handleToggleExpand(index)}>
-                      <span>{expandedIndex === index ? '-' : '+'} &nbsp;</span>
-                      <strong>{`${faculty.first_name} ${faculty.middle_initial}. ${faculty.last_name}`}</strong>
-                      <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Faculty Name</th>
+                    <th>RFID</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {facultyData.map((faculty, index) => (
+                    <tr key={index}>
+                      <td>
+                        <strong>{`${faculty.first_name} ${faculty.middle_initial}. ${faculty.last_name}`}</strong>
+                      </td>
+                      <td>
+                        {faculty.rfid ? (
+                          <div>
+                            <span>{faculty.rfid}</span>
+                            <button
+                              className="del-btn"
+                              style={{ marginLeft: '8px', cursor: 'pointer' }}
+                              onClick={() =>
+                                handleUnbindRFID(
+                                  `${faculty.first_name} ${faculty.last_name}`,
+                                  faculty.rfid
+                                )
+                              }
+                            >
+                              <i className="fa-solid fa-minus"></i> Unbind
+                            </button>
+                          </div>
+                        ) : (
+                          <span>N/A</span>
+                        )}
+                      </td>
+                      <td>
                         {localStorage.getItem('id') !== faculty.id.toString() ? (
                           <div>
-                            <button onClick={(event) => {
-                              event.stopPropagation(); // Prevent toggle when editing
-                              handleEditClick(faculty);
-                            }}>
+                            <button
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                handleEditClick(faculty);
+                              }}
+                            >
                               <i className="fa-solid fa-pen-to-square"></i>
                             </button>
-                            <button 
-                              className='del-btn'
+                            <button
+                              className="del-btn"
                               onClick={(event) => {
-                                event.stopPropagation(); 
-                                showAlertModal(`Are you sure you want to delete ${faculty.username}?`, 
-                                () => handleDeleteFaculty(faculty.username));
+                                event.stopPropagation();
+                                showAlertModal(
+                                  `Are you sure you want to delete ${faculty.username}?`,
+                                  () => handleDeleteFaculty(faculty.username)
+                                );
                               }}
                             >
                               <i className="fa-solid fa-trash-can"></i>
                             </button>
                           </div>
                         ) : (
-                          <div style={{ padding: '17px'}}></div>
+                          <span>Current User</span>
                         )}
-                      </div>
-                    </div>
-                    {expandedIndex === index && (
-                      <div className="faculty-details">
-                        <ul>
-                          {faculty.rfid ? ( // Check if the RFID is present
-                            <li>
-                              <div className='rfid-unbind-label'>
-                                {faculty.rfid}
-                              </div>
-                              <div className='rfid-unbind-btn'>
-                                <button 
-                                  className='del-btn'
-                                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                                  onClick={() => handleUnbindRFID(`${faculty.first_name} ${faculty.last_name}`, faculty.rfid)} // Pass specific RFID
-                                >
-                                  {/* remove */}
-                                  <i className="fa-solid fa-minus"></i>
-                                </button>
-                              </div>
-                            </li>
-                          ) : (
-                            <li className='no-fetch-msg'>No RFID allocated</li>
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             ) : (
-              <p className='no-fetch-msg'>No faculty records found.</p>
+              <p className="no-fetch-msg">No faculty records found.</p>
             )}
           </div>
         </div>
 
-
         <div className="rfid-list cont">
           <h3>Available RFIDs</h3>
-          {availableRfids.length > 0 ? (
-            availableRfids.map((rfid, index) => (
-              <div key={index} className="rfid-item">
-                <label className='rfid-name'>{rfid}</label>
-                <select 
-                  value={rfidBindUser[rfid] || 'none'} 
-                  onChange={(e) => {
-                    setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
-                    console.log("USERNAME", rfidBindUser[rfid]);
-                  }}
-                >
-                  <option value="none">None</option>
-                  {facultyData.map((faculty, facultyIndex) => (
-                    <option key={facultyIndex} value={faculty.username}>
-                      {`${faculty.first_name} ${faculty.last_name}`}
-                    </option>
-                  ))}
-                </select>
-                <button 
-                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (rfidBindUser[rfid] === '' || rfidBindUser[rfid] === undefined) {
-                      showAlertModal(`Please choose a faculty to assign the RFID with value ${rfid}.`, () => setIsModalOpen(false));
-                    } else {
-                      showAlertModal(`Are you sure you want to bind RFID with value ${rfid} to ${rfidBindUser[rfid]}?`,
-                      () => handleBindRFID(rfidBindUser[rfid], rfid))
-                    }
-                  }}
-                >
-                  Assign
-                </button>
-                <button 
-                  className='del-btn'  
-                  style={{ marginLeft: '8px', cursor: 'pointer' }} 
-                  onClick={
-                    () => showAlertModal(`Are you sure you want to delete ${rfid}?`,
-                    () => handleDeleteRFID(rfid))
-                  }
-                >
-                  <i className="fa-solid fa-trash-can"></i>
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className='no-fetch-msg'>No available RFIDs.</p>
-          )}
+          <div className="available-list">
+            {availableRfids.length > 0 ? (
+              availableRfids.map((rfid, index) => (
+                <div key={index} className="rfid-item">
+                  <label className='rfid-name'>{rfid}</label>
+                  <select 
+                    value={rfidBindUser[rfid] || 'none'} 
+                    onChange={(e) => {
+                      setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
+                      console.log("USERNAME", rfidBindUser[rfid]);
+                    }}
+                  >
+                    <option value="none">None</option>
+                    {facultyData.map((faculty, facultyIndex) => (
+                      <option key={facultyIndex} value={faculty.username}>
+                        {`${faculty.first_name} ${faculty.last_name}`}
+                      </option>
+                    ))}
+                  </select>
+                  <div>
+                    <button 
+                      style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (rfidBindUser[rfid] === '' || rfidBindUser[rfid] === undefined) {
+                          showAlertModal(`Please choose a faculty to assign the RFID with value ${rfid}.`, () => setIsModalOpen(false));
+                        } else {
+                          showAlertModal(`Are you sure you want to bind RFID with value ${rfid} to ${rfidBindUser[rfid]}?`,
+                          () => handleBindRFID(rfidBindUser[rfid], rfid))
+                        }
+                      }}
+                    >
+                      Assign
+                    </button>
+                    <button 
+                      className='del-btn'  
+                      style={{ marginLeft: '8px', cursor: 'pointer' }} 
+                      onClick={
+                        () => showAlertModal(`Are you sure you want to delete ${rfid}?`,
+                        () => handleDeleteRFID(rfid))
+                      }
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className='no-fetch-msg'>No available RFIDs.</p>
+            )}
+          </div>
         </div>
       </div>
 

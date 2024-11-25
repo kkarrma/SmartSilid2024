@@ -89,6 +89,14 @@ function RFIDLogs() {
     }
   };
 
+  const formatTime = (timeString) => {
+    const [hours, minutes] = timeString.split(':');
+    const isPm = +hours >= 12;
+    const formattedHours = (+hours % 12) || 12;
+    const suffix = isPm ? 'PM' : 'AM';
+    return `${formattedHours}:${minutes} ${suffix}`;
+  };
+
   const fetchRFIDLogs = async () => {
     const accessToken = localStorage.getItem('accessToken');
     try {
@@ -261,7 +269,7 @@ function RFIDLogs() {
                       <td className="faculty-name">{log.username}</td>
                       <td className="log-type">{log.type}</td> 
                       <td className="log-date">{log.date}</td>
-                      <td className="log-in">{log.start_time}</td>
+                      <td className="log-in">{formatTime(log.start_time)}</td>
                     </tr>
                   ))
                 ) : (

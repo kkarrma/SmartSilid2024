@@ -122,6 +122,13 @@
     text-align: center;
   }
 
+  .faculty-table {
+    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 200px;
+  }
+
   .rfid-list {
     display: flex;
     flex-direction: column;
@@ -132,18 +139,28 @@
       align-items: center;
       gap: 5px;
     } */
+    .available-list {
+      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: auto;
+      white-space: nowrap;
 
-    rfid-item {
-      display: grid;
-      text-align: center;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      align-items: center;
-      gap: 5px;
-    }
+      .rfid-item {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        max-width: fit-content;
+        text-align: center;
+        justify-content: start;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 10px;
+      }
 
-    .rfid-name {
-      margin-right: 10px;
-      font-weight: bold;
+      .rfid-name {
+        margin-right: 10px;
+        font-weight: bold;
+        min-width: 100px;
+      }
     }
   }
 }

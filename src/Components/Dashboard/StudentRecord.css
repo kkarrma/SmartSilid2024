@@ -148,15 +148,6 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      
-      .student-rfid-list {
-        margin: 0 0 30px 0;
-
-      }
-
-      .student-pc-list {
-        margin: 0;
-      }
     }
   }
 
@@ -242,6 +233,41 @@
       &:hover {
         color: var(--btn-hov);
       }
+    }
+  }
+
+  .avail-list {
+    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: 200px;
+    white-space: nowrap;
+
+    .rfid-item,
+    .pc-item {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      max-width: fit-content;
+      text-align: center;
+      justify-content: start;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+
+    .rfid-name,
+    .pc-name {
+      margin-right: 10px;
+      font-weight: bold;
+      min-width: 100px;
+    }
+
+    button {
+      padding: 5px 8px;
+    }
+
+    select {
+      padding: 6px 8px;
     }
   }
 }
