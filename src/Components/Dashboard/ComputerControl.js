@@ -416,9 +416,9 @@ function ComputerControl() {
             <div className="stream-row">
               <div className='stream-btn'>
                 <button onClick={() => showAlertModal('Are you sure you want to start a stream?', () => startStream())} 
-                  disabled={streamToken !== ''}>Start Stream</button>
+                  disabled={isStreaming == true}>Start Stream</button>
                 <button onClick={() => showAlertModal('Are you sure you want to stop the stream?', () => stopStream())}
-                  disabled={streamToken === ''}>Stop Stream</button>
+                  disabled={isStreaming == false}>Stop Stream</button>
                 <div id="stream"></div> 
               </div>
             </div>

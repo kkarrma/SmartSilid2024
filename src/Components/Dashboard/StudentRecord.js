@@ -242,6 +242,7 @@ function StudentRecord() {
 
     const handleAddStudent = async () => {
         const accessToken = localStorage.getItem('accessToken');
+        setIsModalOpen(false); //
 
         if (password !== confirmPassword) {
             showAlertModal('Passwords do not match', () => setIsModalOpen(false));
@@ -272,6 +273,7 @@ function StudentRecord() {
                     first_name,
                     middle_initial,
                     last_name,
+                    username,
                     section: selectedSection
                 }),
             });
@@ -294,6 +296,7 @@ function StudentRecord() {
             
             if(data.error_message){
                 console.error(data.error_message);
+                return showAlertModal(data.error_message, () => setIsModalOpen(false));
             }
 
             else{
@@ -309,8 +312,6 @@ function StudentRecord() {
             }
 
             
-                
-            handleCancelClick();
         } catch (error) {
             console.error('Error:', error);
             showAlertModal(`An error occurred: ${error.message}`, () => setIsModalOpen(false));
@@ -318,7 +319,7 @@ function StudentRecord() {
             setLoading(false);
         }
 
-        setIsModalOpen(false);
+        //setIsModalOpen(false);
     };
 
     const handleAddClick = () => {
