@@ -601,13 +601,14 @@ function RoomSchedule() {
                       <select
                         className="faculty-select"
                         value={editSchedule.faculty_name || ""} 
-                        placeholder={editSchedule.faculty} 
+                        placeholder={editSchedule.faculty_name} 
                         onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
                         required
                       >
                         <option value="" disabled>Select a faculty</option>
                         {facultyList.map(faculty => (
                           <option key={faculty.name} value={faculty.username}>
+                            {console.log(editSchedule.faculty_name)}
                             {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
                           </option>
                         ))}

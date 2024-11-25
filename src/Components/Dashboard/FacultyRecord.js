@@ -47,7 +47,7 @@ function FacultyRecord() {
   };
 
   useEffect(() => {
-    setUsername(`${first_name}.${last_name}.${middle_initial}`.slice(0, 20));
+    setUsername(`${first_name}.${last_name}.${middle_initial.toUpperCase()  }`.slice(0, 20));
 }, [first_name, last_name, middle_initial]);
 
   const handleTokenRefresh = async () => {
