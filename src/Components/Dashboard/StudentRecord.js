@@ -442,15 +442,24 @@ function StudentRecord() {
                 }),  
             });
 
+            const responseData = await response.json();
+
             if (response.status === 401) {
                 await handleTokenRefresh();
                 return handleUpdateStudent();
                 }
 
+            if (responseData.error_message) {
+                return showAlertModal(responseData.error_message, ()=> setIsModalOpen(false)); 
+            }
+
+            if (responseData.errors) {
+                return showAlertModal(responseData.errors, ()=> setIsModalOpen(false));
+            }
+
             if (response.ok) {
-                const responseData = await response.json();
-                alert("Student updated successfully", responseData);
-                // Optionally handle success, e.g., refresh student data or show success message
+                
+                
                 handleStudentList(selectedSection);
                 setEditFormVisible(false);
             } else {
@@ -590,6 +599,18 @@ function StudentRecord() {
                 await handleTokenRefresh();
                 return handleChangePassword(student, newPassword);
             }
+
+            const data = await response.json();
+            console.log(data);
+
+            if (data.error_message){
+                return showAlertModal(
+                    data.error_message,
+                    () => setIsModalOpen(false)
+                );
+            }
+
+            
     
             if (response.ok) {
                 alert('Password changed successfully!');
@@ -1287,7 +1308,10 @@ function StudentRecord() {
                                             <button  type="button" 
                                                 onClick={ () => {
                                                     showAlertModal("Are you sure you want to update student information?",
-                                                        handleUpdateStudent
+                                                        () => {
+                                                            handleUpdateStudent(); 
+                                                            setIsModalOpen(false); 
+                                                        }
                                                     );
                                                 }}
                                                 disabled={loading}
