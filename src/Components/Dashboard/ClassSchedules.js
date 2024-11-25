@@ -116,8 +116,6 @@ function RoomSchedule() {
     } catch (error) {
       console.error('Error fetching schedules:', error);
     }
-    
-    setIsModalOpen(false);
   };
 
   const handleEndSemester = async () => {
@@ -145,8 +143,6 @@ function RoomSchedule() {
     } catch (error) {
       console.error('Error fetching schedules:', error);
     }
-
-    setIsModalOpen(false);
   };
 
   const fetchSections = async () => {
@@ -251,14 +247,19 @@ function RoomSchedule() {
         throw new Error('Network response was not ok');
       }
 
-      fetchSchedules();
-      resetForm();
+      const data = await response.json();
+      console.log("NIGAARUUUUNN", data);
+      showAlertModal(data.status_message, () => {
+        fetchSchedules();
+        resetForm();
+        setIsModalOpen(false);
+      });
+
     } catch (error) {
       console.error('Error adding schedule:', error);
       alert('Failed to add schedule. Please try again.');
     }
 
-    setIsModalOpen(false);
   };
 
   const resetForm = () => {
@@ -371,7 +372,10 @@ function RoomSchedule() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       showAlertModal(`Are you sure you want to start (${semester})?`, 
-                      () => handleStartSemester(semester));
+                      () => {
+                        handleStartSemester(semester);
+                        setIsModalOpen(false);
+                      });
                     }}
                   > 
                     <div className='user-form'>
@@ -414,7 +418,10 @@ function RoomSchedule() {
                       onSubmit={(e) => {
                         e.preventDefault();
                         showAlertModal('Are you sure you want to add this schedule?', 
-                        handleAddSchedule);
+                        () => {
+                          handleAddSchedule();
+                          setIsModalOpen(false);
+                        });
                       }}
                     >
                       <div className='input-subj-name user-form'> 
@@ -538,7 +545,10 @@ function RoomSchedule() {
                     onSubmit={(e) => {
                       e.preventDefault();
                       showAlertModal('Are you sure you want to update this schedule?',
-                      handleEditSched);
+                      () => {
+                        handleEditSched();
+                        setIsModalOpen(false);
+                      });
                     }}
                   >
                     <div className='input-subj-name user-form'> 
@@ -601,13 +611,14 @@ function RoomSchedule() {
                       <select
                         className="faculty-select"
                         value={editSchedule.faculty_name || ""} 
-                        placeholder={editSchedule.faculty} 
+                        placeholder={editSchedule.faculty_name} 
                         onChange={(e) => setEditSchedule({ ...editSchedule, faculty_name: e.target.value })}
                         required
                       >
                         <option value="" disabled>Select a faculty</option>
                         {facultyList.map(faculty => (
                           <option key={faculty.name} value={faculty.username}>
+                            {console.log(editSchedule.faculty_name)}
                             {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
                           </option>
                         ))}
@@ -687,7 +698,12 @@ function RoomSchedule() {
                                   <i className="fa-solid fa-pen-to-square"></i>
                                 </button>
                                 <button type="button" className="del-btn" 
-                                  onClick={() => showAlertModal('Are you sure you want to delete this schedule?', () => handleDeleteSchedule(schedule))}
+                                  onClick={() => showAlertModal('Are you sure you want to delete this schedule?', 
+                                    () => {
+                                      handleDeleteSchedule(schedule);
+                                      setIsModalOpen(false);
+                                    }
+                                  )}
                                 >
                                   <i className="fa-solid fa-trash-can"></i>
                                 </button>
@@ -740,7 +756,12 @@ function RoomSchedule() {
 
             <div className='end-sem-btn'>
               <button className="end-sem-btn del-btn" 
-                onClick={() => showAlertModal('Are you sure you want to end the current semester?', handleEndSemester)}>
+                onClick={() => showAlertModal('Are you sure you want to end the current semester?', 
+                  () => {
+                    handleEndSemester();
+                    setIsModalOpen(false);
+                  }
+                )}>
                 End Semester
               </button>
             </div>

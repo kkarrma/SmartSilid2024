@@ -88,6 +88,14 @@ function ComputerLogs() {
     }
   };
 
+  const formatTime = (timeString) => {
+    const [hours, minutes] = timeString.split(':');
+    const isPm = +hours >= 12;
+    const formattedHours = (+hours % 12) || 12;
+    const suffix = isPm ? 'PM' : 'AM';
+    return `${formattedHours}:${minutes} ${suffix}`;
+  };
+
   const fetchComputerLogs = async () => { 
     const accessToken = localStorage.getItem('accessToken');
     try {
@@ -103,6 +111,8 @@ function ComputerLogs() {
         body: JSON.stringify({
           start_date: formattedStartDate,
           end_date: formattedEndDate,
+          // start_date: start_date,
+          // end_date: end_date,
           fullname: username, 
           computer_name,
           pagination,
@@ -366,12 +376,12 @@ function ComputerLogs() {
                     </td>
                     <td className="log-in">
                       <div className="flex-cont">
-                        <span>{log.logon ? log.logon : 'N/A'}</span>
+                        <span>{log.logon ? formatTime(log.logon) : 'N/A'}</span>
                       </div>
                     </td>
                     <td className="log-out">
                       <div className="flex-cont">
-                        <span>{log.logoff ? log.logoff : 'N/A'}</span>
+                        <span>{log.logoff ? formatTime(log.logoff) : 'N/A'}</span>
                       </div>
                     </td>
                   </tr>

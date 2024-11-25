@@ -1,70 +1,95 @@
-/* AlertModal.scss */
-
 .alert-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* background-color: rgba(0, 0, 0, 0.5); */
-    background-color: var(--alert-bg);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999999999;
-  
-    .alert-modal {
-      background-color: var(--bg1);
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      animation: pop-up 0.3s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--alert-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999999999;
 
-      .alert-modal-content {
-        p {
-          font-size: 16px;
-          margin-bottom: 20px;
+  .alert-modal {
+    background-color: var(--bg1);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    animation: pop-up 0.3s ease-in-out;
+
+    .alert-modal-content {
+      .msg-alert {
+        display: flex;
+        flex-direction: column; 
+        align-items: center; 
+        gap: 10px; 
+        margin-bottom: 20px;
+
+        .alert-modal-icon {
+          content: '';
+          background: url('../Assets/ss_icon.png') no-repeat center center;
+          background-size: contain;
+          width: 60px;
+          height: 60px;
+          margin: 0;
         }
-  
-        .alert-modal-actions {
-          display: flex;
-          justify-content: space-between;
-  
-          .alert-modal-button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-  
+        
+        p {
+          margin-top: -5px;
+          font-size: 16px;
+        }
+      }
+
+      .alert-modal-actions {
+        display: flex;
+        justify-content: end;
+        gap: 5px;
+
+        .alert-modal-button {
+          padding: 4px 8px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+
+          &:hover {
+            opacity: 0.8;
+          }
+
+          &.cancel-button {
+            border: var(--btn) 2px solid;
+            color: var(--btn);
+            background-color: transparent;
+            transition: .3s ease-in-out;
+
             &:hover {
-              opacity: 0.8;
+              border-color: var(--btn-hov);
+              color: var(--btn-hov);
             }
-  
-            &.cancel-button {
-              background-color: #f0f0f0;
-              color: #333;
-            }
-  
-            &.confirm-button {
-              background-color: #4CAF50;
-              color: white;
+          }
+
+          &.confirm-button {
+            background-color: var(--btn);
+            color: white;
+
+            &:hover {
+              background-color: var(--btn-hov);
             }
           }
         }
       }
     }
+  }
 }
 
 @keyframes pop-up {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+0% {
+  transform: scale(0.8);
+  opacity: 0;
+}
+100% {
+  transform: scale(1);
+  opacity: 1;
+}
 }

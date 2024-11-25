@@ -1430,8 +1430,8 @@ function StudentRecord() {
                                                     <td className="mid-init">{student.middle_initial}</td>
                                                     <td className="last-name">{student.last_name}</td>
                                                     <td className="section">{student.section}</td>
-                                                    <td className="rfid">{student.rfid}</td>
-                                                    <td className="computer">{student.computer}</td>
+                                                    <td className="rfid">{student.rfid ? student.rfid : 'N/A'}</td>
+                                                    <td className="computer">{student.computer ? student.computer : 'N/A'}</td>
                                                     <td className="action">
                                                         {!formVisible && (
                                                             <button type="button" onClick={() => handleEditStudent(student)}>
@@ -1459,54 +1459,58 @@ function StudentRecord() {
                             <div className='student-rfid-list cont'>
                                 <h3 className='cont-title'>Available RFIDs</h3>
                                 <div className='rfid-cont'>
-                                    {availableRfids.length === 0 ? (
-                                        <p className='no-fetch-msg'>No available RFIDs.</p>
-                                    ) : (
-                                        <>
-                                            {availableRfids
-                                            .filter((rfid) => !Object.values(rfidBindUser).includes(rfid)) 
-                                            .map((rfid, index) => (
-                                                <div key={index} className='rfid-item'>
-                                                    <label className='rfid-name'>{rfid}</label>
-                                                    <select
-                                                        value={rfidBindUser[rfid] || ''}
-                                                        onChange={(e) => {
-                                                            const updatedUsername = e.target.value;
-                                                            setRfidBindUser({ ...rfidBindUser, [rfid]: updatedUsername });
-                                                        }}
-                                                    >
-                                                        <option value="">None</option>
-                                                        {students.map((student) => (
-                                                            <option key={student.username} value={student.username}>
-                                                                {student.first_name} {student.middle_initial}. {student.last_name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (rfidBindUser[rfid]) {
-                                                                showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
-                                                                () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
-                                                            } else {
-                                                                showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));    
-                                                            }
-                                                        }}
-                                                    >
-                                                        Assign
-                                                    </button>
-                                                    <button
-                                                        className='del-btn'
-                                                        onClick={
-                                                            () => showAlertModal(`Are you sure you want to delete RFID: ${rfid}?`, 
-                                                            () => handleDeleteRFID(rfid)
-                                                        )}
-                                                    >
-                                                        <i className="fa-solid fa-trash-can"></i>
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </>
-                                    )}
+                                    <div className='avail-list'>
+                                        {availableRfids.length === 0 ? (
+                                            <p className='no-fetch-msg'>No available RFIDs.</p>
+                                        ) : (
+                                            <>
+                                                {availableRfids
+                                                .filter((rfid) => !Object.values(rfidBindUser).includes(rfid)) 
+                                                .map((rfid, index) => (
+                                                    <div key={index} className='rfid-item'>
+                                                        <label className='rfid-name'>{rfid}</label>
+                                                        <select
+                                                            value={rfidBindUser[rfid] || ''}
+                                                            onChange={(e) => {
+                                                                const updatedUsername = e.target.value;
+                                                                setRfidBindUser({ ...rfidBindUser, [rfid]: updatedUsername });
+                                                            }}
+                                                        >
+                                                            <option value="">None</option>
+                                                            {students.map((student) => (
+                                                                <option key={student.username} value={student.username}>
+                                                                    {student.first_name} {student.middle_initial}. {student.last_name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (rfidBindUser[rfid]) {
+                                                                        showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
+                                                                        () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
+                                                                    } else {
+                                                                        showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));    
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Assign
+                                                            </button>
+                                                            <button
+                                                                className='del-btn'
+                                                                onClick={
+                                                                    () => showAlertModal(`Are you sure you want to delete RFID: ${rfid}?`, 
+                                                                    () => handleDeleteRFID(rfid)
+                                                                )}
+                                                            >
+                                                                <i className="fa-solid fa-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -1536,50 +1540,45 @@ function StudentRecord() {
                                     </h3>
                                 </div>
                                 <div className='pc-cont'>
-                                    {availablePcs.length === 0 ? (
-                                        <p className='no-fetch-msg'>No available PCs.</p>
-                                    ) : (
-                                        availablePcs
-                                            .filter((pc) => !Object.values(pcBindUser).includes(pc))
-                                            .map((pc, index) => (
-                                                <div key={index} className='pc-item'>
-                                                    <label className='pc-name'>{pc}</label>
-                                                    <select
-                                                        value={pcBindUser[pc] || ''}
-                                                        onChange={(e) => {
-                                                            const updatedUsername = e.target.value;
-                                                            setPcBindUser({ ...pcBindUser, [pc]: updatedUsername });
-                                                        }}
-                                                    >
-                                                        <option value="">None</option>
-                                                        {students.map((student) => (
-                                                            <option key={student.username} value={student.username}>
-                                                                {student.username}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <button
-                                                        onClick={() => {
-                                                            if (pcBindUser[pc]) {
-                                                                showAlertModal(`Are you sure you want to assign PC: ${pc} to ${pcBindUser[pc]}?`,
-                                                                () => handleBindPC(pcBindUser[pc], pc, selectedSection));
-                                                            } else {
-                                                                showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));  
-                                                            }
-                                                        }}
-                                                    >
-                                                        Assign
-                                                    </button>
-                                                    {/* <button
-                                                        className='del-btn'
-                                                        style={{ marginLeft: '8px', cursor: 'pointer' }}
-                                                        onClick={() => handleDeletePC(pc)}
-                                                    >
-                                                        <i className="fa-solid fa-trash-can"></i>
-                                                    </button> */}
-                                                </div>
-                                            ))
-                                    )}
+                                    <div className='avail-list'>
+                                        {availablePcs.length === 0 ? (
+                                            <p className='no-fetch-msg'>No available PCs.</p>
+                                        ) : (
+                                            availablePcs
+                                                .filter((pc) => !Object.values(pcBindUser).includes(pc))
+                                                .map((pc, index) => (
+                                                    <div key={index} className='pc-item'>
+                                                        <label className='pc-name'>{pc}</label>
+                                                        <select
+                                                            value={pcBindUser[pc] || ''}
+                                                            onChange={(e) => {
+                                                                const updatedUsername = e.target.value;
+                                                                setPcBindUser({ ...pcBindUser, [pc]: updatedUsername });
+                                                            }}
+                                                        >
+                                                            <option value="">None</option>
+                                                            {students.map((student) => (
+                                                                <option key={student.username} value={student.username}>
+                                                                    {student.username}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                        <button
+                                                            onClick={() => {
+                                                                if (pcBindUser[pc]) {
+                                                                    showAlertModal(`Are you sure you want to assign PC: ${pc} to ${pcBindUser[pc]}?`,
+                                                                    () => handleBindPC(pcBindUser[pc], pc, selectedSection));
+                                                                } else {
+                                                                    showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));  
+                                                                }
+                                                            }}
+                                                        >
+                                                            Assign
+                                                        </button>
+                                                    </div>
+                                                ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
