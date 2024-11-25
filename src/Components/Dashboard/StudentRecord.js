@@ -804,11 +804,6 @@ function StudentRecord() {
     }; 
     
     const handleUnbindRFID = async (username, rfid) => {
-        if (!username) {
-            alert('Please choose a faculty to assign the RFID.');
-            return;
-        }
-    
         const accessToken = localStorage.getItem('accessToken');
     
         try {
@@ -834,6 +829,7 @@ function StudentRecord() {
                 handleStudentList(selectedSection);
                 console.log(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
                 setSelectedStudent({...selectedStudent, rfid: null});
+                setRfidBindUser('');
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
@@ -971,12 +967,11 @@ function StudentRecord() {
                 handleStudentList(selectedSection);
                 console.log(`All computer has been unbounded successfully.`);
                 fetchSections();
+                setPcBindUser('');
             } 
         } catch (error) {
-            console.log('An error occurred while unbinding all Computer. Please check your connection.');
+            showAlertModal('An error occurred while unbinding all Computer. Please check your connection.', () => setIsModalOpen(false));
         }
-        
-        setIsModalOpen(false);
     };
 
     const handleUnbindPC = async (username, computer, section) => {
@@ -1005,6 +1000,7 @@ function StudentRecord() {
                 handleStudentList(selectedSection);
                 console.log(`Computer ${computer} has been unbound from ${username} successfully.`);
                 setSelectedStudent({...selectedStudent, computer: null});
+                setPcBindUser('');
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to unbind Computer: ${errorData.status_message || 'Error unbinding computer'}`);
@@ -1287,7 +1283,10 @@ function StudentRecord() {
                                             <button  type="button" 
                                                 onClick={ () => {
                                                     showAlertModal("Are you sure you want to update student information?",
-                                                        handleUpdateStudent
+                                                        () => {
+                                                            setIsModalOpen(false);
+                                                            handleUpdateStudent();
+                                                        }
                                                     );
                                                 }}
                                                 disabled={loading}
@@ -1388,7 +1387,10 @@ function StudentRecord() {
                                         {selectedStudent?.rfid !== null ? (
                                             <button type="button" onClick={() => {
                                                 showAlertModal('Are you sure you want to unbind this RFID?', 
-                                                () => handleUnbindRFID(selectedStudent.username, selectedStudent.rfid));
+                                                () => {
+                                                    handleUnbindRFID(selectedStudent.username, selectedStudent.rfid)
+                                                    setIsModalOpen(false);
+                                                });
                                             }}>
                                                 Unbind RFID
                                             </button>
@@ -1497,7 +1499,10 @@ function StudentRecord() {
                                                             <button
                                                                 onClick={() => {
                                                                     if (rfidBindUser[rfid]) {
-                                                                        showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
+                                                                        showAlertModal(`Are you sure you want to assign RFID: ${rfid} to 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.first_name} 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.middle_initial}. 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.last_name}?`,
                                                                         () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
                                                                     } else {
                                                                         showAlertModal('Please select a user before assigning.', 

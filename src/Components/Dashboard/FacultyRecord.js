@@ -102,11 +102,11 @@ function FacultyRecord() {
         const rfids = data.rfid.map(r => r.rfid);
         setAvailableRfids(rfids);
       } else {
-        setErrorMessage('Failed to fetch faculty data. Please try again later.');
+        console.error('Failed to fetch faculty data. Please try again later.');
       }
     } catch (error) {
       
-      setErrorMessage('Error fetching faculty data. Please check your connection.');
+      showAlertModal('Error fetching faculty data. Please check your connection.', () => setIsModalOpen(false));
     } finally {
       setLoading(false);
       
@@ -149,6 +149,13 @@ function FacultyRecord() {
         await handleTokenRefresh();
         return handleAddFaculty();
       }
+      
+      const data = await response.json();
+      console.log(data);
+
+      if (data.error_message) {
+        showAlertModal(data.error_message, () => setIsModalOpen(false));
+      }
 
       if (response.ok) {
         fetchFaculty();
@@ -162,8 +169,6 @@ function FacultyRecord() {
     } finally {
       setLoading(false);
     }
-
-    setIsModalOpen(false);
   };
 
   const handleEditFaculty = async (e) => {
@@ -322,13 +327,19 @@ function FacultyRecord() {
 
       if (response.ok) {
         fetchFaculty();
-        alert(`RFID with value ${rfid} has been deleted successfully.`);
+        showAlertModal(`RFID with value ${rfid} has been deleted successfully.`,
+          () => setIsModalOpen(false)
+        );
       } else {
         const errorData = await response.json();
-        alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+        showAlertModal(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`,
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
-      setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
+      showAlertModal('An error occurred while deleting RFID. Please check your connection.',
+        () => setIsModalOpen(false)
+      );
     }
   };
 
@@ -375,8 +386,6 @@ function FacultyRecord() {
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmUnbind = window.confirm(`Are you sure you want to unbind RFID with value ${rfid} from ${facultyUsername}?`);
-    if (!confirmUnbind) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
@@ -398,13 +407,19 @@ function FacultyRecord() {
 
       if (response.ok) {
         fetchFaculty();
-        alert(`RFID with value ${rfid} has been unbound from ${facultyUsername} successfully.`);
+        showAlertModal(`RFID with value ${rfid} has been unbound from ${facultyUsername} successfully.`,
+          () => setIsModalOpen(false)
+        );
+        setSelectedFaculty({...selectedFaculty, rfid: null});
+        setRfidBindUser('');
       } else {
         const errorData = await response.json();
-        alert(`Failed to unbind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
+        showAlertModal(`Failed to unbind RFID: ${errorData.status_message || 'Error unbinding RFID'}`,
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
-      setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
+      showAlertModal('An error occurred while unbinding RFID. Please check your connection.', () => setIsModalOpen(false));
     }
   };
 
@@ -568,7 +583,11 @@ function FacultyRecord() {
               <form onSubmit={(e) => { 
                 e.preventDefault(); 
                 showAlertModal('Are you sure you want to add this faculty?', 
-                handleAddFaculty)
+                  () => {
+                    setIsModalOpen(false);
+                    handleAddFaculty();
+                  }
+                )
               }}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
@@ -724,54 +743,69 @@ function FacultyRecord() {
                 </div>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-                {changePassFormVisible ? (
-                  <div className="change-pass-div">
-                    <div className="user-form">
-                      <label htmlFor="password">New Password: </label>
-                      <PasswordInput
-                        placeholder="**********"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <div className="user-form">
-                      <label htmlFor="password">Confirm Password: </label>
-                      <PasswordInput
-                        placeholder="**********"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                      />
+                <div className="more-edit-btn" style={{ display: 'flex'}}>
+                  {changePassFormVisible ? (
+                    <div className="change-pass-div">
+                      <div className="user-form">
+                        <label htmlFor="password">New Password: </label>
+                        <PasswordInput
+                          placeholder="**********"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
                       </div>
+                      <div className="user-form">
+                        <label htmlFor="password">Confirm Password: </label>
+                        <PasswordInput
+                          placeholder="**********"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        </div>
+                      <div className='reg-div'>
+                        <button type="button" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (password !== confirmPassword) {
+                              showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
+                              return;
+                            } else if (password === '') {
+                              showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
+                            } else {
+                              showAlertModal('Are you sure you want to change this faculty password?', 
+                              () => handleChangePassword(selectedFaculty, password));
+                            }
+                          }}
+                        >
+                          Change Password
+                        </button>
+                        <button type="button" onClick={handleCloseChangePassForm}>
+                          Cancel
+                        </button>
+                      </div>
+                    </div>  
+                  ) : (
                     <div className='reg-div'>
-                      <button type="button" 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          if (password !== confirmPassword) {
-                            showAlertModal('Passwords do not match.', () => setIsModalOpen(false));
-                            return;
-                          } else if (password === '') {
-                            showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
-                          } else {
-                            showAlertModal('Are you sure you want to change this faculty password?', 
-                            () => handleChangePassword(selectedFaculty, password));
-                          }
-                        }}
-                      >
+                      <button type="button" onClick={() => setChangePassFormVisible(true)}>
                         Change Password
                       </button>
-                      <button type="button" onClick={handleCloseChangePassForm}>
-                        Cancel
-                      </button>
                     </div>
-                  </div>  
-                ) : (
-                  <div className='reg-div'>
-                    <button type="button" onClick={() => setChangePassFormVisible(true)}>
-                      Change Password
-                    </button>
-                  </div>
-                )}
+                  )}
 
+                  {selectedFaculty?.rfid !== null ? (
+                    <button type="button" onClick={() => {
+                      showAlertModal('Are you sure you want to unbind this RFID?', 
+                      () => {
+                        handleUnbindRFID(selectedFaculty.username, selectedFaculty.rfid)
+                        setIsModalOpen(false);
+                      });
+                    }}>
+                      Unbind RFID
+                    </button>
+                    ) : (
+                      <></>
+                  )}
+                </div>
               </form>
             </div>
           </div>
@@ -799,18 +833,6 @@ function FacultyRecord() {
                         {faculty.rfid ? (
                           <div>
                             <span>{faculty.rfid}</span>
-                            <button
-                              className="del-btn"
-                              style={{ marginLeft: '8px', cursor: 'pointer' }}
-                              onClick={() =>
-                                handleUnbindRFID(
-                                  `${faculty.first_name} ${faculty.last_name}`,
-                                  faculty.rfid
-                                )
-                              }
-                            >
-                              <i className="fa-solid fa-minus"></i> Unbind
-                            </button>
                           </div>
                         ) : (
                           <span>N/A</span>
