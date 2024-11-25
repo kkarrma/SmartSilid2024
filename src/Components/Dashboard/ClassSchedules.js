@@ -228,40 +228,54 @@ function RoomSchedule() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           id,
           subject: newSubject,
           section: selectedSection,
-          weekdays: newDay, 
+          weekdays: newDay,
           start_time,
           end_time,
           faculty_name: faculty,
-          semester_name: semester
+          semester_name: semester,
         }),
       });
-
+  
+      // Handle token refresh if needed
       if (response.status === 401) {
+        console.warn("Unauthorized, attempting token refresh...");
         await handleTokenRefresh();
-        return handleAddSchedule();
+        return handleAddSchedule(); // Retry after refreshing token
       }
-
+  
+      // Check for non-OK response
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorText = await response.text();
+        console.error("Server responded with error:", errorText);
+        throw new Error(`Request failed with status ${response.status}`);
       }
-
+  
       const data = await response.json();
+      console.log("NIGAARUUUUNN", data);
+  
+      // Safeguard to ensure status_message exists
+      const statusMessage = data.status_message || "Schedule added successfully!";
       
-      showAlertModal(data.message, () => {fetchSchedules; resetForm();});
-
+      // Display the alert modal
+      showAlertModal(statusMessage, () => {
+        fetchSchedules(); // Refresh schedules
+        resetForm();      // Reset the form after successful submission
+      });
+  
+      setIsModalOpen(false); // Close the modal regardless of success/failure
     } catch (error) {
-      console.error('Error adding schedule:', error);
-      alert('Failed to add schedule. Please try again.');
+      console.error("Error adding schedule:", error);
+      alert("Failed to add schedule. Please try again.");
     }
-
-    setIsModalOpen(false);
+  
   };
+  
 
   const resetForm = () => {
     setId('');
