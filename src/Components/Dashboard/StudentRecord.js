@@ -242,7 +242,7 @@ function StudentRecord() {
 
     const handleAddStudent = async () => {
         const accessToken = localStorage.getItem('accessToken');
-        setIsModalOpen(false); //
+        
 
         if (password !== confirmPassword) {
             showAlertModal('Passwords do not match', () => setIsModalOpen(false));
@@ -803,7 +803,7 @@ function StudentRecord() {
         setIsModalOpen(false);
     }; 
     
-    const handleUnbindRFID = async (username, rfid, section) => {
+    const handleUnbindRFID = async (username, rfid) => {
         if (!username) {
             alert('Please choose a faculty to assign the RFID.');
             return;
@@ -1145,7 +1145,10 @@ function StudentRecord() {
                                         <form onSubmit={ (e) => {
                                             e.preventDefault();
                                             showAlertModal('Are you sure you want to add this student?', 
-                                            () => handleAddStudent())
+                                            () => {
+                                                setFormVisible(false);
+                                                handleAddStudent(); 
+                                            })
                                         }}>
                                             <div className='user-form'>
                                                 <label htmlFor="firstname">First Name: <span>*</span></label>
@@ -1281,7 +1284,14 @@ function StudentRecord() {
                                             />
                                         </div>
                                         <div className='reg-div'>
-                                            <button  type="button" onClick={handleUpdateStudent} disabled={loading}>
+                                            <button  type="button" 
+                                                onClick={ () => {
+                                                    showAlertModal("Are you sure you want to update student information?",
+                                                        handleUpdateStudent
+                                                    );
+                                                }}
+                                                disabled={loading}
+                                            >
                                                 {loading ? 'Updating...' : 'Update'}
                                             </button>
                                             <button className="cancel-btn" type="button" onClick={handleCancelClick}>
@@ -1308,7 +1318,7 @@ function StudentRecord() {
                                                     <button type="button"
                                                         onClick={
                                                             () => showAlertModal(`Are you sure you want to move this student to section ${section}?`, 
-                                                            () =>handleMoveSection(selectedStudent, section)
+                                                            () => handleMoveSection(selectedStudent, section)
                                                         )} 
                                                         disabled={loading}
                                                     >
@@ -1490,7 +1500,8 @@ function StudentRecord() {
                                                                         showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
                                                                         () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
                                                                     } else {
-                                                                        showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));    
+                                                                        showAlertModal('Please select a user before assigning.', 
+                                                                        () => setIsModalOpen(false));    
                                                                     }
                                                                 }}
                                                             >

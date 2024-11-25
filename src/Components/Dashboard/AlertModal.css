@@ -6,6 +6,7 @@
   bottom: 0;
   background-color: var(--alert-bg);
   display: flex;
+
   justify-content: center;
   align-items: center;
   z-index: 999999999999;
