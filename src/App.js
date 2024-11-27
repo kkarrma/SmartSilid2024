@@ -25,14 +25,14 @@ function App() {
           path="/signup"
           element={accessToken ? <Navigate to="/dashboard" /> : <SignupForm />}
         />
-        <Route
+        {/* <Route
           path="/forgot-password"
           element={accessToken ? <Navigate to="/dashboard" /> : <ForgotPassword />}
         />
         <Route
           path="/reset-password"
           element={accessToken ? <Navigate to="/dashboard" /> : <ResetPassword />}
-        />
+        /> */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/user-page" element={<UserPage />} />
       </Routes>

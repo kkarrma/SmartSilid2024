@@ -21,25 +21,35 @@
     animation: pop-up 0.3s ease-in-out;
 
     .alert-modal-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;  
+      
+      .alert-modal-icon {
+        content: '';
+        background: url('../Assets/ss_icon.png') no-repeat center center;
+        background-size: contain;
+        width: 60px;
+        height: 60px;
+        margin: 0;
+      }
+
       .msg-alert {
         display: flex;
         flex-direction: column; 
         align-items: center; 
         gap: 10px; 
         margin-bottom: 20px;
+        max-height: 250px;
+        overflow: hidden;
+        overflow-y: auto;
 
-        .alert-modal-icon {
-          content: '';
-          background: url('../Assets/ss_icon.png') no-repeat center center;
-          background-size: contain;
-          width: 60px;
-          height: 60px;
-          margin: 0;
-        }
         
-        p {
-          margin-top: -5px;
-          font-size: 16px;
+        .alert-modal-icon {
+          p {
+            margin-top: -5px;
+            font-size: 16px;
+          }
         }
       }
 

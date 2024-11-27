@@ -4,6 +4,7 @@ import { API_BASE_URL } from './BASE_URL';
 import './ComputerControl.css';
 import { useNavigate } from 'react-router-dom';
 import AlertModal from './AlertModal';
+import { ShopFilled } from '@ant-design/icons';
 
 function ComputerControl() {
   const [pcs, setPcs] = useState([]);
@@ -36,7 +37,8 @@ function ComputerControl() {
     
     if (refreshToken === null) {
       console.log("Refresh token is missing.");
-      return Navigate('/'); 
+      // return Navigate("/");
+      return 0;
       }
       
       try {
@@ -45,16 +47,16 @@ function ComputerControl() {
             headers: { "Content-Type": "application/json" }, 
             body: JSON.stringify({ refresh: refreshToken }), 
           });
-
-          console.log("ulit")
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return 0;
         }
 
         const data = await response.json();
         localStorage.setItem('accessToken', data.access);
+        return 1; 
     } catch (error) {
         console.error('Token refresh error:', error);
     }
@@ -71,8 +73,15 @@ function ComputerControl() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchComputers();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }  
+        else {
+          return fetchComputers();  
+        }
         
       }
 
@@ -115,8 +124,15 @@ function ComputerControl() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return shutdownPC(pcList); 
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return shutdownPC(pcList); 
+        }
       }
 
     } catch (error) {
@@ -140,8 +156,15 @@ function ComputerControl() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return wakenPC(pcList);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return wakenPC(pcList);
+        }
       }
     } catch (error) {
       console.error('Failed to wake computers:', error);
@@ -163,8 +186,15 @@ function ComputerControl() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleDeleteSelectedPCs(pcList);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleDeleteSelectedPCs(pcList);
+        }
       }
 
       if (response.ok) {
@@ -299,8 +329,15 @@ function ComputerControl() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleSetComputerAdmin(); 
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleSetComputerAdmin(); 
+        }
       }
   
       if (!response.ok) {
@@ -315,11 +352,9 @@ function ComputerControl() {
       }
     } catch (error) {
       
-      console.error('Failed to make the computer admin:', error);
+      showAlertModal('Failed to make the computer admin:' + error, () => setIsModalOpen(false));
       fetchComputers();
     }
-
-    setIsModalOpen(false);
   };
 
   const setAdminStatus = (computerName, status) => {
@@ -351,7 +386,8 @@ function ComputerControl() {
         const tokenMatch = result.match(/"token":\s*"([^"]+)"/);
         localStorage.setItem('streamToken', tokenMatch[1]);
         setStreamToken(localStorage.getItem('streamToken'));
-        console.log(streamToken); 
+        console.log(streamToken);
+        showAlertModal("Stream started successfully.", () => setIsModalOpen(false)); 
         
         if (tokenMatch) {
           setIsStreaming(true);
@@ -362,11 +398,9 @@ function ComputerControl() {
         console.log("Failed to start streaming.");
       }
     } catch (error) {
-      console.error("Error starting stream:", error);
-      console.log("Error starting stream. Please try again.");
+      showAlertModal("Error starting stream:" + error,  () => setIsModalOpen(false));
+      console.error("Error starting stream. Please try again.");
     }
-
-    setIsModalOpen(false);
   };
   
   const stopStream = async () => {
@@ -385,15 +419,14 @@ function ComputerControl() {
         setStreamToken('');
         localStorage.removeItem('streamToken'); 
         setIsStreaming(false);
+        showAlertModal("Stream stopped successfully.", () => setIsModalOpen(false));
       } else {
         console.log("Failed to stop streaming.");
       }
     } catch (error) {
       console.error("Error stopping stream:", error);
-      console.log("Error stopping stream. Please try again.");
+      showAlertModal("Error stopping stream. Please try again.", () => setIsModalOpen(false));
     }
-
-    setIsModalOpen(false);
   };
 
   const streamUrl = `${API_BASE_URL}/stream`; // The URL part you want
@@ -448,7 +481,13 @@ function ComputerControl() {
                   </option>
                 ))}
               </select>
-              <button type="button" onClick={() => showAlertModal('Are you sure you want to asign this computer as Admin PC?', () => handleSetComputerAdmin())}
+              <button type="button" 
+                onClick={() => showAlertModal('Are you sure you want to asign this computer as Admin PC?', 
+                  () => {
+                    setIsModalOpen(false)
+                    handleSetComputerAdmin()
+                  }
+                )}
               
                 // disabled={!adminInputValue}  
               >
@@ -481,14 +520,24 @@ function ComputerControl() {
                 />
                 <button
                   type="button"
-                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', () => handleToggleSelectedPCs(true))}
+                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', 
+                    () => {
+                      setIsModalOpen(false)
+                      handleToggleSelectedPCs(true)
+                    }
+                  )}
                   disabled={selectedPCs.length === 0} 
                 >
                   Turn On
                 </button>
                 <button
                   type="button"
-                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', () => handleToggleSelectedPCs(false))}
+                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', 
+                    () => {
+                      setIsModalOpen(false)
+                      handleToggleSelectedPCs(false)
+                    }
+                  )}
                   disabled={selectedPCs.length === 0} 
                 >
                   Turn Off
@@ -496,7 +545,12 @@ function ComputerControl() {
                 <button
                   className='del-btn'
                   type="button"
-                  onClick={() => showAlertModal('Are you sure you want to remove the selected PCs?', () => handleDeleteSelectedPCs(selectedPCs))}
+                  onClick={() => showAlertModal('Are you sure you want to remove the selected PCs?', 
+                    () => {
+                      setIsModalOpen(false)
+                      handleDeleteSelectedPCs(selectedPCs)
+                    }
+                  )}
                   disabled={selectedPCs.length === 0} 
                 >
                   Remove
@@ -547,7 +601,12 @@ function ComputerControl() {
                             <input
                               type="checkbox"
                               checked={pcStates[pc]?.isOn}
-                              onChange={() => showAlertModal(`Are you sure you want to turn ${pcStates[pc]?.isOn ? 'off' : 'on'} ${pc}?`, () => handleRowTogglePC(pc))} 
+                              onChange={() => showAlertModal(`Are you sure you want to turn ${pcStates[pc]?.isOn ? 'off' : 'on'} ${pc}?`, 
+                                () => {
+                                  setIsModalOpen(false)
+                                  handleRowTogglePC(pc)
+                                }
+                              )} 
                             />
                             <span className="slider" />
                           </label>

@@ -42,7 +42,8 @@ function ComputerLogs() {
 
     if (refreshToken === null) {
         console.log("Refresh token is missing.");
-        return Navigate('/'); 
+        // return Navigate("/");
+        return 0;
       }
       
       try {
@@ -54,11 +55,13 @@ function ComputerLogs() {
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return 0;
         }
 
         const data = await response.json();
         localStorage.setItem('accessToken', data.access);
+        return 1; 
     } catch (error) {
         console.error('Token refresh error:', error);
     }
@@ -72,8 +75,15 @@ function ComputerLogs() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchComputers();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchComputers();
+        }
       }
       if (response.ok) {
         const data = await response.json();
@@ -122,8 +132,15 @@ function ComputerLogs() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchComputerLogs();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchComputerLogs();
+        }
       }
 
       const data = await response.json();
@@ -145,8 +162,15 @@ function ComputerLogs() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSections();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchSections();
+        }
       }
 
       if (response.ok) {
@@ -237,26 +261,10 @@ function ComputerLogs() {
     setSelectedSection('');
   };
 
-  // Sort logs by id in descending order
   const sortedLogs = [...logs].sort((a, b) => b.id - a.id);
 
   return (
     <>
-      {/* <div className='gen-report'>
-        <button 
-          onClick={handleGenerateFacultyReportPDF} 
-          disabled={loading}
-        >
-          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Faculty Report"</>}
-        </button>
-        <button 
-          onClick={handleGenerateStudentReportPDF} 
-          disabled={loading}
-          className='pdf-btn'
-        >
-          {loading ? "Generating..." : <><i class="fa-solid fa-print"></i> Download Section Report</>}
-        </button>
-      </div> */}
       <div className='logbook'>
         <div className="filter-controls cont">
           <h3 classame="cont-title">Filter Controls</h3>
@@ -334,10 +342,10 @@ function ComputerLogs() {
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
           </div>
           
-          {/* <div className='action-filter'>
+          <div className='action-filter'>
             <button type="button" onClick={handleFilter}>Filter</button>
             <button type="button" onClick={handleClearFilters}>Clear</button>
-          </div> */}
+          </div>
         </div>
 
         <div className="log-table cont">

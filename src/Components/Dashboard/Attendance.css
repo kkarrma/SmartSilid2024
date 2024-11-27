@@ -268,6 +268,11 @@
     align-items: center;
     text-align: justify;
     gap: 10px;
+    transition: .3s ease-in-out;
+    
+    &:hover {
+      color: var(--btn-hov);
+    }
     
     .bind-opt-cont {
       display: flex;

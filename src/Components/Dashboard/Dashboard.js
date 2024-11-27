@@ -21,6 +21,7 @@ function Dashboard() {
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
   const [userName] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(''); 
   const Navigate = useNavigate();
   
@@ -32,6 +33,16 @@ function Dashboard() {
     handleTokenRefresh();
     checkDashToAccess(); 
   }, []);
+
+  // useEffect(() => {
+  //   if (isLoggedIn === false) { 
+  //     Navigate("/");
+  //     window.location.reload();
+  //   }
+
+  // }, [isLoggedIn]);
+
+
 
   const toggleUserRecord = () => {
     setIsUserRecordOpen(!isUserRecordOpen);
@@ -51,7 +62,8 @@ function Dashboard() {
 
     if (refreshToken === null) {
         console.log("Refresh token is missing.");
-        return Navigate('/'); 
+        // return Navigate("/");
+        return setIsLoggedIn(false); 
       }
       
       try {
@@ -63,11 +75,13 @@ function Dashboard() {
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return setIsLoggedIn(false); 
         }
 
         const data = await response.json();
         localStorage.setItem('accessToken', data.access);
+        return setIsLoggedIn(true); 
     } catch (error) {
         console.error('Token refresh error:', error);
     }
@@ -165,14 +179,16 @@ function Dashboard() {
             {/* <i className="fa-solid fa-network-wired"></i> */}
             Computer Controls
           </div>
-          {/* <div className={`menu-panel dash ${selectedMenu === 'Casting' ? 'selected' : ''}`} 
-            onClick={() => {
-              setSelectedMenu('Casting');
-              closeAllDrops();
-            }}>
-            <i className="fa-solid fa-computer"></i>
-            Casting
-          </div> */}
+
+          {userType == 'faculty' && (
+            <>
+              <div className={`menu-panel dash ${selectedMenu === 'Attendance' ? 'selected' : ''}`} 
+                onClick={() => setSelectedMenu('Attendance')}>
+                {/* <i className="fa-regular fa-credit-card"></i>  */}
+                Attendance
+              </div>
+            </>
+          )}
 
           {userType == 'admin' && (
             <>
@@ -186,7 +202,8 @@ function Dashboard() {
               </div>
               <div className={`menu-panel dash ${isLogbookOpen ? 'open' : ''}`} onClick={toggleLogbook}>
                 {/* <i className="fa-solid fa-book-open"></i> */}
-                Logbook &nbsp;&nbsp;
+                Records &nbsp;&nbsp;
+                {/* Logbook &nbsp;&nbsp; */}
                 <i className={`fa-solid ${isLogbookOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
               </div>
               {isLogbookOpen && (
@@ -195,13 +212,13 @@ function Dashboard() {
                     onClick={() => setSelectedMenu('Computer Logs')}>
                     &nbsp;&nbsp;
                     {/* <i className="fa-solid fa-desktop"></i> */}
-                    Computer Logs
+                    Computer Sign-Ins
                   </div>
                   <div className={`menu-panel dash ${selectedMenu === 'RFID Logs' ? 'selected' : ''}`} 
                     onClick={() => setSelectedMenu('RFID Logs')}>
                     &nbsp;&nbsp;
                     {/* <i className="fa-regular fa-credit-card"></i>  */}
-                    RFID Logs
+                    RFID Scans
                   </div>
                   <div className={`menu-panel dash ${selectedMenu === 'Attendance' ? 'selected' : ''}`} 
                     onClick={() => setSelectedMenu('Attendance')}>
@@ -213,7 +230,8 @@ function Dashboard() {
               )}
               <div className={`menu-panel dash ${isUserRecordOpen ? 'open' : ''}`} onClick={toggleUserRecord}>
                 {/* <i className="fa-solid fa-user"></i> */}
-                User Record &nbsp;&nbsp;
+                Account Management &nbsp;&nbsp;
+                {/* User Record &nbsp;&nbsp; */}
                 <i className={`fa-solid ${isUserRecordOpen ? 'fa-angle-down' : 'fa-angle-right'}`}></i>
               </div>
               {isUserRecordOpen && (

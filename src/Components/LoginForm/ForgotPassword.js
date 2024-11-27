@@ -1,51 +1,51 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './LoginForm.css';
+// import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import './LoginForm.css';
 
-function ForgotPassword() {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+// function ForgotPassword() {
+//   const [email, setEmail] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-    if (!email) {
-      alert('Please enter your email');
-      return;
-    }
+//     if (!email) {
+//       alert('Please enter your email');
+//       return;
+//     }
 
-    setLoading(true);
+//     setLoading(true);
 
-    // Simulate forgot password logic here
-    // Assume email is sent successfully
-    alert('Password reset email sent!');
-    navigate('/reset-password');
+//     // Simulate forgot password logic here
+//     // Assume email is sent successfully
+//     alert('Password reset email sent!');
+//     navigate('/reset-password');
 
-    setLoading(false);
-  };
+//     setLoading(false);
+//   };
 
-  return (
-    <div className="page-container">
-      <div className='logo'></div>
-      <h2>Forgot Password</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Sending email...' : 'Send Reset Email'}
-        </button>
-      </form>
-    </div>
-  );
-}
+//   return (
+//     <div className="page-container">
+//       <div className='logo'></div>
+//       <h2>Forgot Password</h2>
+//       <form onSubmit={handleSubmit}>
+//         <div>
+//           <label htmlFor="email">Email:</label>
+//           <input
+//             type="email"
+//             id="email"
+//             value={email}
+//             onChange={(e) => setEmail(e.target.value)}
+//             required
+//           />
+//         </div>
+//         <button type="submit" disabled={loading}>
+//           {loading ? 'Sending email...' : 'Send Reset Email'}
+//         </button>
+//       </form>
+//     </div>
+//   );
+// }
 
-export default ForgotPassword;
+// export default ForgotPassword;

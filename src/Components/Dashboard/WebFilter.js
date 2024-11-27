@@ -24,7 +24,8 @@ function WebFilter() {
 
     if (refreshToken === null) {
       console.log("Refresh token is missing.");
-      return Navigate('/'); 
+      // return Navigate("/");
+      return 0;
     }
 
     try {
@@ -36,11 +37,13 @@ function WebFilter() {
 
       if (!response.ok) {
         console.error('Failed to refresh token. Status:', response.status);
-        return Navigate('/'); 
+        // return Navigate("/");
+        return 0;
       }
 
       const data = await response.json();
       localStorage.setItem('accessToken', data.access);
+      return 1;
     } catch (error) {
       console.error('Token refresh error:', error);
     }
@@ -54,8 +57,15 @@ function WebFilter() {
       });
 
       if(response.status === 401) {
-        handleTokenRefresh();
-        return fetchURLs();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchURLs();
+        }
       }
 
       if (!response.ok) throw new Error('Failed to fetch URLs');
@@ -95,8 +105,15 @@ function WebFilter() {
       });
 
       if(response.status === 401) {
-        handleTokenRefresh();
-        return handleAddURL();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleAddURL();
+        }
       }
 
       if (!response.ok) {
@@ -136,17 +153,21 @@ function WebFilter() {
       });
 
       if(response.status === 401) {
-        await handleTokenRefresh();
-        return handleDeleteURL(url);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleDeleteURL(url);
+        }
       }
 
       if (!response.ok) throw new Error('Failed to delete URL');
 
       fetchURLs(); 
     } catch (error) {
-      if (error.response.status === 401) {
-        await handleTokenRefresh();
-      }
       if (error instanceof Error) {
         console.error('Error deleting URL:', error.message || error);
         console.error('Failed to delete URL. Please try again.');
@@ -155,8 +176,6 @@ function WebFilter() {
         showAlertModal('Unexpected error occurred. Please try again.', () => setIsModalOpen(false));
       }
     }
-
-    setIsModalOpen(false);
   };
 
   useEffect(() => {
@@ -229,7 +248,11 @@ function WebFilter() {
                           onClick={(e) => {
                             e.preventDefault();
                             showAlertModal('Are you sure you want to delete this URL?',
-                            () => handleDeleteURL(url))
+                              () => {
+                                setIsModalOpen(false);
+                                handleDeleteURL(url)
+                              }
+                            )
                           }}
                         >
                           <i className="fa-solid fa-trash"></i>

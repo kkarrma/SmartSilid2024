@@ -38,7 +38,8 @@ function RoomSchedule() {
 
     if (refreshToken === null) {
         console.log("Refresh token is missing.");
-        return Navigate('/'); 
+        // return Navigate("/");
+        return 0;
       }
       
       try {
@@ -50,11 +51,13 @@ function RoomSchedule() {
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return 0;
         }
 
         const data = await response.json();
         localStorage.setItem('accessToken', data.access);
+        return 1; 
     } catch (error) {
         console.error('Token refresh error:', error);
     }
@@ -73,8 +76,14 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSchedules();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          return Navigate("/");
+        }
+        else {
+          return fetchSchedules();
+        }
       }
       const data = await response.json();
       setSchedules(data.schedule || []);
@@ -103,8 +112,14 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleStartSemester(semester);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          return Navigate("/");
+        }
+        else {
+          return handleStartSemester(semester);
+        }
       }
       
       if (response.ok)  {
@@ -131,8 +146,14 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleEndSemester();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          return Navigate("/");
+        }
+        else {
+          return handleEndSemester();
+        }
       }
       
       if (response.ok)  {
@@ -153,8 +174,16 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSections();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          console.log(failedRefresh + ' failed refresh');
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchSections();
+        }
       }
 
       if (response.ok) {
@@ -180,8 +209,15 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchFaculty();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchFaculty();
+        }
       }
 
       const data = await response.json();
@@ -239,8 +275,15 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleAddSchedule();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleAddSchedule();
+        }
       }
 
       if (!response.ok) {
@@ -248,7 +291,6 @@ function RoomSchedule() {
       }
 
       const data = await response.json();
-      console.log("NIGAARUUUUNN", data);
       showAlertModal(data.status_message, () => {
         fetchSchedules();
         resetForm();
@@ -300,28 +342,43 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleEditSched();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          return Navigate("/");
+        }
+        else {
+          return handleEditSched();
+        }
       }
 
       const data = await response.json();
 
-      var formatted_error_message = (error_message) => {
-        var errorMessages = "";
-        console.log(error_message);
-        for (const error in error_message) {
-          console.log(error);
-          errorMessages += `* ${error}\n`;
+      if(data.error_message){
+        return showAlertModal(data.error_message, isModalOpen(false));
+      }
+
+      else if (data.errors.length > 0){
+        const errors = data.errors; 
+        var error_message = " "; 
+
+        for (var i = 0; i < errors.length; i++) {
+          error_message +=  "•" + errors[i] + "\n";
         }
 
-        return errorMessages; 
-      };
-      
-      console.log(data.status_message + "\n Error Messages: \n" + formatted_error_message(data.error_message));
+        return showAlertModal(error_message, ()=> setIsModalOpen(false));
+      } 
 
-      fetchSchedules();
-      setEditFormVisible(false);
-      resetForm();
+      else {
+        showAlertModal(data.status_message, () => {
+          setIsModalOpen(false);
+        });
+        fetchSchedules();
+        setEditFormVisible(false);
+        resetForm();
+
+      }
+
     } catch (error) {
       console.error('Error editing schedule:', error);
       console.log('Failed to edit schedule. Please try again.');
@@ -345,8 +402,14 @@ function RoomSchedule() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleDeleteSchedule(schedule);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          return Navigate("/");
+        }
+        else {
+          return handleDeleteSchedule(schedule);
+        }
       }
 
       fetchSchedules();
@@ -371,10 +434,10 @@ function RoomSchedule() {
                   <form className='add-sem-form filter-cont' 
                     onSubmit={(e) => {
                       e.preventDefault();
-                      showAlertModal(`Are you sure you want to start (${semester})?`, 
+                      showAlertModal(`Are you sure you want to start Semester: ${semester}?`, 
                       () => {
-                        handleStartSemester(semester);
                         setIsModalOpen(false);
+                        handleStartSemester(semester);
                       });
                     }}
                   > 
@@ -419,8 +482,8 @@ function RoomSchedule() {
                         e.preventDefault();
                         showAlertModal('Are you sure you want to add this schedule?', 
                         () => {
-                          handleAddSchedule();
                           setIsModalOpen(false);
+                          handleAddSchedule();
                         });
                       }}
                     >
@@ -546,8 +609,8 @@ function RoomSchedule() {
                       e.preventDefault();
                       showAlertModal('Are you sure you want to update this schedule?',
                       () => {
-                        handleEditSched();
                         setIsModalOpen(false);
+                        handleEditSched();
                       });
                     }}
                   >
@@ -700,8 +763,8 @@ function RoomSchedule() {
                                 <button type="button" className="del-btn" 
                                   onClick={() => showAlertModal('Are you sure you want to delete this schedule?', 
                                     () => {
-                                      handleDeleteSchedule(schedule);
                                       setIsModalOpen(false);
+                                      handleDeleteSchedule(schedule);
                                     }
                                   )}
                                 >
@@ -758,8 +821,8 @@ function RoomSchedule() {
               <button className="end-sem-btn del-btn" 
                 onClick={() => showAlertModal('Are you sure you want to end the current semester?', 
                   () => {
-                    handleEndSemester();
                     setIsModalOpen(false);
+                    handleEndSemester();
                   }
                 )}>
                 End Semester

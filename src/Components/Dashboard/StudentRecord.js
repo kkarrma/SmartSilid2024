@@ -86,7 +86,8 @@ function StudentRecord() {
     
         if (refreshToken === null) {
                 console.log("Refresh token is missing.");
-                return Navigate('/'); 
+                // return Navigate("/");
+                return 0;
             }
             
         try {
@@ -98,11 +99,13 @@ function StudentRecord() {
                 
             if (!response.ok) {
                 console.error('Failed to refresh token. Status:', response.status);
-                return Navigate('/'); 
+                // return Navigate("/");
+                return 0;
             }
     
             const data = await response.json();
             localStorage.setItem('accessToken', data.access);
+            return 1;
         } catch (error) {
             console.error('Token refresh error:', error);
         }
@@ -123,7 +126,7 @@ function StudentRecord() {
 
     const handleDeleteStudent = async (student) => { 
         const accessToken = localStorage.getItem('accessToken');
-    
+
         console.log('Deleting student with username:', student.username);
         
         try {
@@ -139,27 +142,35 @@ function StudentRecord() {
             });
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleDeleteStudent(student);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleDeleteStudent(student);
+                }
             }
-
-    
+            console.log('Student deleted successfully.');
             if (response.ok) {
-                handleStudentList(selectedSection); 
                 showAlertModal(`${student.first_name} ${student.last_name} has been deleted successfully.`,
-                    () => setIsModalOpen(false)
+                    () => {
+                        setIsModalOpen(false)
+                        handleStudentList(selectedSection) 
+                    }
                 );
             } else {
                 const text = await response.text();
                 console.error('Failed to delete student:', text);
-                alert(`Failed to delete student: ${response.status} ${response.statusText}`);
+                showAlertModal(`Failed to delete student: ${response.status} ${response.statusText}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
             console.error('Error deleting student:', error);
             showAlertModal(`An error occurred: ${error.message}`, () => setIsModalOpen(false));
         }
-
-        setIsModalOpen(false);
     };
     
     const fetchSections = async () => {
@@ -170,8 +181,15 @@ function StudentRecord() {
             });
 
             if(response.status === 401){
-                await handleTokenRefresh();
-                return fetchSections();
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return fetchSections();
+                }
             }
 
             if (response.ok) {
@@ -196,8 +214,15 @@ function StudentRecord() {
             });
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleStudentList(sectionName);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleStudentList(sectionName);
+                }
             }
     
             if (response.ok) {
@@ -243,11 +268,14 @@ function StudentRecord() {
     const handleAddStudent = async () => {
         const accessToken = localStorage.getItem('accessToken');
         
-
+        
         if (password !== confirmPassword) {
-            showAlertModal('Passwords do not match', () => setIsModalOpen(false));
-            return;
+            console.log(isModalOpen); 
+            console.log("yeheyehy"); 
+            return showAlertModal('Passwords do not match', () => setIsModalOpen(false));
         }
+
+        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         // Validate password for upper and lower case letters and numbers
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -279,8 +307,15 @@ function StudentRecord() {
             });
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleAddStudent;
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleAddStudent();
+                }
             }
 
             if (!response.ok) {
@@ -293,22 +328,18 @@ function StudentRecord() {
             }
 
             const data = await response.json();
+
+            console.log("data" + data);
             
-            if(data.error_message){
+            if (data.error_message){
                 console.error(data.error_message);
                 return showAlertModal(data.error_message, () => setIsModalOpen(false));
             }
 
-            else{
-                console.log(data.status_message);
-                const newStudent = formatStudentName({
-                    first_name,
-                    middle_initial,
-                    last_name,
-                    section: selectedSection,
-                    username: username 
-                });
-                setStudents((prevStudents) => sortStudents([...prevStudents, newStudent]));
+            else {
+                showAlertModal(`Student creation success`, () => setIsModalOpen(false));
+                setFormVisible(false);
+                handleStudentList(selectedSection);
             }
 
             
@@ -318,8 +349,6 @@ function StudentRecord() {
         } finally {
             setLoading(false);
         }
-
-        //setIsModalOpen(false);
     };
 
     const handleAddClick = () => {
@@ -378,9 +407,16 @@ function StudentRecord() {
                 });
 
                 if (response.status === 401) {
-                    await handleTokenRefresh();
-                    return handleAddSection();
+                    const failedRefresh = await handleTokenRefresh();
+            
+                    if ( failedRefresh === 0){
+                        Navigate("/");
+                        window.location.reload();
                     }
+                    else {
+                        return handleAddSection();
+                    }
+                }
 
                 if (response.ok) {
                     await fetchSections(); // Fetch updated sections after adding a new section
@@ -423,8 +459,13 @@ function StudentRecord() {
         setIsAddingSection(false);    
     };
 
+    const [variable, setVariable] = useState(0); 
+
     const handleUpdateStudent = async () => {
+        console.log(isModalOpen); 
         const accessToken = localStorage.getItem('accessToken');
+
+
 
         try {
             const response = await fetch(`${API_BASE_URL}/update_student`, {
@@ -445,27 +486,56 @@ function StudentRecord() {
             const responseData = await response.json();
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleUpdateStudent();
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
                 }
+                else {
+                    return handleUpdateStudent();
+                }
+            }
+            
 
             if (responseData.error_message) {
                 return showAlertModal(responseData.error_message, ()=> setIsModalOpen(false)); 
-            }
+            } 
 
-            if (responseData.errors) {
-                return showAlertModal(responseData.errors, ()=> setIsModalOpen(false));
+            console.log(responseData.errors); 
+
+            if (responseData.errors.length > 0) {
+                console.log("0000000000000"); 
+                var errorList = responseData.errors;
+                var error_message = ""; 
+
+                for (var i = 0; i < errorList.length; i++) {
+                    var error = errorList[i];
+                    console.log(error); 
+                    error_message += error + "\n";
+                }
+                return showAlertModal(error_message, ()=> {
+                    setIsModalOpen(false);
+                    handleStudentList(selectedSection); 
+                });
             }
 
             if (response.ok) {
-                
-                
-                handleStudentList(selectedSection);
-                setEditFormVisible(false);
+                console.log('Student updated successfully');
+                return showAlertModal('Student updated successfully', 
+                    () => {
+                        setIsModalOpen(false);
+                        handleStudentList(selectedSection);
+                        setEditFormVisible(false);
+                    }
+                );
+
             } else {
                 const errorData = await response.json();
                 console.error("Failed to update student:", errorData);
-                // Handle the error based on the backend response
+                showAlertModal("Failed to update student:" + errorData, 
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
             console.error('Error updating student:', error);
@@ -480,9 +550,6 @@ function StudentRecord() {
     const handleRemoveSection = async (sectionToRemove) => {
         const accessToken = localStorage.getItem('accessToken');
         try {
-            if (!window.confirm(`Are you sure you want to remove the section "${sectionToRemove}"?`)) {
-                return;
-            }
 
             const response = await fetch(`${API_BASE_URL}/delete_section`, {
                 method: 'POST',
@@ -494,27 +561,39 @@ function StudentRecord() {
             });
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleRemoveSection(sectionToRemove);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
                 }
+                else {
+                    return handleRemoveSection(sectionToRemove);
+                }
+            }
 
             if (response.ok) {
                 await fetchSections(); // Fetch updated sections after removing a section
                 if (selectedSection === sectionToRemove) {
                     setSelectedSection(null);
                 }
+
+                showAlertModal('Section removed successfully', () => setIsModalOpen(false));
             } else {
                 const text = await response.text();
                 console.error('Failed to remove section:', text);
-                alert(`Failed to remove section: ${response.status} ${response.statusText}`);
+                showAlertModal(`Failed to remove section: ${response.status} ${response.statusText}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
             
             console.error('Error removing section:', error);
-            alert(`An error occurred: ${error.message}`);
-        }
+            showAlertModal(`An error occurred: ${error.message}`, 
+                () => setIsModalOpen(false)
+            );
 
-        setIsModalOpen(false);
+        }
     };
 
     const handleMoveSection = async (student, newSection) => {
@@ -539,9 +618,16 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleMoveSection(student, newSection);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
                 }
+                else {
+                    return handleMoveSection(student, newSection);
+                }
+            }
             
             if (response.ok) {
                 setStudents((prevStudents) =>
@@ -550,20 +636,27 @@ function StudentRecord() {
                     )
                 );
                 console.log(`Moved ${student.first_name} to section ${newSection} successfully!`);
-                handleStudentList(selectedSection);
+                showAlertModal(`Moved ${student.first_name} to section ${newSection} successfully!`,
+                    () => {
+                        setIsModalOpen(false)
+                        handleStudentList(selectedSection);
+                    }
+                );
             } else {
                 const text = await response.text();
                 console.error('Failed to move student:', text);
-                alert(`Failed to move student: ${response.status} ${response.statusText}`);
+                showAlertModal(`Failed to move student: ${response.status} ${response.statusText}`,
+                    () => setIsModalOpen(false)
+                );
             }
             setEditFormVisible(false);
         } catch (error) {
             
             console.error('Error moving student:', error);
-            alert(`An error occurred: ${error.message}`);
+            showAlertModal(`An error occurred: ${error.message}`,
+                () => setIsModalOpen(false)
+            );
         }
-
-        setIsModalOpen(false);
     };
     
     const handleChangePassword = async (student, newPassword) => {
@@ -573,12 +666,16 @@ function StudentRecord() {
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
-            alert('Password must include:\n• Uppercase letters\n• Lowercase letters\n• At least 8 characters\n• A number');
+            showAlertModal('Password must include:\n• Uppercase letters\n• Lowercase letters\n• At least 8 characters\n• A number',
+                () => setIsModalOpen(false)
+            );
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            alert('Passwords do not match');
+            showAlertModal('Passwords do not match',
+                () => setIsModalOpen(false)
+            );
             return;
         }
         
@@ -596,8 +693,15 @@ function StudentRecord() {
             });
             
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleChangePassword(student, newPassword);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleChangePassword(student, newPassword);
+                }
             }
 
             const data = await response.json();
@@ -605,27 +709,29 @@ function StudentRecord() {
 
             if (data.error_message){
                 return showAlertModal(
-                    data.error_message,
-                    () => setIsModalOpen(false)
+                    data.error_message,() => setIsModalOpen(false)
                 );
             }
-
-            
     
             if (response.ok) {
-                alert('Password changed successfully!');
+                showAlertModal('Password changed successfully!',
+                    () => setIsModalOpen(false)
+                );
             } else {
                 const text = await response.text();
                 console.error('Failed to change password:', text);
-                alert(`Failed to change password: ${response.status} ${response.statusText}`);
+                showAlertModal(`Failed to change password: ${response.status} ${response.statusText}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
             console.error('Error changing password:', error);
-            alert(`An error occurred: ${error.message}`);
+            showAlertModal(`An error occurred: ${error.message}`,
+                () => setIsModalOpen(false)
+            );
         }
         
         setEditFormVisible(false);
-        setIsModalOpen(false);
     };
 
     const handleStudentFileUpload = async () => {
@@ -716,8 +822,15 @@ function StudentRecord() {
                 });
     
                 if (response.status === 401) {
-                    await handleTokenRefresh();
-                    return handleStudentFileUpload();
+                    const failedRefresh = await handleTokenRefresh();
+            
+                    if ( failedRefresh === 0){
+                        Navigate("/");
+                        window.location.reload();
+                    }
+                    else {
+                        return handleStudentFileUpload();
+                    }
                 }
     
                 const data = await response.json();
@@ -726,8 +839,12 @@ function StudentRecord() {
                     console.error('Errors:', data.errors);
                     showAlertModal('Students in the file already exists.', () => setIsModalOpen(false));
                 } else {
-                    showAlertModal('File uploaded successfully!', () =>setIsModalOpen(false));
-                    handleStudentList(selectedSection);
+                    showAlertModal('File uploaded successfully!', 
+                        () => {
+                            setIsModalOpen(false)
+                            handleStudentList(selectedSection);
+                        }
+                    );
                 }
             } catch (error) {
                 console.error('Error uploading file:', error);
@@ -736,7 +853,6 @@ function StudentRecord() {
         };
     
         reader.readAsArrayBuffer(file);
-        setIsModalOpen(false);
     };
     
 
@@ -806,27 +922,43 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleBindRFID(username, rfid);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleBindRFID(username, rfid);
+                }
             }
 
             if (response.ok) {
-                handleStudentList(selectedSection);
-                showAlertModal(`RFID with value ${rfid} has been bound to ${username} successfully.`, () => setIsModalOpen(false));
+                showAlertModal(`RFID with value ${rfid} has been bound to ${username} successfully.`, 
+                    () => {
+                        setIsModalOpen(false)
+                        handleStudentList(selectedSection);
+                    }
+                );
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+                showAlertModal(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
-            showAlertModal('An error occurred while binding RFID. Please check your connection.', () => setIsModalOpen(false));
+            showAlertModal('An error occurred while binding RFID. Please check your connection.', 
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     }; 
     
     const handleUnbindRFID = async (username, rfid) => {
         if (!username) {
-            alert('Please choose a faculty to assign the RFID.');
+            showAlertModal('Please choose a faculty to assign the RFID.',
+                () => setIsModalOpen(false)
+            );
             return;
         }
     
@@ -848,23 +980,39 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleBindRFID(username, rfid);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleBindRFID(username, rfid);
+                }
             }
             if (response.ok) {
-                handleStudentList(selectedSection);
                 console.log(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
+                showAlertModal(`RFID with value ${rfid} has been unbound to ${username} successfully.`,
+                    () => {
+                        setIsModalOpen(false)
+                        handleStudentList(selectedSection);
+                    }
+                );
+                setRfidBindUser('');
                 setSelectedStudent({...selectedStudent, rfid: null});
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
+                showAlertModal(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`,
+                    () => setIsModalOpen(false)
+                );
             }
             
         } catch (error) {
-            showAlertModal('An error occurred while unbinding RFID. Please check your connection.', () => setIsModalOpen(false));
+            showAlertModal('An error occurred while unbinding RFID. Please check your connection.', 
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     }; 
     
     const handleDeleteRFID = async (rfid) => {
@@ -881,26 +1029,36 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleDeleteRFID(rfid);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleDeleteRFID(rfid);
+                }
             }
     
             if (response.ok) {
-                console.log(`RFID with value ${rfid} has been deleted successfully.`, () => setIsModalOpen(false));
+                console.log(`RFID with value ${rfid} has been deleted successfully.`);
+                showAlertModal(`RFID with value ${rfid} has been deleted successfully.`, () => setIsModalOpen(false));
                 handleStudentList(selectedSection);
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+                showAlertModal(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
-            showAlertModal('An error occurred while deleting RFID. Please check your connection.', () => setIsModalOpen(false));
+            showAlertModal('An error occurred while deleting RFID. Please check your connection.', 
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     };
 
     const handleBindPC = async (username, computer) => {
-    
         const accessToken = localStorage.getItem('accessToken');
 
         try {
@@ -918,22 +1076,35 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleBindPC(username, computer);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleBindPC(username, computer);
+                }
             }
 
             if (response.ok) {
                 handleStudentList(selectedSection);
                 console.log(`Computer ${computer} has been unbound to ${username} successfully.`);
+                showAlertModal(`Computer ${computer} has been unbound to ${username} successfully.`,
+                    () => setIsModalOpen(false)
+                );
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`);
+                showAlertModal(`Failed to bind Computer: ${errorData.status_message || 'Error binding RFID'}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
-            showAlertModal('An error occurred while binding the Computer. Please check your connection.', () => setIsModalOpen(false));
+            showAlertModal('An error occurred while binding the Computer. Please check your connection.', 
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     };
 
     const handleAutoPCBind = async (selectedSection) => {
@@ -951,21 +1122,33 @@ function StudentRecord() {
             });            
 
             if (response.status === 401) {    
-                await handleTokenRefresh();
-                return handleAutoPCBind();
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleAutoPCBind();
+                }
             }
             if (response.ok) {
                 const data = await response.json();
                 console.log("DATA ALL BIND PC", data);
                 handleStudentList(selectedSection);
-                console.log(`All computer has been bounded alphabetically successfully.`);
-                fetchSections();
+                console.log(`All computer has been bounded alphabetically successfully.`,
+                    () => {
+                        setIsModalOpen(false);
+                        fetchSections();
+                    }
+                );
             } 
         } catch (error) {
             console.log('An error occurred while binding all Computer. Please check your connection.');
+            showAlertModal('An error occurred while binding all Computer. Please check your connection.',
+                () => setIsModalOpen(false)
+            );
         }
-
-        setIsModalOpen(false);
     };
 
     const handleAutoPCUnbind = async (selectedSection) => {
@@ -983,25 +1166,38 @@ function StudentRecord() {
             });            
 
             if (response.status === 401) {    
-                await handleTokenRefresh();
-                return handleAutoPCUnbind();
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleAutoPCUnbind();
+                }
             }
             if (response.ok) {
                 const data = await response.json();
                 console.log("DATA ALL UNBIND PC", data);
-                handleStudentList(selectedSection);
                 console.log(`All computer has been unbounded successfully.`);
-                fetchSections();
+                showAlertModal(`All computer has been unbounded successfully.`, 
+                    () => {
+                        setIsModalOpen(false);
+                        handleStudentList(selectedSection);
+                        fetchSections();
+                    }
+                );
+                setPcBindUser('');
             } 
         } catch (error) {
             console.log('An error occurred while unbinding all Computer. Please check your connection.');
+            showAlertModal('An error occurred while unbinding all Computer. Please check your connection.',
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     };
 
-    const handleUnbindPC = async (username, computer, section) => {
-
+    const handleUnbindPC = async (username, computer) => {
         const accessToken = localStorage.getItem('accessToken');
 
         try {
@@ -1019,28 +1215,39 @@ function StudentRecord() {
             });
 
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleUnbindPC(username, computer);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleUnbindPC(username, computer);
+                }
             }
             if (response.ok) {
-                handleStudentList(selectedSection);
                 console.log(`Computer ${computer} has been unbound from ${username} successfully.`);
                 setSelectedStudent({...selectedStudent, computer: null});
+                showAlertModal(`Computer ${computer} has been unbound from ${username} successfully.`,
+                    () => {
+                        setIsModalOpen(false)
+                        handleStudentList(selectedSection);
+                        setPcBindUser('');
+                    }
+                );
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to unbind Computer: ${errorData.status_message || 'Error unbinding computer'}`);
             }
         } catch (error) {
-            showAlertModal('An error occurred while unbinding the Computer. Please check your connection.', () => setIsModalOpen(false));
+            showAlertModal('An error occurred while unbinding the Computer. Please check your connection.', 
+                () => setIsModalOpen(false)
+            );
         }
-        
-        setIsModalOpen(false);
     };
 
     const handleDeletePC = async (computer) => {
         const accessToken = localStorage.getItem('accessToken');
-        const confirmDelete = window.confirm(`Are you sure you want to delete Computer ${computer}?`);
-        if (!confirmDelete) return;
     
         try {
             const response = await fetch(`${API_BASE_URL}/delete_computer`, {
@@ -1053,19 +1260,34 @@ function StudentRecord() {
             });
     
             if (response.status === 401) {
-                await handleTokenRefresh();
-                return handleDeletePC(computer);
+                const failedRefresh = await handleTokenRefresh();
+        
+                if ( failedRefresh === 0){
+                    Navigate("/");
+                    window.location.reload();
+                }
+                else {
+                    return handleDeletePC(computer);
+                }
             }
     
             if (response.ok) {
-                alert(`Computer ${computer} has been deleted successfully.`);
-                handleStudentList(selectedSection);
+                showAlertModal(`Computer ${computer} has been deleted successfully.`,
+                    () => {
+                        setIsModalOpen(false);
+                        handleStudentList(selectedSection);
+                    }
+                );
             } else {
                 const errorData = await response.json();
-                alert(`Failed to delete Computer: ${errorData.status_message || 'Error deleting Computer'}`);
+                showAlertModal(`Failed to delete Computer: ${errorData.status_message || 'Error deleting Computer'}`,
+                    () => setIsModalOpen(false)
+                );
             }
         } catch (error) {
-            setErrorMessage('An error occurred while deleting the Computer. Please check your connection.');
+            showAlertModal('An error occurred while deleting the Computer. Please check your connection.',
+                () => setIsModalOpen(false)
+            );
         }
     };
 
@@ -1106,7 +1328,11 @@ function StudentRecord() {
                             <form onSubmit={ (e) => {
                                 e.preventDefault();
                                 showAlertModal(`Are you sure you want to upload this file?`, 
-                                handleStudentFileUpload)
+                                    () => {
+                                        setIsModalOpen(false)
+                                        handleStudentFileUpload()
+                                    }
+                                )
                             }}>
                                 <div className='adding-file-section'>
                                     <input 
@@ -1143,7 +1369,11 @@ function StudentRecord() {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     showAlertModal('Are you sure you want to remove this section?',
-                                                    () => handleRemoveSection(sec));
+                                                        () => {
+                                                            setIsModalOpen(false)
+                                                            handleRemoveSection(sec)
+                                                        }
+                                                    );
                                                 }}
                                             >
                                                 <b>–</b>
@@ -1166,9 +1396,9 @@ function StudentRecord() {
                                         <form onSubmit={ (e) => {
                                             e.preventDefault();
                                             showAlertModal('Are you sure you want to add this student?', 
-                                            () => {
-                                                setFormVisible(false);
-                                                handleAddStudent(); 
+                                                () => {
+                                                    setIsModalOpen(false)
+                                                    handleAddStudent() 
                                             })
                                         }}>
                                             <div className='user-form'>
@@ -1309,8 +1539,8 @@ function StudentRecord() {
                                                 onClick={ () => {
                                                     showAlertModal("Are you sure you want to update student information?",
                                                         () => {
-                                                            handleUpdateStudent(); 
                                                             setIsModalOpen(false); 
+                                                            handleUpdateStudent(); 
                                                         }
                                                     );
                                                 }}
@@ -1342,8 +1572,12 @@ function StudentRecord() {
                                                     <button type="button"
                                                         onClick={
                                                             () => showAlertModal(`Are you sure you want to move this student to section ${section}?`, 
-                                                            () => handleMoveSection(selectedStudent, section)
-                                                        )} 
+                                                                () => {
+                                                                    setIsModalOpen(false)
+                                                                    handleMoveSection(selectedStudent, section)
+                                                                }
+                                                            )
+                                                        } 
                                                         disabled={loading}
                                                     >
                                                         {loading ? 'Moving...' : 'Move Section'}
@@ -1390,7 +1624,11 @@ function StudentRecord() {
                                                                 showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
                                                             } else {
                                                                 showAlertModal('Are you sure you want to change this faculty password?', 
-                                                                () => handleChangePassword(selectedStudent, password));
+                                                                    () => {
+                                                                        setIsModalOpen(false)
+                                                                        handleChangePassword(selectedStudent, password)
+                                                                    }
+                                                                );
                                                             }
                                                         }}
                                                         disabled={loading}>
@@ -1412,7 +1650,10 @@ function StudentRecord() {
                                         {selectedStudent?.rfid !== null ? (
                                             <button type="button" onClick={() => {
                                                 showAlertModal('Are you sure you want to unbind this RFID?', 
-                                                () => handleUnbindRFID(selectedStudent.username, selectedStudent.rfid));
+                                                () => {
+                                                    setIsModalOpen(false);
+                                                    handleUnbindRFID(selectedStudent.username, selectedStudent.rfid);
+                                                });
                                             }}>
                                                 Unbind RFID
                                             </button>
@@ -1423,7 +1664,11 @@ function StudentRecord() {
                                         {selectedStudent?.computer !== null ? (
                                             <button type="button" onClick={() => {
                                                 showAlertModal('Are you sure you want to unbind this computer?',
-                                                () => handleUnbindPC(selectedStudent.username, selectedStudent.computer));
+                                                    () => {
+                                                        setIsModalOpen(false)
+                                                        handleUnbindPC(selectedStudent.username, selectedStudent.computer)
+                                                    }
+                                                );
                                             }}>
                                                 Unbind Computer
                                             </button>
@@ -1476,7 +1721,12 @@ function StudentRecord() {
                                                         <button type="button" className="del-btn" 
                                                             onClick={
                                                                 () => showAlertModal(`Are you sure you want to delete ${student.first_name} ${student.last_name}?`,
-                                                                () => handleDeleteStudent(student))}
+                                                                    () => {
+                                                                        setIsModalOpen(false)
+                                                                        handleDeleteStudent(student)
+                                                                    }
+                                                                )
+                                                            }
                                                         >
                                                             <i className="fa-solid fa-trash-can"></i>
                                                         </button>
@@ -1522,7 +1772,10 @@ function StudentRecord() {
                                                                 onClick={() => {
                                                                     if (rfidBindUser[rfid]) {
                                                                         showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
-                                                                        () => handleBindRFID(rfidBindUser[rfid], rfid, selectedSection));
+                                                                        () => {
+                                                                            setIsModalOpen(false)
+                                                                            handleBindRFID(rfidBindUser[rfid], rfid, selectedSection)
+                                                                        });
                                                                     } else {
                                                                         showAlertModal('Please select a user before assigning.', 
                                                                         () => setIsModalOpen(false));    
@@ -1535,7 +1788,10 @@ function StudentRecord() {
                                                                 className='del-btn'
                                                                 onClick={
                                                                     () => showAlertModal(`Are you sure you want to delete RFID: ${rfid}?`, 
-                                                                    () => handleDeleteRFID(rfid)
+                                                                        () => {
+                                                                            setIsModalOpen(false)
+                                                                            handleDeleteRFID(rfid)
+                                                                        }
                                                                 )}
                                                             >
                                                                 <i className="fa-solid fa-trash-can"></i>
@@ -1558,7 +1814,10 @@ function StudentRecord() {
                                             <a className='bind-btn-opt' 
                                                 onClick={
                                                     () => showAlertModal('This will bind all available PCs alphabetically. Proceed?', 
-                                                    () => handleAutoPCBind(selectedSection))
+                                                    () => {
+                                                        setIsModalOpen(false)
+                                                        handleAutoPCBind(selectedSection)
+                                                    })
                                                 }
                                             >
                                                 Bind All
@@ -1566,7 +1825,11 @@ function StudentRecord() {
                                             <a className='bind-btn-opt' 
                                                 onClick={
                                                     () => showAlertModal('Are you sure you want to unbind all PCs from this section?', 
-                                                    () => handleAutoPCUnbind(selectedSection))
+                                                        () => {
+                                                            setIsModalOpen(false)
+                                                            handleAutoPCUnbind(selectedSection)
+                                                        }
+                                                    )
                                                 }
                                             >
                                                 Unbind All
@@ -1594,7 +1857,7 @@ function StudentRecord() {
                                                             <option value="">None</option>
                                                             {students.map((student) => (
                                                                 <option key={student.username} value={student.username}>
-                                                                    {student.username}
+                                                                    {student.first_name} {student.middle_initial}. {student.last_name}
                                                                 </option>
                                                             ))}
                                                         </select>
@@ -1602,9 +1865,15 @@ function StudentRecord() {
                                                             onClick={() => {
                                                                 if (pcBindUser[pc]) {
                                                                     showAlertModal(`Are you sure you want to assign PC: ${pc} to ${pcBindUser[pc]}?`,
-                                                                    () => handleBindPC(pcBindUser[pc], pc, selectedSection));
+                                                                        () => {
+                                                                            setIsModalOpen(false)
+                                                                            handleBindPC(pcBindUser[pc], pc, selectedSection)
+                                                                        }
+                                                                    );
                                                                 } else {
-                                                                    showAlertModal('Please select a user before assigning.', () => setIsModalOpen(false));  
+                                                                    showAlertModal('Please select a user before assigning.', 
+                                                                        () => setIsModalOpen(false)
+                                                                    );  
                                                                 }
                                                             }}
                                                         >

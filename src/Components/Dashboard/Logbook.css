@@ -1,35 +1,4 @@
 .logbook {
-  /* .filter-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 10px;
-
-    .filter-cont {
-      position: relative;
-      margin-top: 10px;
-      
-      label {
-        position: absolute;
-        top: -0.5rem;
-        left: .5rem; 
-        padding: 0 10px;
-        background: var(--bg1);
-        font-weight: bold;
-        color: var(--h2-txt);
-        font-size: 90%;
-        width: fit-content;
-      }
-    }
-
-    .filter-btn {
-      display: flex;
-      gap: 10px;
-      margin-top: 9px;
-    }
-  } */
     
   .log-table {
     border-collapse: collapse;
@@ -60,13 +29,14 @@
 
 
     .page-btn {
-      padding: 5px 2px;
       background-color: var(--bg1);
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s;
+      max-width: fit-content;
+      min-width: fit-content;
 
       &:hover:not(:disabled) {
         background-color: var(--bg2); 
@@ -125,6 +95,10 @@
     select {
       width: 100%; 
       box-sizing: border-box;
+    }
+
+    .gen-report {
+      justify-content: center;
     }
   }
 }

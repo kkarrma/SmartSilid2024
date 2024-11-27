@@ -39,7 +39,8 @@ function RFIDLogs() {
 
     if (refreshToken === null) {
         console.log("Refresh token is missing.");
-        return Navigate('/'); 
+        // return Navigate("/");
+        return 0;
       }
       
       try {
@@ -51,7 +52,8 @@ function RFIDLogs() {
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return 0;
         }
 
         const data = await response.json();
@@ -72,8 +74,15 @@ function RFIDLogs() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSection();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchSection();
+        }
       }
 
       const data = await response.json();
@@ -119,8 +128,15 @@ function RFIDLogs() {
       });
       
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchRFIDLogs();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchRFIDLogs();
+        }
       }
 
       if (response.ok) {
@@ -167,8 +183,15 @@ function RFIDLogs() {
       }); 
       
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return downloadReport(url, filename);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return downloadReport(url, filename);
+        }
       }
 
       if (response.ok) {
@@ -247,6 +270,11 @@ function RFIDLogs() {
           <div className='filter-btn'>
             <button type="button" className='act-btn' onClick={handleFilter}>Filter</button>
             <button type="button" className='act-btn' onClick={handleClearFilters}>Clear</button>
+          </div>
+          
+          <div className='action-filter'>
+            <button type="button" onClick={handleFilter}>Filter</button>
+            <button type="button" onClick={handleClearFilters}>Clear</button>
           </div>
         </div>
 

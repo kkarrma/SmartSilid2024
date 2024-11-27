@@ -55,7 +55,8 @@ function FacultyRecord() {
 
     if (refreshToken === null) {
         console.log("Refresh token is missing.");
-        return Navigate('/'); 
+        // return Navigate("/");
+        return 0;
       }
       
       try {
@@ -67,11 +68,13 @@ function FacultyRecord() {
           
           if (!response.ok) {
             console.error('Failed to refresh token. Status:', response.status);
-            return Navigate('/'); 
+            // return Navigate("/");
+            return 0;
         }
 
         const data = await response.json();
         localStorage.setItem('accessToken', data.access);
+        return 1;
     } catch (error) {
         console.error('Token refresh error:', error);
     }
@@ -91,8 +94,15 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchFaculty();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchFaculty();
+        }
       }
 
       if (response.ok) {
@@ -121,7 +131,7 @@ function FacultyRecord() {
     const accessToken = localStorage.getItem('accessToken');
 
     if (password !== confirmPassword) {
-      showAlertModal('Password does not matched. Try again.', setIsModalOpen(false));
+      showAlertModal('Password does not matched. Try again.', () => setIsModalOpen(false));
       return;
     }
 
@@ -146,24 +156,40 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleAddFaculty();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleAddFaculty();
+        }
+      }
+
+      const data = await response.json();
+
+      if (data.error_message) {
+        showAlertModal(data.error_message, () => setIsModalOpen(false));
+        return;
       }
 
       if (response.ok) {
         fetchFaculty();
         handleCancelBtn();
+        showAlertModal('Faculty created successfully', () => setIsModalOpen(false));
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Failed to create faculty. Please try again.');
+        showAlertModal(errorData.message || 'Failed to create faculty. Please try again.', 
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
-      showAlertModal('An error occurred while creating faculty. Please check your connection.', setIsModalOpen(false));
+      showAlertModal('An error occurred while creating faculty. Please check your connection.', () => setIsModalOpen(false));
     } finally {
       setLoading(false);
     }
-
-    setIsModalOpen(false);
   };
 
   const handleEditFaculty = async (e) => {
@@ -191,28 +217,48 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        handleEditFaculty(e);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleEditFaculty(e);
+        }
       } 
-  
-      if (response.ok) {
-        fetchFaculty(); // Refresh faculty data
-        setEditFormVisible(false);
-        const data = await response.json();
-        console.log(data);
-      } else {
-        const errorData = await response.json();
-        showAlertModal(errorData.message || 'Failed to update faculty. Please try again.', setIsModalOpen(false));
+
+      const data = await response.json();
+      console.log(1); 
+
+      if (data.error_message) {
+        return showAlertModal(data.error_message, ()=> setIsModalOpen(false)); 
+      } 
+
+
+      console.log(2); 
+      if (data.errors.length > 0) {
+        var error_message = ""; 
+
+        for (var error in data.errors){
+            error_message += error + "\n";
+        }
+
+        return showAlertModal(error_message, ()=> setIsModalOpen(false));
       }
-    } catch (error) {
+      console.log(3); 
+      console.log(data.status_message); 
+  
+      showAlertModal(data.status_message, () => setIsModalOpen(false));
+      fetchFaculty(); // Refresh faculty data
+      setEditFormVisible(false);
       
-      showAlertModal('An error occurred while updating faculty. Please check your connection.', setIsModalOpen(false));
+    } catch (error) {
+      showAlertModal('An error occurred while updating faculty. Please check your connection.', () => setIsModalOpen(false));
       
     } finally {
       setLoading(false);
     }
-
-    setIsModalOpen(false);
   };
 
   const handleEditClick = (faculty) => {
@@ -229,8 +275,14 @@ function FacultyRecord() {
 
   const handleChangePassword = async (faculty, newPassword) => {
     const accessToken = localStorage.getItem('accessToken');
-    console.log('Attempting to change password for faculty:', faculty);
-    console.log('New password:', newPassword);
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return showAlertModal('Password must include:\n• Uppercase letters\n• Lowercase letters\n• At least 8 characters\n• A number',
+            () => setIsModalOpen(false)
+        ); 
+    }
+
 
     try {
       const response = await fetch(`${API_BASE_URL}/change_password_faculty_by_admin`, {
@@ -247,16 +299,27 @@ function FacultyRecord() {
       })
       
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleChangePassword(faculty, newPassword);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleChangePassword(faculty, newPassword);
+        }
       }
       
       if (response.ok) {
-        showAlertModal('Password changed successfully!', () => setIsModalOpen(false));
-        setEditFormVisible(false);
-        fetchFaculty();
-        setPassword('');
-        setConfirmPassword('');
+        showAlertModal('Password changed successfully!', 
+          () => {
+            setPassword('');
+            setConfirmPassword('');
+            setEditFormVisible(false);
+            fetchFaculty();
+            setIsModalOpen(false)
+          }
+        );
       } else {
         const errorData = await response.json();
         showAlertModal(`Failed to change password: ${errorData.status_message || 'Error changing password'}`, () => setIsModalOpen(false));
@@ -264,8 +327,7 @@ function FacultyRecord() {
     } catch (error) {
       showAlertModal('An error occurred while changing password. Please check your connection.', () => setIsModalOpen(false));
     }
-  }
-
+  };
 
   const handleDeleteFaculty = async (facultyUsername) => { 
     const accessToken = localStorage.getItem('accessToken');
@@ -281,29 +343,34 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleDeleteFaculty(facultyUsername);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleDeleteFaculty(facultyUsername);
+        }
       }
 
       if (response.ok) {
         const data = await response.json();
         console.log(data);
+        showAlertModal('Faculty deleted successfully!', () => setIsModalOpen(false));
         fetchFaculty();
       } else {
-        setErrorMessage('Failed to delete faculty. Please try again later.');
+        showAlertModal('Failed to delete faculty. Please try again later.',
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
-      
-      showAlertModal('An error occurred while deleting faculty. Please check your connection.', setIsModalOpen(false));
+      showAlertModal('An error occurred while deleting faculty. Please check your connection.', () => setIsModalOpen(false));
     }
-    
-    setIsModalOpen(false);
   };
 
   const handleDeleteRFID = async (rfid) => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmDelete = window.confirm(`Are you sure you want to delete RFID with value ${rfid}?`);
-    if (!confirmDelete) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/delete_rfid`, {
@@ -316,19 +383,26 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleDeleteRFID(rfid);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleDeleteRFID(rfid);
+        }
       }
 
       if (response.ok) {
         fetchFaculty();
-        alert(`RFID with value ${rfid} has been deleted successfully.`);
+        showAlertModal(`RFID with value ${rfid} has been deleted successfully.`, () => setIsModalOpen(false));
       } else {
         const errorData = await response.json();
-        alert(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`);
+        showAlertModal(`Failed to delete RFID: ${errorData.status_message || 'Error deleting RFID'}`, () => setIsModalOpen(false));
       }
     } catch (error) {
-      setErrorMessage('An error occurred while deleting RFID. Please check your connection.');
+      showAlertModal('An error occurred while deleting RFID. Please check your connection.', () => setIsModalOpen(false));
     }
   };
 
@@ -355,28 +429,38 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleBindRFID(username, rfid);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleBindRFID(username, rfid);
+        }
       }
       
       if (response.ok) {
-        fetchFaculty();
-        showAlertModal(`RFID with value ${rfid} has been bound to ${username} successfully.`, () => setIsModalOpen(false));
+        showAlertModal(`RFID with value ${rfid} has been bound to ${username} successfully.`, 
+          () => {
+            fetchFaculty();
+            setIsModalOpen(false)
+          }
+        );
       } else {
         const errorData = await response.json();
-        console.error(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+        console.errorX(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`);
+        showAlertModal(`Failed to bind RFID: ${errorData.status_message || 'Error binding RFID'}`, 
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
       showAlertModal('An error occurred while binding RFID. Please check your connection.', () => setIsModalOpen(false));
     }
-
-    setIsModalOpen(false);
   };
 
   const handleUnbindRFID = async (facultyUsername, rfid) => {
     const accessToken = localStorage.getItem('accessToken');
-    const confirmUnbind = window.confirm(`Are you sure you want to unbind RFID with value ${rfid} from ${facultyUsername}?`);
-    if (!confirmUnbind) return;
 
     try {
       const response = await fetch(`${API_BASE_URL}/bind_rfid`, {
@@ -392,19 +476,34 @@ function FacultyRecord() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return handleUnbindRFID(facultyUsername, rfid);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return handleUnbindRFID(facultyUsername, rfid);
+        }
       }
 
       if (response.ok) {
-        fetchFaculty();
-        alert(`RFID with value ${rfid} has been unbound from ${facultyUsername} successfully.`);
+        showAlertModal(`RFID with value ${rfid} has been unbound from ${facultyUsername} successfully.`,
+          () => {
+            fetchFaculty();
+            setIsModalOpen(false)
+          }
+        );
+        setRfidBindUser('');
+        setSelectedFaculty({...selectedFaculty, rfid: null});
       } else {
         const errorData = await response.json();
-        alert(`Failed to unbind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
+        showAlertModal(`Failed to unbind RFID: ${errorData.status_message || 'Error unbinding RFID'}`,
+          () => setIsModalOpen(false)
+        );
       }
     } catch (error) {
-      setErrorMessage('An error occurred while unbinding RFID. Please check your connection.');
+      showAlertModal('An error occurred while unbinding RFID. Please check your connection.', () => setIsModalOpen(false));
     }
   };
 
@@ -474,16 +573,23 @@ function FacultyRecord() {
         });
 
         if (response.status === 401) {
-          await handleTokenRefresh();
-          return handleFacultyFileUpload();
+          const failedRefresh = await handleTokenRefresh();
+  
+          if ( failedRefresh === 0){
+            Navigate("/");
+            window.location.reload();
+          }
+          else {
+            return handleFacultyFileUpload();
+          }
         }
 
         const requiredFields = ['username',	'password',	'first_name',	'last_name',	'middle_initial',	'type']; // Add fields as necessary
-        const invalidEntries = [];
-        const validEntries = jsonData.filter((row, index) => {
+        const invalidInput = [];
+        const validInput = jsonData.filter((row, index) => {
           const missingFields = requiredFields.filter((field) => !row[field]);
           if (missingFields.length > 0) {
-            invalidEntries.push({
+            invalidInput.push({
               row: index + 1,
               missingFields,
             });
@@ -492,8 +598,8 @@ function FacultyRecord() {
           return true;
         });
 
-        if (invalidEntries.length > 0) {
-          const errorDetails = invalidEntries
+        if (invalidInput.length > 0) {
+          const errorDetails = invalidInput
           .map(
             (entry) =>
               `Row ${entry.row}: Missing fields - ${entry.missingFields.join(', ')}`
@@ -504,19 +610,39 @@ function FacultyRecord() {
         } 
     
         // Check if there are valid entries to upload
-        if (validEntries.length === 0) {
+        if (validInput.length === 0) {
             showAlertModal('No valid data to upload.', () => setIsModalOpen(false));
             return;
         }
 
         const data = await response.json();
-        if (response.ok) {
-          showAlertModal('File uploaded successfully!', () => setIsModalOpen(false));
-          fetchFaculty();
-        } else {
-          console.error('Errors:', data.errors);
-          showAlertModal('Faculties in the file already exists.', () => setIsModalOpen(false));
+        console.log(data);
+
+        const success_count = data.status_message.success_count; 
+
+        const message = " "; 
+
+        const success_message = `<p>${success_count} users have been successfully added to the database </p> <br>`;
+        var error_message = " "; 
+
+        const failed_entries = data.status_message.failed_entries;
+        
+        for (var i = 0; i < failed_entries.length; i++) {
+          console.log(i); 
+          const entry = failed_entries[i];
+
+          const username = entry.username;
+          const error = entry.error; 
+
+          console.log(i, username, error); 
+
+          const single_message = `<p> ${username} : ${error}<br>`
+          error_message += single_message;
         }
+
+        showAlertModal(`${success_message} <br> ${error_message}`, () => setIsModalOpen(false));
+
+        return fetchFaculty();
       } catch (error) {
         console.error('Error uploading file:', error);
         showAlertModal(`${error.message}`, () => setIsModalOpen(false));
@@ -524,7 +650,6 @@ function FacultyRecord() {
     };
 
     reader.readAsArrayBuffer(file);
-    setIsModalOpen(false);
   };
 
   return (
@@ -545,7 +670,11 @@ function FacultyRecord() {
                 <form onSubmit={(e) => { 
                   e.preventDefault();
                   showAlertModal(`Are you sure you want to upload this file?`, 
-                  handleFacultyFileUpload)
+                    () => {
+                      setIsModalOpen(false);
+                      handleFacultyFileUpload();
+                    }
+                  )
                 }}>
                   <div className='adding-file-section'>
                     <input 
@@ -568,7 +697,11 @@ function FacultyRecord() {
               <form onSubmit={(e) => { 
                 e.preventDefault(); 
                 showAlertModal('Are you sure you want to add this faculty?', 
-                handleAddFaculty)
+                  () => {
+                    setIsModalOpen(false);
+                    handleAddFaculty();
+                  }
+                )
               }}>
                 <div className='faculty-form-inner'>
                   <div className='user-form'>
@@ -659,7 +792,12 @@ function FacultyRecord() {
             <div className="edit-faculty-form-inner">
               <form onSubmit={ (e) => {
                 e.preventDefault();
-                showAlertModal('Are you sure you want to update this faculty?', handleEditFaculty);
+                showAlertModal('Are you sure you want to update this faculty?', 
+                  () => {
+                    setIsModalOpen(false);
+                    handleEditFaculty();
+                  }
+                );
               }}>
                 <div className='name-faculty-edit'>
                   <div className="user-form">
@@ -692,7 +830,7 @@ function FacultyRecord() {
                     />
                   </div>
                   <div className="user-form">
-                    <label htmlFor="username">Useraname: <span>*</span></label>
+                    <label htmlFor="username">Username: <span>*</span></label>
                     <input
                       type="text"
                       placeholder="Username"
@@ -753,7 +891,11 @@ function FacultyRecord() {
                             showAlertModal('Password cannot be empty.', () => setIsModalOpen(false));
                           } else {
                             showAlertModal('Are you sure you want to change this faculty password?', 
-                            () => handleChangePassword(selectedFaculty, password));
+                              () => {
+                                setIsModalOpen(false);
+                                handleChangePassword(selectedFaculty, password);
+                              }
+                            );
                           }
                         }}
                       >
@@ -772,6 +914,21 @@ function FacultyRecord() {
                   </div>
                 )}
 
+                {selectedFaculty?.rfid !== null ? (
+                    <button type="button" onClick={() => {
+                      showAlertModal('Are you sure you want to unbind this RFID?', 
+                        () => {
+                          setIsModalOpen(false);
+                          handleUnbindRFID(selectedFaculty.username, selectedFaculty.rfid)
+                        }
+                      );
+                    }}>
+                        Unbind RFID
+                    </button>
+                ) : (
+                  <></>
+                )}
+                
               </form>
             </div>
           </div>
@@ -799,18 +956,6 @@ function FacultyRecord() {
                         {faculty.rfid ? (
                           <div>
                             <span>{faculty.rfid}</span>
-                            <button
-                              className="del-btn"
-                              style={{ marginLeft: '8px', cursor: 'pointer' }}
-                              onClick={() =>
-                                handleUnbindRFID(
-                                  `${faculty.first_name} ${faculty.last_name}`,
-                                  faculty.rfid
-                                )
-                              }
-                            >
-                              <i className="fa-solid fa-minus"></i> Unbind
-                            </button>
                           </div>
                         ) : (
                           <span>N/A</span>
@@ -824,7 +969,7 @@ function FacultyRecord() {
                                 event.stopPropagation();
                                 handleEditClick(faculty);
                               }}
-                            >
+                              >
                               <i className="fa-solid fa-pen-to-square"></i>
                             </button>
                             <button
@@ -833,15 +978,34 @@ function FacultyRecord() {
                                 event.stopPropagation();
                                 showAlertModal(
                                   `Are you sure you want to delete ${faculty.username}?`,
-                                  () => handleDeleteFaculty(faculty.username)
+                                  () => {
+                                    setIsModalOpen(false);
+                                    handleDeleteFaculty(faculty.username)
+                                  }
                                 );
                               }}
-                            >
+                              >
                               <i className="fa-solid fa-trash-can"></i>
                             </button>
                           </div>
-                        ) : (
-                          <span>Current User</span>
+                        ) :  (
+                          <>
+                            {faculty.rfid !== null ? (
+                              <button type="button" onClick={() => {
+                                  {console.log(faculty);}
+                                  showAlertModal('Are you sure you want to unbind this RFID?', 
+                                    () => {
+                                      setIsModalOpen(false);
+                                      handleUnbindRFID(faculty.username, faculty.rfid)
+                                    }
+                                  );
+                                }}>
+                                  Unbind RFID
+                              </button>
+                            ) : (
+                              <span>Current User</span>
+                            )}
+                          </>
                         )}
                       </td>
                     </tr>
@@ -884,7 +1048,10 @@ function FacultyRecord() {
                           showAlertModal(`Please choose a faculty to assign the RFID with value ${rfid}.`, () => setIsModalOpen(false));
                         } else {
                           showAlertModal(`Are you sure you want to bind RFID with value ${rfid} to ${rfidBindUser[rfid]}?`,
-                          () => handleBindRFID(rfidBindUser[rfid], rfid))
+                          () => {
+                            setIsModalOpen(false);  
+                            handleBindRFID(rfidBindUser[rfid], rfid)
+                          })
                         }
                       }}
                     >
@@ -895,7 +1062,11 @@ function FacultyRecord() {
                       style={{ marginLeft: '8px', cursor: 'pointer' }} 
                       onClick={
                         () => showAlertModal(`Are you sure you want to delete ${rfid}?`,
-                        () => handleDeleteRFID(rfid))
+                          () => {
+                            setIsModalOpen(false);
+                            handleDeleteRFID(rfid)
+                          }
+                        )
                       }
                     >
                       <i className="fa-solid fa-trash-can"></i>

@@ -40,7 +40,8 @@ function ClassSchedules() {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
       console.log("Refresh token is missing.");
-      return Navigate('/');
+      // return Navigate("/");
+      return 0;
     }
 
     try {
@@ -52,11 +53,13 @@ function ClassSchedules() {
 
       if (!response.ok) {
         console.error('Failed to refresh token. Status:', response.status);
-        return Navigate('/');
+        // return Navigate("/");
+        return 0;
       }
 
       const data = await response.json();
       localStorage.setItem('accessToken', data.access);
+      return 1; 
     } catch (error) {
       console.error('Token refresh error:', error);
     }
@@ -75,8 +78,15 @@ function ClassSchedules() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSchedules();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchSchedules();
+        }
       }
       
       const data = await response.json();
@@ -103,8 +113,15 @@ function ClassSchedules() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchAttendance(scheduleId);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchAttendance(scheduleId);
+        }
       }
 
       const data = await response.json();
@@ -130,8 +147,15 @@ function ClassSchedules() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchPastSemester();
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchPastSemester();
+        }
       }
       
       const data = await response.json();
@@ -159,8 +183,15 @@ function ClassSchedules() {
       });
 
       if (response.status === 401) {
-        await handleTokenRefresh();
-        return fetchSchedBySem(sem_id);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchSchedBySem(sem_id);
+        }
       }
 
       const data = await response.json();
@@ -177,7 +208,16 @@ function ClassSchedules() {
   };
 
   useEffect(() => {
-    fetchSchedules();
+
+    const type = localStorage.getItem('type');
+
+    if (type === 'faculty'){
+      fetchScheduleByFaculty(); 
+    }
+    else if (type === 'admin'){
+      fetchSchedules();
+    }
+
   }, []);
 
   useEffect(() => {
@@ -223,8 +263,15 @@ function ClassSchedules() {
       });
 
       if (response.status === 401) {  
-        await handleTokenRefresh();
-        return downloadReport(semester_id, schedule_id, schedule_date);
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return downloadReport(semester_id, schedule_id, schedule_date);
+        }
       }
 
       if (response.ok) {
@@ -249,8 +296,6 @@ function ClassSchedules() {
     } finally {
       setLoading(false);
     }
-
-    setIsModalOpen(false);
   };
 
 
@@ -314,6 +359,46 @@ function ClassSchedules() {
     return days.map(day => weekdayMap[day]).join(', ');
   };
 
+
+  const fetchScheduleByFaculty = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    const facultyId = localStorage.getItem('id');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_schedules_by_faculty_id`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          faculty_id: facultyId,
+        }),
+      });
+
+      if (response.status === 401) {
+        const failedRefresh = await handleTokenRefresh();
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchScheduleByFaculty();
+        }
+      }
+      
+      const data = await response.json();
+      console.log("Bwisit", data);
+      setSemester(data.current_semester);
+      setSchedules(data.schedules || []);
+      setSemesterId(data.current_semester_id);
+      setIsCurrentSemester(true);
+    } catch (error) {
+      console.error('Error fetching schedules:', error);
+    }
+  };
+
   return (
     <div className='attendance'>
       <div className='schedule-row cont'>
@@ -321,15 +406,30 @@ function ClassSchedules() {
           <>
             <div className='cont-title'>
               <h3>
-                <div>Subject: {selectedSchedule.subject}</div>
+                <div
+                  style={{ cursor: 'pointer' }}
+                    onClick={
+                      () => showAlertModal('Are you sure dowload schedule report for ' + selectedSchedule.subject + '?', 
+                      () => {
+                        setIsModalOpen(false)
+                        downloadReport(semesterId, selectedSchedule.id)
+                      })
+                    }
+                >
+                  Subject: {selectedSchedule.subject}
+                </div>
                 <div className='bind-opt-cont'>
                     <a className='bind-btn-opt' 
+                      style={{ border: '0 solid #ccc' }}
                         onClick={
-                            () => showAlertModal('Are you sure dowload schedule report for ' + selectedSchedule.subject + '?', 
-                            () => downloadReport(semesterId, selectedSchedule.id))
+                          () => showAlertModal('Are you sure dowload schedule report for ' + selectedSchedule.subject + '?', 
+                          () => {
+                            setIsModalOpen(false)
+                            downloadReport(semesterId, selectedSchedule.id)
+                          })
                         }
                     >
-                        <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Report</>}
+                        <i className="fa-solid fa-print"></i> {loading && <i className="fa fa-spinner fa-spin"></i>}
                     </a>
                 </div>
               </h3>
@@ -338,9 +438,9 @@ function ClassSchedules() {
               <div className='back-sched-div'>
                 <i style={{ cursor: 'pointer' }} 
                 onClick={() => {
-                  goBackSchedSelect();
                   setIsSelected(false)
                   setSelectedDate('');
+                  goBackSchedSelect();
                 }} 
                 className="fa fa-angle-left"> 
                   Go Back
@@ -368,7 +468,9 @@ function ClassSchedules() {
                     </>
                   ))
                 ) : (
-                  <p className='no-fetch-msg'>No dates were found.</p>
+                  <>
+                    <p className='no-fetch-msg'>No dates were found.</p>
+                  </>
                 )}
               </div>
 
@@ -396,25 +498,32 @@ function ClassSchedules() {
                     </tbody>
                   </table>
                   <div className='gen-report'>
-                  <button 
-                    onClick={
-                      () => showAlertModal('Are you sure you want to download report for ' + selectedDate + '?', 
-                      () => downloadReport(semesterId, selectedSchedule.id, selectedDate))
-                    } 
-                    disabled={loading}
-                  >
-                    <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Download Attendance Report</>}
-                  </button>
+                    <button 
+                      onClick={
+                        () => showAlertModal('Are you sure you want to download report for ' + selectedDate + '?', 
+                        () => { 
+                          setIsModalOpen(false)
+                          downloadReport(semesterId, selectedSchedule.id, selectedDate)
+                        })
+                      } 
+                      disabled={loading}
+                    >
+                      <i className="fa-solid fa-print"></i> {loading && <i className="fa fa-spinner fa-spin"></i>}
+                    </button>
                   </div>
                 </div>
               ) : (
-                <>
-                  <p className='no-fetch-msg'>Please select a date.</p>
+                <> 
+                {Array.isArray(dates) && dates.length > 0 && (
+                  <>
+                    <p className='no-fetch-msg'>Please select a schedule.</p>
+                  </>
+                )}
                 </>
               )}
             </div>
           </>
-        ) :  viewPastSemList ? (
+        ) : viewPastSemList ? (
           <>
             <h3 className="cont-title">Past Semesters</h3>
             <i 
@@ -457,16 +566,33 @@ function ClassSchedules() {
           <>
             <div className='cont-title'>
               <h3>
-                <div>Semester: {semester}</div>
+                <div
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => 
+                    showAlertModal(
+                      `Are you sure you want to download the semestral report for ${semester.semester_name}?`, 
+                      () => {
+                        setIsModalOpen(false)
+                        downloadReport(semesterId)
+                      }
+                    )
+                  }
+                >
+                  Semester: {semester}
+                </div>
                 { semester &&
                   <div className='bind-opt-cont'>
                     <a className='bind-btn-opt' 
+                      style={{ border: '0 solid var(--btn)', cursor: 'pointer' }}
                       onClick={
                           () => showAlertModal(`Are you sure you want to dowload semestral report for ${semester}?`, 
-                          () => downloadReport(semesterId))
+                          () => {
+                            setIsModalOpen(false)
+                            downloadReport(semesterId)
+                          })
                       }
                     >
-                      <i className="fa-solid fa-print"></i> {loading ? "Generating..." : <> Print</>}
+                      <i className="fa-solid fa-print"></i> {loading && <i className="fa fa-spinner fa-spin"></i>}
                     </a>
                   </div>
                 }
@@ -566,6 +692,7 @@ function ClassSchedules() {
           </>
         ) : (
           <>
+          {localStorage.getItem('type') === 'admin' && (
             <button 
               className='past-sem-button'
               onClick={() => {
@@ -576,6 +703,7 @@ function ClassSchedules() {
               }}>
               View Past Semesters
             </button>
+          )}
           </>
         )}
       </div>
