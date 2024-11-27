@@ -1000,6 +1000,7 @@ function StudentRecord() {
                 );
                 setRfidBindUser('');
                 setSelectedStudent({...selectedStudent, rfid: null});
+                setRfidBindUser('');
             } else {
                 const errorData = await response.json();
                 console.error(`Failed to bind RFID: ${errorData.status_message || 'Error unbinding RFID'}`);
@@ -1771,7 +1772,10 @@ function StudentRecord() {
                                                             <button
                                                                 onClick={() => {
                                                                     if (rfidBindUser[rfid]) {
-                                                                        showAlertModal(`Are you sure you want to assign RFID: ${rfid} to ${rfidBindUser[rfid]}?`, 
+                                                                        showAlertModal(`Are you sure you want to assign RFID: ${rfid} to 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.first_name} 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.middle_initial}. 
+                                                                            ${students.find(student => student.username === rfidBindUser[rfid])?.last_name}?`,
                                                                         () => {
                                                                             setIsModalOpen(false)
                                                                             handleBindRFID(rfidBindUser[rfid], rfid, selectedSection)
@@ -1864,7 +1868,10 @@ function StudentRecord() {
                                                         <button
                                                             onClick={() => {
                                                                 if (pcBindUser[pc]) {
-                                                                    showAlertModal(`Are you sure you want to assign PC: ${pc} to ${pcBindUser[pc]}?`,
+                                                                    showAlertModal(`Are you sure you want to assign PC: ${pc} to
+                                                                            ${students.find(student => student.username === pcBindUser[pc])?.first_name} 
+                                                                            ${students.find(student => student.username === pcBindUser[pc])?.middle_initial}. 
+                                                                            ${students.find(student => student.username === pcBindUser[pc])?.last_name}?`,
                                                                         () => {
                                                                             setIsModalOpen(false)
                                                                             handleBindPC(pcBindUser[pc], pc, selectedSection)

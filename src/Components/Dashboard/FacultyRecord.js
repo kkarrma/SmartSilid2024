@@ -112,11 +112,11 @@ function FacultyRecord() {
         const rfids = data.rfid.map(r => r.rfid);
         setAvailableRfids(rfids);
       } else {
-        setErrorMessage('Failed to fetch faculty data. Please try again later.');
+        console.error('Failed to fetch faculty data. Please try again later.');
       }
     } catch (error) {
       
-      setErrorMessage('Error fetching faculty data. Please check your connection.');
+      showAlertModal('Error fetching faculty data. Please check your connection.', () => setIsModalOpen(false));
     } finally {
       setLoading(false);
       
