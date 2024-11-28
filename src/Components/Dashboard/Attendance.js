@@ -508,7 +508,7 @@ function ClassSchedules() {
                       } 
                       disabled={loading}
                     >
-                      <i className="fa-solid fa-print"></i> {loading && <i className="fa fa-spinner fa-spin"></i>}
+                      <i className="fa-solid fa-print"></i> {loading ? <i className="fa fa-spinner fa-spin"></i> : 'Download Attendance Report'}
                     </button>
                   </div>
                 </div>

@@ -370,6 +370,15 @@ a {
   margin-right: 0.5rem;
 }
 
+.prof-icon {
+  transition: .3s ease-in-out;
+  font-weight: bold;
+
+  &:hover {
+    color: var(--btn-hov);
+  }
+}
+
 .right-head .prof-name {
   margin-right: 1rem;
 }

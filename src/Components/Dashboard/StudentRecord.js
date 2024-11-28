@@ -834,18 +834,36 @@ function StudentRecord() {
                 }
     
                 const data = await response.json();
-    
-                if (data.errors && data.errors.length > 0) {
-                    console.error('Errors:', data.errors);
-                    showAlertModal('Students in the file already exists.', () => setIsModalOpen(false));
-                } else {
-                    showAlertModal('File uploaded successfully!', 
-                        () => {
-                            setIsModalOpen(false)
-                            handleStudentList(selectedSection);
-                        }
-                    );
+
+                const success_count = data.status_message.success_count; 
+
+                const success_message = `<p>${success_count} users have been successfully added to the database </p>`;
+                var error_message = " "; 
+
+                const failed_entries = data.status_message.failed_entries;
+                
+                for (var i = 0; i < failed_entries.length; i++) {
+                    console.log(i); 
+                    const entry = failed_entries[i];
+
+                    const username = entry.username;
+                    const error = entry.error; 
+
+                    console.log(i, username, error); 
+
+                    const single_message = `<p> <b> ${username} </b> : ${error}<br>`;
+                    error_message += single_message;
                 }
+
+                error_message += `</p>`; 
+
+
+                return showAlertModal(`${success_message} <br> ${error_message}`, () => {
+                    setIsModalOpen(false); 
+                    fetchSections();
+                    
+                });
+            
             } catch (error) {
                 console.error('Error uploading file:', error);
                 showAlertModal(`An error occurred: ${error.message}`, () => setIsModalOpen(false));

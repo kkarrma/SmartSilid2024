@@ -620,9 +620,7 @@ function FacultyRecord() {
 
         const success_count = data.status_message.success_count; 
 
-        const message = " "; 
-
-        const success_message = `<p>${success_count} users have been successfully added to the database </p> <br>`;
+        const success_message = `<p>${success_count} users have been successfully added to the database </p>`;
         var error_message = " "; 
 
         const failed_entries = data.status_message.failed_entries;
@@ -636,7 +634,7 @@ function FacultyRecord() {
 
           console.log(i, username, error); 
 
-          const single_message = `<p> ${username} : ${error}<br>`
+          const single_message = `<p> <b> ${username} </b> : ${error}<br>`
           error_message += single_message;
         }
 

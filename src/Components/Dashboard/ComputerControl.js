@@ -28,7 +28,7 @@ function ComputerControl() {
   };
   
   useEffect(() => {
-    setStreamToken(localStorage.getItem('streamToken'));
+    fetchStreamToken(); 
     fetchComputers();
   }, []);
   
@@ -368,6 +368,40 @@ function ComputerControl() {
     setAdminInputValue(event.target.value);
   };
 
+  const fetchStreamToken = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/stream/status/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
+        },
+      });
+
+      if (response.status === 401) {
+        const failedRefresh = await handleTokenRefresh();
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchStreamToken();
+        }
+      }
+
+      const data = await response.json();
+
+      setIsStreaming(data.streaming_isActive);
+      setStreamToken(data.token);
+      
+    }
+    catch (error) {
+      console.error('Failed to fetch stream token:', error);
+    }
+
+  }
+
   const startStream = async () => {
     const accessToken = localStorage.getItem('accessToken');
     try {
@@ -383,17 +417,10 @@ function ComputerControl() {
         const result = await response.text();
         console.log(result); 
         
-        const tokenMatch = result.match(/"token":\s*"([^"]+)"/);
-        localStorage.setItem('streamToken', tokenMatch[1]);
-        setStreamToken(localStorage.getItem('streamToken'));
-        console.log(streamToken);
-        showAlertModal("Stream started successfully.", () => setIsModalOpen(false)); 
         
-        if (tokenMatch) {
-          setIsStreaming(true);
-        } else {
-          console.log("Token not found in the response.");
-        }
+        showAlertModal("Stream started successfully.", () => setIsModalOpen(false)); 
+        return fetchStreamToken(); 
+        
       } else {
         console.log("Failed to start streaming.");
       }
@@ -416,10 +443,9 @@ function ComputerControl() {
         const result = await response.text();
         console.log(result); 
         
-        setStreamToken('');
-        localStorage.removeItem('streamToken'); 
-        setIsStreaming(false);
         showAlertModal("Stream stopped successfully.", () => setIsModalOpen(false));
+        return fetchStreamToken();
+
       } else {
         console.log("Failed to stop streaming.");
       }
@@ -455,7 +481,7 @@ function ComputerControl() {
                 <div id="stream"></div> 
               </div>
             </div>
-            {streamToken !== null && streamToken !== '' && (
+            {streamToken !== null && streamToken !== ' ' && isStreaming == true && (
               <div className="stream-token">
                 <span>STREAM TOKEN:</span>{streamToken}
               </div>
@@ -463,7 +489,7 @@ function ComputerControl() {
 
             <div className="view-stream-row">
               <a id="stream-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="Go to Stream Page">
-                <h4>View Client Screens &nbsp;&nbsp; ≫ &nbsp;&nbsp; </h4>
+                <h4>View Stream &nbsp;&nbsp; ≫ &nbsp;&nbsp; </h4>
               </a>
             </div>
           </div>
@@ -532,7 +558,7 @@ function ComputerControl() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => showAlertModal('Are you sure you want to turn on the selected PCs?', 
+                  onClick={() => showAlertModal('Are you sure you want to turn off the selected PCs?', 
                     () => {
                       setIsModalOpen(false)
                       handleToggleSelectedPCs(false)

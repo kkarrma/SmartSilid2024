@@ -20,7 +20,7 @@ function Dashboard() {
   const [isUserRecordOpen, setIsUserRecordOpen] = useState(false);
   const [isLogbookOpen, setIsLogbookOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
-  const [userName] = useState(false);
+  const [userName,setUserName] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(''); 
   const Navigate = useNavigate();
@@ -31,6 +31,7 @@ function Dashboard() {
   
   useEffect(() => {
     handleTokenRefresh();
+    fetchUserData(); 
     checkDashToAccess(); 
   }, []);
 
@@ -42,6 +43,47 @@ function Dashboard() {
 
   // }, [isLoggedIn]);
 
+
+  const fetchUserData = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+
+    const userId = localStorage.getItem('id');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/get_faculty_by_id`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ id: userId }),
+      });
+      
+      if(response.status === 401){
+        const failedRefresh = await handleTokenRefresh();
+        console.error(failedRefresh);
+
+        if ( failedRefresh === 0){
+          Navigate("/");
+          window.location.reload();
+        }
+        else {
+          return fetchUserData();
+        } 
+      }
+
+      if (response.ok) {
+        const userData = await response.json();
+        const fullname = `${userData.faculty_info.first_name} ${userData.faculty_info.last_name}`;
+        setUserName(fullname);
+      } else {
+        alert('Failed to fetch user data');
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      alert('An error occurred while fetching user data.');
+    }
+  };
 
 
   const toggleUserRecord = () => {
@@ -163,8 +205,8 @@ function Dashboard() {
           }}
         >
           <a>
-            <div className="prof-icon"><i className="fa-regular fa-user"></i></div>
-            <div className="prof-name">{userName}</div>
+            <div className="prof-icon"><i className="fa-regular fa-user"> </i>&nbsp;&nbsp; {userName} <i className="fa-solid fa-angle-right"></i></div>
+            {/* <div className="prof-name"></div> */}
           </a>
         </div>
       </div>
