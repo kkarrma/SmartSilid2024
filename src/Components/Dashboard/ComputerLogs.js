@@ -41,7 +41,7 @@ function ComputerLogs() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
+        // console.log("Refresh token is missing.");
         // return Navigate("/");
         return 0;
       }
@@ -144,8 +144,8 @@ function ComputerLogs() {
       }
 
       const data = await response.json();
-      console.log('Fetched logs:', data);
-      console.log('Pagination length:', data.pagination_length); // Log the pagination_length
+      // console.log('Fetched logs:', data);
+      // console.log('Pagination length:', data.pagination_length); // Log the pagination_length
       setLogs(Array.isArray(data.logs) ? data.logs : []);
       setTotalPages(data.pagination_length); // Set totalPages based on the API response
 

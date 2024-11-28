@@ -54,7 +54,7 @@ function FacultyRecord() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
+        // console.log("Refresh token is missing.");
         // return Navigate("/");
         return 0;
       }
@@ -107,7 +107,7 @@ function FacultyRecord() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         setFacultyData(data.faculties);
         const rfids = data.rfid.map(r => r.rfid);
         setAvailableRfids(rfids);
@@ -229,14 +229,14 @@ function FacultyRecord() {
       } 
 
       const data = await response.json();
-      console.log(1); 
+      // console.log(1); 
 
       if (data.error_message) {
         return showAlertModal(data.error_message, ()=> setIsModalOpen(false)); 
       } 
 
 
-      console.log(2); 
+      // console.log(2); 
       if (data.errors.length > 0) {
         var error_message = ""; 
 
@@ -246,8 +246,8 @@ function FacultyRecord() {
 
         return showAlertModal(error_message, ()=> setIsModalOpen(false));
       }
-      console.log(3); 
-      console.log(data.status_message); 
+      // console.log(3); 
+      // console.log(data.status_message); 
   
       showAlertModal(data.status_message, () => setIsModalOpen(false));
       fetchFaculty(); // Refresh faculty data
@@ -356,7 +356,7 @@ function FacultyRecord() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         showAlertModal('Faculty deleted successfully!', () => setIsModalOpen(false));
         fetchFaculty();
       } else {
@@ -557,7 +557,7 @@ function FacultyRecord() {
       // Convert sheet to JSON
       const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-      console.log('Excel File Data:', jsonData);
+      // console.log('Excel File Data:', jsonData);
 
       const formData = new FormData();
       formData.append('faculty_list', JSON.stringify(jsonData)); // Send the data as JSON
@@ -616,7 +616,7 @@ function FacultyRecord() {
         }
 
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         const success_count = data.status_message.success_count; 
 
@@ -626,13 +626,13 @@ function FacultyRecord() {
         const failed_entries = data.status_message.failed_entries;
         
         for (var i = 0; i < failed_entries.length; i++) {
-          console.log(i); 
+          // console.log(i); 
           const entry = failed_entries[i];
 
           const username = entry.username;
           const error = entry.error; 
 
-          console.log(i, username, error); 
+          // console.log(i, username, error); 
 
           const single_message = `<p> <b> ${username} </b> : ${error}<br>`
           error_message += single_message;
@@ -990,7 +990,7 @@ function FacultyRecord() {
                           <>
                             {faculty.rfid !== null ? (
                               <button type="button" onClick={() => {
-                                  {console.log(faculty);}
+                                  // {console.log(faculty);}
                                   showAlertModal('Are you sure you want to unbind this RFID?', 
                                     () => {
                                       setIsModalOpen(false);
@@ -1027,7 +1027,7 @@ function FacultyRecord() {
                     value={rfidBindUser[rfid] || 'none'} 
                     onChange={(e) => {
                       setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
-                      console.log("USERNAME", rfidBindUser[rfid]);
+                      // console.log("USERNAME", rfidBindUser[rfid]);
                     }}
                   >
                     <option value="none">None</option>

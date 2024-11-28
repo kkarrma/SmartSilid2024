@@ -54,13 +54,19 @@ function SignupForm() {
       }
 
       const data = await response.json();
-      console.log(`TYPE: `, data);
-      if (data.status_message) {
-        console.log(data.status_message);
-      } else {
-        console.log('Signup successful');
+      
+      if(data.error_message){
+        return showAlertModal(data.error_message, () => setIsModalOpen(false));
       }
-      navigate('/');
+
+      else if (data.status_message){
+        return showAlertModal(data.status_message, () => {
+          setIsModalOpen(false);
+          navigate('/');
+        });
+      }
+
+      
 
     } catch (error) {
       console.error('Error:', error);

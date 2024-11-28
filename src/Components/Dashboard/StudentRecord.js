@@ -85,7 +85,7 @@ function StudentRecord() {
         const refreshToken = localStorage.getItem('refreshToken');
     
         if (refreshToken === null) {
-                console.log("Refresh token is missing.");
+                // console.log("Refresh token is missing.");
                 // return Navigate("/");
                 return 0;
             }
@@ -127,7 +127,7 @@ function StudentRecord() {
     const handleDeleteStudent = async (student) => { 
         const accessToken = localStorage.getItem('accessToken');
 
-        console.log('Deleting student with username:', student.username);
+        // console.log('Deleting student with username:', student.username);
         
         try {
             const response = await fetch(`${API_BASE_URL}/delete_student`, {
@@ -152,7 +152,7 @@ function StudentRecord() {
                     return handleDeleteStudent(student);
                 }
             }
-            console.log('Student deleted successfully.');
+            // console.log('Student deleted successfully.');
             if (response.ok) {
                 showAlertModal(`${student.first_name} ${student.last_name} has been deleted successfully.`,
                     () => {
@@ -207,7 +207,7 @@ function StudentRecord() {
     const handleStudentList = async (sectionName) => {
         const accessToken = localStorage.getItem('accessToken');
         
-        console.log("Before handleStudentList, availablePcs:", availablePcs);
+        // console.log("Before handleStudentList, availablePcs:", availablePcs);
         try {
             const response = await fetch(`${API_BASE_URL}/get_all_students`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
@@ -227,7 +227,7 @@ function StudentRecord() {
     
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
+                // console.log(data);
     
                 // Filter students by section
                 const filteredStudents = data.students.filter(student => student.section === sectionName);
@@ -247,9 +247,9 @@ function StudentRecord() {
             } else {
                 console.error('Failed to fetch students');
             }
-            console.log("After handleStudentList, availablePcs:", availablePcs);
+            // console.log("After handleStudentList, availablePcs:", availablePcs);
         } catch (error) {
-            console.error('Error fetching students:', error);
+            // console.error('Error fetching students:', error);
         }
     };
     
@@ -270,12 +270,12 @@ function StudentRecord() {
         
         
         if (password !== confirmPassword) {
-            console.log(isModalOpen); 
-            console.log("yeheyehy"); 
+            // console.log(isModalOpen); 
+            // console.log("yeheyehy"); 
             return showAlertModal('Passwords do not match', () => setIsModalOpen(false));
         }
 
-        console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        // console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         // Validate password for upper and lower case letters and numbers
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -329,7 +329,7 @@ function StudentRecord() {
 
             const data = await response.json();
 
-            console.log("data" + data);
+            // console.log("data" + data);
             
             if (data.error_message){
                 console.error(data.error_message);
@@ -385,7 +385,7 @@ function StudentRecord() {
     const handleAddSection = async () => {
         const accessToken = localStorage.getItem('accessToken');
         if (newSectionName.trim()) {
-            console.log(newSectionName);
+            // console.log(newSectionName);
             if (!/^[a-zA-Z0-9\s]+$/.test(newSectionName)) {
                 showAlertModal('Section name should contain only letters, numbers, and spaces', 
                     () => {
@@ -462,7 +462,7 @@ function StudentRecord() {
     const [variable, setVariable] = useState(0); 
 
     const handleUpdateStudent = async () => {
-        console.log(isModalOpen); 
+        // console.log(isModalOpen); 
         const accessToken = localStorage.getItem('accessToken');
 
 
@@ -502,16 +502,16 @@ function StudentRecord() {
                 return showAlertModal(responseData.error_message, ()=> setIsModalOpen(false)); 
             } 
 
-            console.log(responseData.errors); 
+            // console.log(responseData.errors); 
 
             if (responseData.errors.length > 0) {
-                console.log("0000000000000"); 
+                // console.log("0000000000000"); 
                 var errorList = responseData.errors;
                 var error_message = ""; 
 
                 for (var i = 0; i < errorList.length; i++) {
                     var error = errorList[i];
-                    console.log(error); 
+                    // console.log(error); 
                     error_message += error + "\n";
                 }
                 return showAlertModal(error_message, ()=> {
@@ -521,7 +521,7 @@ function StudentRecord() {
             }
 
             if (response.ok) {
-                console.log('Student updated successfully');
+                // console.log('Student updated successfully');
                 return showAlertModal('Student updated successfully', 
                     () => {
                         setIsModalOpen(false);
@@ -598,11 +598,11 @@ function StudentRecord() {
 
     const handleMoveSection = async (student, newSection) => {
         const  accessToken = localStorage.getItem('accessToken');
-        console.log('Attempting to move section for student:', student);
-        console.log('New section:', newSection);
+        // console.log('Attempting to move section for student:', student);
+        // console.log('New section:', newSection);
         
         const username = `${student.first_name}.${student.last_name}.${student.middle_initial}`; 
-        console.log('Username being sent to server:', username);
+        // console.log('Username being sent to server:', username);
     
         try {
             const response = await fetch(`${API_BASE_URL}/move_section`, {
@@ -635,7 +635,7 @@ function StudentRecord() {
                         s.username === username ? { ...s, section: newSection } : s
                     )
                 );
-                console.log(`Moved ${student.first_name} to section ${newSection} successfully!`);
+                // console.log(`Moved ${student.first_name} to section ${newSection} successfully!`);
                 showAlertModal(`Moved ${student.first_name} to section ${newSection} successfully!`,
                     () => {
                         setIsModalOpen(false)
@@ -661,8 +661,8 @@ function StudentRecord() {
     
     const handleChangePassword = async (student, newPassword) => {
         const accessToken = localStorage.getItem('accessToken');
-        console.log('Attempting to change password for student:', student);
-        console.log('New password:', newPassword);
+        // console.log('Attempting to change password for student:', student);
+        // console.log('New password:', newPassword);
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(newPassword)) {
@@ -705,7 +705,7 @@ function StudentRecord() {
             }
 
             const data = await response.json();
-            console.log(data);
+            // console.log(data);
 
             if (data.error_message){
                 return showAlertModal(
@@ -763,7 +763,7 @@ function StudentRecord() {
             // Convert sheet to JSON
             const jsonData = XLSX.utils.sheet_to_json(sheet);
     
-            console.log('Excel File Data:', jsonData);
+            // console.log('Excel File Data:', jsonData);
     
             // Validate each row for required attributes
             const requiredFields = ['Username', 'Firstname', 'Lastname', 'Password']; // Add fields as necessary
@@ -843,13 +843,13 @@ function StudentRecord() {
                 const failed_entries = data.status_message.failed_entries;
                 
                 for (var i = 0; i < failed_entries.length; i++) {
-                    console.log(i); 
+                    // console.log(i); 
                     const entry = failed_entries[i];
 
                     const username = entry.username;
                     const error = entry.error; 
 
-                    console.log(i, username, error); 
+                    // console.log(i, username, error); 
 
                     const single_message = `<p> <b> ${username} </b> : ${error}<br>`;
                     error_message += single_message;
@@ -1009,7 +1009,7 @@ function StudentRecord() {
                 }
             }
             if (response.ok) {
-                console.log(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
+                // console.log(`RFID with value ${rfid} has been unbound to ${username} successfully.`);
                 showAlertModal(`RFID with value ${rfid} has been unbound to ${username} successfully.`,
                     () => {
                         setIsModalOpen(false)
@@ -1060,7 +1060,7 @@ function StudentRecord() {
             }
     
             if (response.ok) {
-                console.log(`RFID with value ${rfid} has been deleted successfully.`);
+                // console.log(`RFID with value ${rfid} has been deleted successfully.`);
                 showAlertModal(`RFID with value ${rfid} has been deleted successfully.`, () => setIsModalOpen(false));
                 handleStudentList(selectedSection);
             } else {
@@ -1108,7 +1108,7 @@ function StudentRecord() {
 
             if (response.ok) {
                 handleStudentList(selectedSection);
-                console.log(`Computer ${computer} has been unbound to ${username} successfully.`);
+                // console.log(`Computer ${computer} has been unbound to ${username} successfully.`);
                 showAlertModal(`Computer ${computer} has been unbound to ${username} successfully.`,
                     () => setIsModalOpen(false)
                 );
@@ -1153,9 +1153,9 @@ function StudentRecord() {
             }
             if (response.ok) {
                 const data = await response.json();
-                console.log("DATA ALL BIND PC", data);
+                // console.log("DATA ALL BIND PC", data);
                 handleStudentList(selectedSection);
-                console.log(`All computer has been bounded alphabetically successfully.`,
+                showAlertModal.log(`All computer has been bounded alphabetically successfully.`,
                     () => {
                         setIsModalOpen(false);
                         fetchSections();
@@ -1163,7 +1163,7 @@ function StudentRecord() {
                 );
             } 
         } catch (error) {
-            console.log('An error occurred while binding all Computer. Please check your connection.');
+            // console.log('An error occurred while binding all Computer. Please check your connection.');
             showAlertModal('An error occurred while binding all Computer. Please check your connection.',
                 () => setIsModalOpen(false)
             );
@@ -1197,8 +1197,8 @@ function StudentRecord() {
             }
             if (response.ok) {
                 const data = await response.json();
-                console.log("DATA ALL UNBIND PC", data);
-                console.log(`All computer has been unbounded successfully.`);
+                // console.log("DATA ALL UNBIND PC", data);
+                // console.log(`All computer has been unbounded successfully.`);
                 showAlertModal(`All computer has been unbounded successfully.`, 
                     () => {
                         setIsModalOpen(false);
@@ -1209,7 +1209,7 @@ function StudentRecord() {
                 setPcBindUser('');
             } 
         } catch (error) {
-            console.log('An error occurred while unbinding all Computer. Please check your connection.');
+            // console.log('An error occurred while unbinding all Computer. Please check your connection.');
             showAlertModal('An error occurred while unbinding all Computer. Please check your connection.',
                 () => setIsModalOpen(false)
             );
@@ -1245,7 +1245,7 @@ function StudentRecord() {
                 }
             }
             if (response.ok) {
-                console.log(`Computer ${computer} has been unbound from ${username} successfully.`);
+                // console.log(`Computer ${computer} has been unbound from ${username} successfully.`);
                 setSelectedStudent({...selectedStudent, computer: null});
                 showAlertModal(`Computer ${computer} has been unbound from ${username} successfully.`,
                     () => {

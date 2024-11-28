@@ -38,7 +38,7 @@ function UserPage() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-            console.log("Refresh token is missing.");
+            // console.log("Refresh token is missing.");
             // return Navigate("/");
             return 0;
         }
@@ -180,13 +180,13 @@ function UserPage() {
       } 
 
       if (data.errors.length > 0) {
-          console.log("0000000000000"); 
+          // console.log("0000000000000"); 
           var errorList = data.errors;
           var error_message = ""; 
 
           for (var i = 0; i < errorList.length; i++) {
               var error = errorList[i];
-              console.log(error); 
+              // console.log(error); 
               error_message += error + "\n";
           }
           return showAlertModal(error_message, ()=> {
@@ -377,7 +377,7 @@ function UserPage() {
                 <>
                   <form onSubmit={
                     (e) => {
-                      console.log('Confirm Password:', confirmPassword);
+                      // console.log('Confirm Password:', confirmPassword);
                       e.preventDefault();
                       if (newPassword !== confirmPassword) {
                         showAlertModal('Passwords do not match.', () => setIsModalOpen(false));

@@ -96,14 +96,14 @@ function Dashboard() {
   const checkDashToAccess = () => {
     const userTypeFromStorage = localStorage.getItem('type');
     setUserType(userTypeFromStorage || ''); 
-    console.log('DATA TYPE: ', userType);
+    // console.log('DATA TYPE: ', userType);
   };
 
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
+        // console.log("Refresh token is missing.");
         // return Navigate("/");
         return setIsLoggedIn(false); 
       }

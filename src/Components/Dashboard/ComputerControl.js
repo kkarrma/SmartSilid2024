@@ -36,7 +36,7 @@ function ComputerControl() {
     const refreshToken = localStorage.getItem('refreshToken');
     
     if (refreshToken === null) {
-      console.log("Refresh token is missing.");
+      // console.log("Refresh token is missing.");
       // return Navigate("/");
       return 0;
       }
@@ -67,7 +67,7 @@ function ComputerControl() {
     const accessToken = localStorage.getItem('accessToken');
 
     try {
-      console.log(`${API_BASE_URL}/get_all_computers`)
+      // console.log(`${API_BASE_URL}/get_all_computers`)
       const response = await fetch(`${API_BASE_URL}/get_all_computers`, {
         headers: { Authorization: `Bearer ${accessToken}`, }
       });
@@ -346,7 +346,7 @@ function ComputerControl() {
         console.error(`Error: ${errorData.status_message}`);
       } else {
         const successData = await response.json();
-        console.log(successData.status_message);
+        // console.log(successData.status_message);
         setAdminStatus(adminInputValue, true);
         fetchComputers();
       }
@@ -415,7 +415,7 @@ function ComputerControl() {
   
       if (response.ok) {
         const result = await response.text();
-        console.log(result); 
+        // console.log(result); 
         
         
         showAlertModal("Stream started successfully.", () => setIsModalOpen(false)); 
@@ -441,7 +441,7 @@ function ComputerControl() {
   
       if (response.ok) {
         const result = await response.text();
-        console.log(result); 
+        // console.log(result); 
         
         showAlertModal("Stream stopped successfully.", () => setIsModalOpen(false));
         return fetchStreamToken();

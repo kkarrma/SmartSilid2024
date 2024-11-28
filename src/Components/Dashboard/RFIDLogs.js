@@ -38,7 +38,7 @@ function RFIDLogs() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
+        // console.log("Refresh token is missing.");
         // return Navigate("/");
         return 0;
       }
@@ -86,7 +86,7 @@ function RFIDLogs() {
       }
 
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       if (response.ok) {
         const fetchedSections = data.map(item => item.section);
         setAvailableSection(fetchedSections);
@@ -94,7 +94,7 @@ function RFIDLogs() {
         console.error('Failed to fetch sections');
       }
     } catch (error) {
-      console.log('Error fetching sections:', error);
+      // console.log('Error fetching sections:', error);
     }
   };
 
@@ -141,7 +141,7 @@ function RFIDLogs() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched logs:', data);
+        // console.log('Fetched logs:', data);
         setLogs(Array.isArray(data.logs) ? data.logs : []);
         setTotalPages(data.pagination_length);
       } else {

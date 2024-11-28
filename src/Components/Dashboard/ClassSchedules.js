@@ -37,7 +37,7 @@ function RoomSchedule() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-        console.log("Refresh token is missing.");
+        // console.log("Refresh token is missing.");
         // return Navigate("/");
         return 0;
       }
@@ -87,11 +87,11 @@ function RoomSchedule() {
       }
       const data = await response.json();
       setSchedules(data.schedule || []);
-      console.log(data.status);
-      console.log(data);
+      // console.log(data.status);
+      // console.log(data);
       
       setIsSemesterActive(data.status);
-      console.log("SEMESTER: ", data.current_semester);
+      // console.log("SEMESTER: ", data.current_semester);
 
       setSemester(data.current_semester);
     } catch (error) {
@@ -177,7 +177,7 @@ function RoomSchedule() {
         const failedRefresh = await handleTokenRefresh();
 
         if ( failedRefresh === 0){
-          console.log(failedRefresh + ' failed refresh');
+          // console.log(failedRefresh + ' failed refresh');
           Navigate("/");
           window.location.reload();
         }
@@ -354,6 +354,7 @@ function RoomSchedule() {
 
       const data = await response.json();
 
+
       if(data.error_message){
         return showAlertModal(data.error_message, isModalOpen(false));
       }
@@ -369,19 +370,20 @@ function RoomSchedule() {
         return showAlertModal(error_message, ()=> setIsModalOpen(false));
       } 
 
+
       else {
-        showAlertModal(data.status_message, () => {
+        return showAlertModal(data.status_message, () => {
           setIsModalOpen(false);
+          fetchSchedules();
+          resetForm();
         });
-        fetchSchedules();
-        setEditFormVisible(false);
-        resetForm();
+        
 
       }
 
     } catch (error) {
       console.error('Error editing schedule:', error);
-      console.log('Failed to edit schedule. Please try again.');
+      // console.log('Failed to edit schedule. Please try again.');
     }
 
     setIsModalOpen(false);
@@ -681,7 +683,7 @@ function RoomSchedule() {
                         <option value="" disabled>Select a faculty</option>
                         {facultyList.map(faculty => (
                           <option key={faculty.name} value={faculty.username}>
-                            {console.log(editSchedule.faculty_name)}
+                            {/* {console.log(editSchedule.faculty_name)} */}
                             {`${faculty.first_name} ${faculty.middle_initial} ${faculty.last_name}`.trim()}
                           </option>
                         ))}
@@ -755,7 +757,7 @@ function RoomSchedule() {
                                 <button type="button" className="edit-btn" onClick={() => {
                                   handleEditForm(schedule);
                                   setSchedFormVisible(false);
-                                  console.log(schedule.faculty);
+                                  // console.log(schedule.faculty);
                                 }}>
                                   {/* Edit */}
                                   <i className="fa-solid fa-pen-to-square"></i>
@@ -803,7 +805,7 @@ function RoomSchedule() {
                       <button type="button" className="edit-btn" onClick={() => {
                         handleEditForm(schedule);
                         setSchedFormVisible(false);
-                        console.log(schedule.faculty);
+                        // console.log(schedule.faculty);
                       }}>
                         {/* Edit */}
                         <i className="fa-solid fa-pen-to-square"></i>

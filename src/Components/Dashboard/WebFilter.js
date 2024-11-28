@@ -23,7 +23,7 @@ function WebFilter() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken === null) {
-      console.log("Refresh token is missing.");
+      // console.log("Refresh token is missing.");
       // return Navigate("/");
       return 0;
     }
@@ -74,7 +74,7 @@ function WebFilter() {
 
       if (Array.isArray(data.url)) {
         setBlockedURLs(data.url); 
-        console.log('Updated URL list:', data.url);
+        // console.log('Updated URL list:', data.url);
       } else {
         console.error('Invalid data format: expected an array in "url" field, received:', data);
         setBlockedURLs([]);
@@ -119,7 +119,7 @@ function WebFilter() {
       if (!response.ok) {
         console.error('Failed to add URL'); 
       } else {
-        console.log('URL added successfully!');
+        // console.log('URL added successfully!');
         showAlertModal('URL added successfully!', () => setIsModalOpen(false));
       }
       

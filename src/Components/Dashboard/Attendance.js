@@ -39,8 +39,6 @@ function ClassSchedules() {
   const handleTokenRefresh = async () => {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
-      console.log("Refresh token is missing.");
-      // return Navigate("/");
       return 0;
     }
 
@@ -53,7 +51,6 @@ function ClassSchedules() {
 
       if (!response.ok) {
         console.error('Failed to refresh token. Status:', response.status);
-        // return Navigate("/");
         return 0;
       }
 
@@ -101,7 +98,6 @@ function ClassSchedules() {
 
   const fetchAttendance = async (scheduleId) => {
     const accessToken = localStorage.getItem('accessToken');
-    console.log(scheduleId);
     try {
       const response = await fetch(`${API_BASE_URL}/get_attendance_info`, {
         method: 'POST',
@@ -160,7 +156,6 @@ function ClassSchedules() {
       
       const data = await response.json();
       if (response.ok) {
-        console.log('Past Semester data:', data);
         setPastSemList(data.past_semester || []);
         setViewPastSemList(true);
       }
@@ -196,8 +191,6 @@ function ClassSchedules() {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Schedule By Semester:', data);
-        console.log("Selected Schedule" + selectedSchedule);
         setSchedules(data.schedules || []);
         setSemester(data.semester);
         // setDates(data.date || []);
@@ -221,13 +214,13 @@ function ClassSchedules() {
   }, []);
 
   useEffect(() => {
-    console.log('Attendance data:', attendanceData);
+    //console.log('Attendance data:', attendanceData);
   }, [attendanceData]);
 
   const downloadReport = async (semester_id = null, schedule_id = null, schedule_date = null) => {
     const accessToken = localStorage.getItem('accessToken');
     
-    console.log(`SEMESETER ID: ${semester_id}, SCHEDULE ID: ${schedule_id}, SCHEDULE DATE: ${schedule_date}`);
+    //console.log(`SEMESETER ID: ${semester_id}, SCHEDULE ID: ${schedule_id}, SCHEDULE DATE: ${schedule_date}`);
     // Show loading spinner or indicator
     setLoading(true); 
 
@@ -236,19 +229,19 @@ function ClassSchedules() {
 
       if (semester_id != null && schedule_id == null && schedule_date == null) {
         params += `semester_id=${semester_id}`;
-        console.log(`11111PARAMASSSSSS: ${params}`);
+        //console.log(`11111PARAMASSSSSS: ${params}`);
       }
       
       else if (schedule_id != null && semester_id != null && schedule_date == null) { 
         params = ""
         params += `semester_id=${semester_id}&schedule_id=${schedule_id}`;
-        console.log(`222222PARAMASSSSSS: ${params}`);
+        //console.log(`222222PARAMASSSSSS: ${params}`);
       }
       
       else if (semester_id != null && schedule_date != null && schedule_date != null) {
         params = ""
         params += `semester_id=${semester_id}&schedule_id=${schedule_id}&schedule_date=${schedule_date}`;
-        console.log(`33333PARAMASSSSSS: ${params}`);
+        // console.log(`33333PARAMASSSSSS: ${params}`);
       }
 
       else{
@@ -389,7 +382,7 @@ function ClassSchedules() {
       }
       
       const data = await response.json();
-      console.log("Bwisit", data);
+      //console.log("data", data);
       setSemester(data.current_semester);
       setSchedules(data.schedules || []);
       setSemesterId(data.current_semester_id);
