@@ -77,11 +77,11 @@ function Dashboard() {
         const fullname = `${userData.faculty_info.first_name} ${userData.faculty_info.last_name}`;
         setUserName(fullname);
       } else {
-        alert('Failed to fetch user data');
+        // alert('Failed to fetch user data');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-      alert('An error occurred while fetching user data.');
+      // alert('An error occurred while fetching user data.');
     }
   };
 
