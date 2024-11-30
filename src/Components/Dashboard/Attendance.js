@@ -429,13 +429,15 @@ function ClassSchedules() {
             </div>
             <div className='date-items'>
               <div className='back-sched-div'>
-                <i style={{ cursor: 'pointer' }} 
-                onClick={() => {
-                  setIsSelected(false)
-                  setSelectedDate('');
-                  goBackSchedSelect();
-                }} 
-                className="fa fa-angle-left"> 
+                <i 
+                  style={{ cursor: 'pointer' }} 
+                  onClick={() => {
+                    setIsSelected(false);
+                    setSelectedDate('');
+                    goBackSchedSelect();
+                  }} 
+                  className="fa fa-angle-left"
+                > 
                   Go Back
                 </i>
               </div>
@@ -559,36 +561,42 @@ function ClassSchedules() {
           <>
             <div className='cont-title'>
               <h3>
-                <div
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => 
-                    showAlertModal(
-                      `Are you sure you want to download the semestral report for ${semester.semester_name}?`, 
-                      () => {
-                        setIsModalOpen(false)
-                        downloadReport(semesterId)
-                      }
-                    )
-                  }
-                >
-                  Semester: {semester}
-                </div>
-                { semester &&
+                { localStorage.getItem('type') === 'admin' ? (
+                  <div
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => 
+                      showAlertModal(
+                        `Are you sure you want to download the semestral report for ${semester.semester_name}?`, 
+                        () => {
+                          setIsModalOpen(false)
+                          downloadReport(semesterId)
+                        }
+                      )
+                    }
+                    >
+                    Semester: {semester}
+                  </div>
+                ) : (
+                  <div>Semester: {semester}</div>
+                )}
+                { semester && localStorage.getItem('type') === 'admin' ? (
                   <div className='bind-opt-cont'>
                     <a className='bind-btn-opt' 
                       style={{ border: '0 solid var(--btn)', cursor: 'pointer' }}
                       onClick={
-                          () => showAlertModal(`Are you sure you want to dowload semestral report for ${semester}?`, 
+                        () => showAlertModal(`Are you sure you want to download semestral report for ${semester}?`, 
                           () => {
                             setIsModalOpen(false)
                             downloadReport(semesterId)
-                          })
+                        })
                       }
                     >
                       <i className="fa-solid fa-print"></i> {loading && <i className="fa fa-spinner fa-spin"></i>}
                     </a>
                   </div>
-                }
+                ) : (
+                  <></>
+                )}
               </h3>
             </div>
             <div className='schedule-items'>

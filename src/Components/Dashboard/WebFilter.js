@@ -10,6 +10,8 @@ function WebFilter() {
   const [urlFormVisible, setUrlFormVisible] = useState(false);
   const Navigate = useNavigate();
   
+  const [loading, setLoading] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalConfirmCallback, setModalConfirmCallback] = useState(null);
@@ -92,6 +94,8 @@ function WebFilter() {
   };
 
   const handleAddURL = async () => {
+    setLoading(true);
+
     const accessToken = localStorage.getItem('accessToken');
 
     try {
@@ -120,12 +124,15 @@ function WebFilter() {
         console.error('Failed to add URL'); 
       } else {
         // console.log('URL added successfully!');
-        showAlertModal('URL added successfully!', () => setIsModalOpen(false));
+        return showAlertModal('URL added successfully!', () =>{
+          setIsModalOpen(false);
+          setLoading(false);
+          setNewBlockURL('');
+          setUrlFormVisible(false);
+          fetchURLs(); 
+        }); 
       }
       
-      setNewBlockURL('');
-      setUrlFormVisible(false);
-      fetchURLs(); 
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error adding URL:', error.message || error);
@@ -136,10 +143,12 @@ function WebFilter() {
       }
     }
 
-    setIsModalOpen(false);
   };
 
   const handleDeleteURL = async (url) => {
+    setLoading(true);
+    // showAlertModal('Are you sure you want to remove this URL?', () => setIsModalOpen(false));
+
     const accessToken = localStorage.getItem('accessToken');
 
     try {
@@ -164,9 +173,28 @@ function WebFilter() {
         }
       }
 
-      if (!response.ok) throw new Error('Failed to delete URL');
+      // if (!response.ok) throw new Error('Failed to delete URL');
 
-      fetchURLs(); 
+      const data = await response.json();
+      console.log(data);
+      if (data.status_message) {
+        showAlertModal(data.status_message, 
+          () => {
+            setIsModalOpen(false)
+            fetchURLs(); 
+            setLoading(false);
+          }
+        );
+      } else {
+        showAlertModal('Failed to delete URL. Please try again.', 
+          () => {
+            setIsModalOpen(false)
+            fetchURLs(); 
+            setLoading(false);
+          }
+        );
+      }
+
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error deleting URL:', error.message || error);
@@ -181,6 +209,7 @@ function WebFilter() {
   useEffect(() => {
     fetchURLs();
   }, []);
+
 
   return (
     <>
@@ -247,15 +276,15 @@ function WebFilter() {
                           className="del-btn" 
                           onClick={(e) => {
                             e.preventDefault();
-                            showAlertModal('Are you sure you want to delete this URL?',
+                            showAlertModal('Are you sure you want to remove this URL from the Blocked List?',
                               () => {
-                                setIsModalOpen(false);
+                                // setIsModalOpen(false);
                                 handleDeleteURL(url)
                               }
                             )
                           }}
                         >
-                          <i className="fa-solid fa-trash"></i>
+                          <i className="fa fa-trash"></i>
                         </button>
                       </td>
                     </tr>

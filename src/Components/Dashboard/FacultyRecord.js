@@ -1023,8 +1023,8 @@ function FacultyRecord() {
               availableRfids.map((rfid, index) => (
                 <div key={index} className="rfid-item">
                   <label className='rfid-name'>{rfid}</label>
-                  <select 
-                    value={rfidBindUser[rfid] || 'none'} 
+                  <select
+                    value={rfidBindUser[rfid] || 'none'}
                     onChange={(e) => {
                       setRfidBindUser({ ...rfidBindUser, [rfid]: e.target.value });
                       // console.log("USERNAME", rfidBindUser[rfid]);
