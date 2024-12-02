@@ -6,9 +6,9 @@
 
 // export const API_BASE_URL = 'http://192.168.121.103:8000';
 
-// export const API_BASE_URL = 'https://server.smartsilid.site';
+export const API_BASE_URL = 'https://server.smartsilid.site';
 
-export const API_BASE_URL = 'http://192.168.60.112:8000';
+//export const API_BASE_URL = 'http://192.168.60.112:8000';
 
 //export const API_BASE_URL = 'https://5009-120-28-251-222.ngrok-free.app';
 
