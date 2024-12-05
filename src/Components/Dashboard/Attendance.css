@@ -1,6 +1,13 @@
 .attendance {
   .schedule-row {
     padding: 20px;
+
+    .attendance-table {
+      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: auto;
+      max-height: 400px;
+    }
     
     .sched-list-table {
       display: none;
@@ -173,6 +180,14 @@
       .back-sched-div {
         display: flex;
         margin: 10px 0 20px 0;
+        justify-content: space-between;
+
+        .nav-sched-btn {
+          font-weight: bold;
+          font-size: 110%;
+          text-align: center;
+          align-items: center;
+        }
       }
 
       .date-btn-div {
