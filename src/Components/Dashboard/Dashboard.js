@@ -232,6 +232,17 @@ function Dashboard() {
             </>
           )}
 
+          {userType == 'faculty' && (
+            <>
+              <div className={`menu-panel dash ${selectedMenu === 'Student Record' ? 'selected' : ''}`} 
+                onClick={() => setSelectedMenu('Student Record')}>
+                &nbsp;&nbsp;
+                {/* <i className="fa-solid fa-users"></i> */}
+                Student Record
+              </div>
+            </>
+          )}
+
           {userType == 'admin' && (
             <>
               <div className={`menu-panel dash ${selectedMenu === 'Class Schedules' ? 'selected' : ''}`} 

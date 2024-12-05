@@ -392,7 +392,7 @@ function ComputerControl() {
 
       const data = await response.json();
 
-      setIsStreaming(data.streaming_isActive);
+      setIsStreaming(data.streaming_active);
       setStreamToken(data.token);
       
     }
