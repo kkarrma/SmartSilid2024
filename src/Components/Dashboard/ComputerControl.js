@@ -1,10 +1,8 @@
-/*************  ✨ Codeium Command 🌟  *************/
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from './BASE_URL';
 import './ComputerControl.css';
 import { useNavigate } from 'react-router-dom';
 import AlertModal from './AlertModal';
-import { ShopFilled } from '@ant-design/icons';
 
 function ComputerControl() {
   const [pcs, setPcs] = useState([]);
@@ -372,7 +370,7 @@ function ComputerControl() {
     const accessToken = localStorage.getItem('accessToken');
     try {
       const response = await fetch(`${API_BASE_URL}/stream/status/`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`, 
@@ -405,8 +403,9 @@ function ComputerControl() {
   const startStream = async () => {
     const accessToken = localStorage.getItem('accessToken');
     try {
+      
       const response = await fetch(`${API_BASE_URL}/stream/start/`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           // Authorization: `Bearer ${accessToken}`, 
@@ -433,7 +432,7 @@ function ComputerControl() {
   const stopStream = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/stream/stop/`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -475,9 +474,9 @@ function ComputerControl() {
             <div className="stream-row">
               <div className='stream-btn'>
                 <button onClick={() => showAlertModal('Are you sure you want to start a stream?', () => startStream())} 
-                  disabled={isStreaming == true}>Start Stream</button>
+                  disabled={isStreaming === true}>Start Stream</button>
                 <button onClick={() => showAlertModal('Are you sure you want to stop the stream?', () => stopStream())}
-                  disabled={isStreaming == false}>Stop Stream</button>
+                  disabled={isStreaming === false}>Stop Stream</button>
                 <div id="stream"></div> 
               </div>
             </div>
