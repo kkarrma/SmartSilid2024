@@ -6,7 +6,16 @@
       overflow: hidden;
       overflow-y: auto;
       overflow-x: auto;
-      max-height: 400px;
+
+      .log-time-span {
+        color: var(--bg1);
+        font-weight: bold;
+        padding: 2px 20px;
+        border-radius: 20px;
+        display: inline-block;
+        min-width: 45px; 
+        text-align: center;
+      }
     }
     
     .sched-list-table {
@@ -176,6 +185,14 @@
     .date-items {
       display: block;
       gap: 10px;
+
+      .three-div-header {
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+      }
 
       .back-sched-div {
         display: flex;

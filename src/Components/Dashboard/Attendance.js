@@ -28,6 +28,7 @@
     const [viewPastSemList, setViewPastSemList] = useState(false);
     const [pastSemList, setPastSemList] = useState([]);
     const [selectedSemester, setSelectedSemester] = useState('');
+    const [sortBy, setSortBy] = useState('asc_by_name');
       
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
@@ -98,7 +99,15 @@
       }
     };
 
-    const fetchAttendance = async (scheduleId) => {
+    const fetchAttendance = async (scheduleId, sortBy = "asc_by_name") => {
+      setLoading(true);
+      var selectedAttendanceId = 0; 
+      if (selectedAttendance != null) {
+        selectedAttendanceId = selectedAttendance.date_id;
+      }
+
+      setSelectedAttendance(null)
+
       const accessToken = localStorage.getItem('accessToken');
       try {
         const response = await fetch(`${API_BASE_URL}/get_attendance_info`, {
@@ -107,7 +116,10 @@
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ schedule_id: scheduleId }),
+          body: JSON.stringify({ 
+            schedule_id: scheduleId,
+            sort_by: sortBy 
+          }),
         });
 
         if (response.status === 401) {
@@ -118,7 +130,7 @@
             window.location.reload();
           }
           else {
-            return fetchAttendance(scheduleId);
+            return fetchAttendance(scheduleId, sortBy);
           }
         }
 
@@ -126,8 +138,17 @@
         if (response.ok) {
           setAttendanceData(data.attendance || []);
           setDates(data.date || []);
+
+          if (selectedAttendanceId != 0){
+            const selectedAttendance_local = data.attendance.find(attendance => attendance.date_id === selectedAttendanceId);
+            setSelectedAttendance(selectedAttendance_local);
+            console.log(selectedAttendance);
+          }
+          
+          setLoading(false);
         }
       } catch (error) {
+        console.log('Error fetching attendance:', error);
         console.error('Error fetching attendance:', error);
       }
     };
@@ -229,6 +250,10 @@
       try {
         var params = ""; 
 
+        if (semester_id == null && schedule_id == null && schedule_date == null) {
+          return showAlertModal('Error in fetching schedule: Please try again.', () => setIsModalOpen(false));
+        }
+
         if (semester_id != null && schedule_id == null && schedule_date == null) {
           params += `semester_id=${semester_id}`;
           //console.log(`11111PARAMASSSSSS: ${params}`);
@@ -250,7 +275,7 @@
           return showAlertModal('Error in fetching schedule: Please try again.', () => setIsModalOpen(false));
         }
 
-        const response = await fetch(`${API_BASE_URL}/attendance-report/excel?${params}`, {
+        const response = await fetch(`${API_BASE_URL}/attendance-report/excel?${params}&sort_by=${sortBy}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
@@ -293,6 +318,51 @@
       }
     };
 
+    const downloadSummaryReport = async (schedId) => {
+      const accessToken = localStorage.getItem('accessToken');
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cumulative-report/excel?schedule_id=${schedId}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.status === 401) {  
+          const failedRefresh = await handleTokenRefresh();
+
+          if ( failedRefresh === 0){
+            Navigate("/");
+            window.location.reload();
+          }
+          else {
+            return downloadSummaryReport(schedId);
+          }
+        }
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', 'report.xlsx'); // Default filename
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+        } else {
+          // Handle unsuccessful responses
+          const errorMessage = await response.text();
+          console.error('Error downloading report:', errorMessage);
+          showAlertModal(`Error downloading report: ${errorMessage}`, () => setIsModalOpen(false));
+        }
+      } catch (error) {
+          // Handle any other errors (network issues, etc.)
+          console.error('Download report error:', error);
+          showAlertModal(`Download report error: ${error.message}`, () => setIsModalOpen(false));
+      }
+    };
+
 
     const weekdayMap = {
       M: 'Monday',
@@ -324,7 +394,8 @@
       setSelectedDate(prevDate => {
         const newSelectedDate = prevDate === date ? '' : date;
         setIsSelected(newSelectedDate !== '');
-        const selectedAttendance = attendanceData.find(attendance => attendance.date === newSelectedDate);
+        const selectedAttendance = attendanceData.find(
+          (attendance) => attendance.date === newSelectedDate);
         setSelectedAttendance(selectedAttendance || null);
         setIsViewSummary(false);
 
@@ -538,10 +609,30 @@
                 </div>
 
                 {isSelected && selectedDate && attendanceData ? (
-                  <>  
-                    <h4 style={{ fontSize: '.8rem', textAlign: 'center', fontWeight: 'normal' }}>Attendance: 
-                      &nbsp; <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--bg6)' }}>{selectedDate}</span>
-                    </h4>
+                  <>
+                    <div className='three-div-header'>
+                      <div></div>  
+                      <div>
+                        <h4 style={{ fontSize: '.8rem', textAlign: 'center', fontWeight: 'normal' }}>Attendance: 
+                          &nbsp; <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--bg6)' }}>{selectedDate}</span>
+                        </h4>
+                      </div>  
+                      <div>
+                        <select 
+                          onChange={(e) => {
+                            fetchAttendance(selectedSchedule.id, e.target.value)
+                            console.log(e.target.value);
+                            setSortBy(e.target.value)
+                          }}
+                        >
+                          <option value="asc_by_name">Alphabetical (Ascending)</option>
+                          <option value="desc_by_name">Alphabetical (Descending)</option>
+                          <option value="asc_by_time">Time (Ascending)</option>
+                          <option value="desc_by_time">Time (Descending)</option>
+                        
+                        </select>  
+                      </div>  
+                    </div>
                     <div className="attendance-table">
                       <table>
                         <thead>
@@ -551,19 +642,18 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {selectedAttendance.attendees.map((attendee, index) => (
+                          {loading === true && selectedAttendance ===null ? <tr><td colSpan="2">Loading...</td></tr> : selectedAttendance.attendees.map((attendee, index) => (
                             <tr key={index}>
                               <td>{attendee.fullname}</td>
                               <td>
-                                <span style={{
-                                  color: 'white',
-                                  fontWeight: 'bold',
-                                  backgroundColor: attendee.attendance_position === 'absent' ? "var(--del-btn)" :
-                                                  attendee.attendance_position === 'late' ? "var(--bg4)" :
-                                                  "var(--txt3)",
-                                  padding: '2px 20px',
-                                  borderRadius: '20px'
-                                }}>
+                                <span
+                                  className="log-time-span" 
+                                  style={{
+                                    backgroundColor: attendee.attendance_position === 'absent' ? "var(--del-btn)" :
+                                                    attendee.attendance_position === 'late' ? "var(--bg4)" :
+                                                    "var(--txt3)",
+                                  }}
+                                >
                                   {attendee.log_time ? formatTime(attendee.log_time) : '- -'}
                                 </span>
                               </td>
@@ -592,6 +682,7 @@
                     <h4 style={{ fontSize: '.8rem', textAlign: 'center', fontWeight: 'normal' }}>Attendance: 
                       &nbsp; <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--bg6)' }}>Cumulative Report</span>
                     </h4>
+                    
                     <div className="attendance-table">
                       <table>
                         <thead>
@@ -649,7 +740,15 @@
                           ))}
                         </tbody>
                       </table>
-                      <br/>
+                    </div>
+
+                    <br/>
+                      
+                    <h4 style={{ fontSize: '.8rem', textAlign: 'center', fontWeight: 'normal' }}>No. of Days: 
+                      &nbsp; <span style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--bg6)' }}>{attendanceSummary.number_classes}</span>
+                    </h4>
+
+                    <div className="attendance-table">
                       <table>
                         <thead>
                           <tr>
@@ -677,7 +776,7 @@
                           () => showAlertModal('Are you sure you want to download summary report for ' + selectedSchedule + '?', 
                           () => { 
                             setIsModalOpen(false)
-                            downloadReport(semesterId, selectedSchedule.id, selectedDate)
+                            downloadSummaryReport(selectedSchedule.id)
                           })
                         } 
                         disabled={loading}

@@ -465,6 +465,65 @@ function ComputerControl() {
     }
   }, [streamUrl, streamToken]);
 
+  const [isInputBlocking, setIsInputBlocking] = useState(false);
+
+  const handleBlockInput = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/input_block`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
+        },
+      });
+  
+      if (response.ok) {
+        const result = await response.text();
+        console.log(result);
+        
+        showAlertModal("Blocking successful.", () => {
+          setIsModalOpen(false);
+          fetchComputers();
+          setIsInputBlocking(true);
+        });
+      } else {
+        showAlertModal("Failed to block inputs.", () => setIsModalOpen(false));
+      }
+    } catch (error) {
+      showAlertModal("Error in blocking computer input.", () => setIsModalOpen(false));
+    }
+  };
+
+
+  const handleUnblockInput = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/input_unblock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`, 
+        },
+      });
+  
+      if (response.ok) {
+        const result = await response.text();
+        console.log(result);
+        
+        showAlertModal("Unblocking successful.", () => {
+          setIsModalOpen(false);
+          fetchComputers();
+          setIsInputBlocking(false);
+        });
+      } else {
+        showAlertModal("Failed to unblock inputs.", () => setIsModalOpen(false));
+      }
+    } catch (error) {
+      showAlertModal("Error in blocking computer input.", () => setIsModalOpen(false));
+    }
+  };
+
   return (
     <>
       <div className='computer-controls'>
@@ -497,27 +556,59 @@ function ComputerControl() {
 
           <form>
             <div className="controls-row filter-controls cont"> 
-              <h3 classame="cont-title">Computer Controls</h3>
-              <select onChange={handleAdminInputChange} value={adminInputValue}>
-                <option value="">Select Admin PC</option>
-                {pcs.map((pc) => (
-                  <option key={pc} value={pc}>
-                    {pc}
-                  </option>
-                ))}
-              </select>
-              <button type="button" 
-                onClick={() => showAlertModal('Are you sure you want to asign this computer as Admin PC?', 
-                  () => {
-                    setIsModalOpen(false)
-                    handleSetComputerAdmin()
-                  }
-                )}
-              
-                // disabled={!adminInputValue}  
-              >
-                Set Admin
-              </button>
+              <div className="set-admin-div">
+                <h3 classame="cont-title">Computer Controls</h3>
+                <select onChange={handleAdminInputChange} value={adminInputValue}>
+                  <option value="">Select Admin PC</option>
+                  {pcs.map((pc) => (
+                    <option key={pc} value={pc}>
+                      {pc}
+                    </option>
+                  ))}
+                </select>
+                <button type="button" 
+                  onClick={() => showAlertModal('Are you sure you want to asign this computer as Admin PC?', 
+                    () => {
+                      setIsModalOpen(false)
+                      handleSetComputerAdmin()
+                    }
+                  )}
+                
+                  // disabled={!adminInputValue}  
+                >
+                  Set Admin
+                </button>
+              </div>
+              <div className='block-input-div'>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    showAlertModal(`Are you sure you want to activate Input Blocking?`, 
+                      () => {
+                        setIsModalOpen(false);
+                        handleBlockInput();
+                      }
+                    );
+                  }}
+                  // disabled={isInputBlocking === true}
+                  >
+                  Block Input
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    showAlertModal(`Are you sure you want to deactivate Input Blocking?`, 
+                      () => {
+                        setIsModalOpen(false);
+                        handleUnblockInput();
+                      }
+                    );
+                  }}
+                  // disabled={isInputBlocking === false}
+                >
+                  Unblock Input
+                </button>
+              </div>
             </div>
             
             <div className='computer-list cont'>
