@@ -482,11 +482,11 @@ function ComputerControl() {
         const result = await response.text();
         console.log(result);
         
-        showAlertModal("Blocking successful.", () => {
-          setIsModalOpen(false);
-          fetchComputers();
-          setIsInputBlocking(true);
-        });
+        // showAlertModal("Blocking successful.", () => {
+        //   setIsModalOpen(false);
+        // });
+        fetchComputers();
+        setIsInputBlocking(true);
       } else {
         showAlertModal("Failed to block inputs.", () => setIsModalOpen(false));
       }
@@ -583,7 +583,7 @@ function ComputerControl() {
                 <button 
                   type="button" 
                   onClick={() => {
-                    showAlertModal(`Are you sure you want to activate Input Blocking?`, 
+                    showAlertModal(`Are you sure you want to activate Input Blocking? This may take a while...`, 
                       () => {
                         setIsModalOpen(false);
                         handleBlockInput();
